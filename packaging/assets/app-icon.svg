@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Parquet Viewer</title>
+  <rect x="80" y="85" width="864" height="864" rx="196" fill="#1C2D48" opacity=".09"/>
+  <rect x="80" y="78" width="864" height="864" rx="196" fill="#FFFFFF" stroke="#DFE4EB" stroke-width="4"/>
+  <!-- One header and two columns form a table turned onto its corner. -->
+  <g transform="rotate(-45 512 512)">
+    <rect x="288" y="288" width="448" height="128" rx="32" fill="#315FF5"/>
+    <g fill="#183247">
+      <rect x="288" y="472" width="194" height="264" rx="36"/>
+      <rect x="542" y="472" width="194" height="264" rx="36"/>
+    </g>
+  </g>
+</svg>

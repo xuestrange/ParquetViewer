@@ -1,0 +1,15 @@
+# Cargo builds, generated test data, and local dependency caches
+/target/
+/vendor/gpui/target/
+/.cargo-home/
+
+# Packaged macOS apps, archives, and disk images
+/dist/
+
+# Finder metadata and AppleDouble sidecars
+.DS_Store
+._*
+
+# Bytecode from the Python build and profiling tools
+__pycache__/
+*.py[cod]

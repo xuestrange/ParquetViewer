@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-01",
+  "release_uuid": "967F582A-969E-3E1D-8700-4C90FB612730",
+  "tests": {
+    "passed": 207,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_reason": "Requires macOS audio output device"
+  },
+  "clippy_all_targets": "passed",
+  "fmt": "passed",
+  "deep_strict_signature": "passed",
+  "source_bytes": 5523882977,
+  "rows": 2600000,
+  "arrow_owned_bytes_before": 5632191967,
+  "arrow_owned_bytes_after": 5632191967,
+  "query_ms_before": 9870,
+  "query_ms_after": 3111,
+  "whole_harness_physical_footprint_peak_before": 8540723752,
+  "whole_harness_physical_footprint_peak_after": 6435017864,
+  "whole_harness_peak_spill_allocated_bytes_before": 2544467968,
+  "whole_harness_peak_spill_allocated_bytes_after": 0,
+  "sampling_interval_ms": 20,
+  "gui": {
+    "intermediate_uuid": "DF49B8F3-6B50-335C-AB9C-A3CD1BE8D75D",
+    "intermediate_checks": [
+      "Light and Dark, Filters, numeric filter id=27/source row28, Preview table/JSON, row drag freeze, first/last, sidebar resize, autosize"
+    ],
+    "final_checks": [
+      "Load All actual progress 71680/2600000 2 percent; completed2600000 rows with3035ms UI label",
+      "First/last full range including source row2600000/id2599999",
+      "Sidebar layout with2600000 rows",
+      "id>=2599998 returns2 rows with original row2599999 and2600000; UI label16ms",
+      "Nested summary wraps into3 complete lines; disable wrap returns28px rows",
+      "Same-window Struct table/JSON Preview of source row2599999",
+      "Follow System theme restored before final build launch"
+    ],
+    "scope": "UI timing labels are observations, not controlled benchmarks or FPS measurements"
+  },
+  "arithmetic_harness": {
+    "passed": 7,
+    "failed": 0,
+    "uses": "Exact production FixedHeightItems with real gpui Pixels/ListOffset; no drawing"
+  },
+  "unrun": [
+    "Vendor GPUI drawing tests: offline dev-dependency backtrace unavailable",
+    "Full media/GPU FPS/p95/cold-cache suite"
+  ],
+  "benchmark_scope": "Same source and release workload, warm OS caches; each whole harness includes warmup, full import, cancellation and retained-snapshot export. Cancellation is requested after actual work starts in each implementation. Disk values are sampled peak extent, not cumulative write volume. RSS and physical footprint differ."
+}

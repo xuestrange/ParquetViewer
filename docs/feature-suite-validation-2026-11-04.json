@@ -1,0 +1,286 @@
+{
+  "release_uuid": "81052792-50A2-388F-8E06-C99BEF2B843C",
+  "checks": {
+    "tests_passed": 236,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "fmt": true,
+    "strict_clippy_all_targets": true,
+    "archive_roundtrip_and_signature": true,
+    "installed_bundle_matches_dist": true,
+    "frozen_source_files": 52
+  },
+  "package": {
+    "measured_utc": "2026-11-04T14:17:22.647704+00:00",
+    "app": {
+      "path": "dist/Parquet Viewer.app",
+      "logical_file_bytes": 101978880,
+      "allocated_file_bytes": 101994496,
+      "regular_file_count": 7,
+      "files": [
+        {
+          "relative_path": "Contents/Info.plist",
+          "logical_bytes": 2786,
+          "allocated_bytes": 4096
+        },
+        {
+          "relative_path": "Contents/MacOS/parquet-viewer",
+          "logical_bytes": 101830720,
+          "allocated_bytes": 101834752
+        },
+        {
+          "relative_path": "Contents/PkgInfo",
+          "logical_bytes": 8,
+          "allocated_bytes": 4096
+        },
+        {
+          "relative_path": "Contents/Resources/LICENSE",
+          "logical_bytes": 35147,
+          "allocated_bytes": 36864
+        },
+        {
+          "relative_path": "Contents/Resources/ParquetViewer.icns",
+          "logical_bytes": 84282,
+          "allocated_bytes": 86016
+        },
+        {
+          "relative_path": "Contents/Resources/THIRD_PARTY_NOTICES.md",
+          "logical_bytes": 23009,
+          "allocated_bytes": 24576
+        },
+        {
+          "relative_path": "Contents/_CodeSignature/CodeResources",
+          "logical_bytes": 2928,
+          "allocated_bytes": 4096
+        }
+      ]
+    },
+    "executable": {
+      "path": "dist/Parquet Viewer.app/Contents/MacOS/parquet-viewer",
+      "logical_bytes": 101830720,
+      "allocated_bytes": 101834752,
+      "sha256": "d6bb2ff2451c504021fecc292c87fe5870ddf513e8f23cce82111829dd643550",
+      "mach_o": {
+        "format": "Mach-O 64-bit",
+        "architecture": "arm64",
+        "uuids": [
+          "81052792-50A2-388F-8E06-C99BEF2B843C"
+        ],
+        "segments": [
+          {
+            "name": "__PAGEZERO",
+            "file_offset": 0,
+            "file_bytes": 0,
+            "sections": []
+          },
+          {
+            "name": "__TEXT",
+            "file_offset": 0,
+            "file_bytes": 97042432,
+            "sections": [
+              {
+                "name": "__text",
+                "address_bytes": 76621472,
+                "zero_fill": false
+              },
+              {
+                "name": "__stubs",
+                "address_bytes": 3852,
+                "zero_fill": false
+              },
+              {
+                "name": "__stub_helper",
+                "address_bytes": 3876,
+                "zero_fill": false
+              },
+              {
+                "name": "__const",
+                "address_bytes": 4296224,
+                "zero_fill": false
+              },
+              {
+                "name": "__gcc_except_tab",
+                "address_bytes": 3952124,
+                "zero_fill": false
+              },
+              {
+                "name": "__cstring",
+                "address_bytes": 15088,
+                "zero_fill": false
+              },
+              {
+                "name": "__unwind_info",
+                "address_bytes": 1611112,
+                "zero_fill": false
+              },
+              {
+                "name": "__eh_frame",
+                "address_bytes": 10520804,
+                "zero_fill": false
+              }
+            ]
+          },
+          {
+            "name": "__DATA_CONST",
+            "file_offset": 97042432,
+            "file_bytes": 3702784,
+            "sections": [
+              {
+                "name": "__mod_init_func",
+                "address_bytes": 576,
+                "zero_fill": false
+              },
+              {
+                "name": "__const",
+                "address_bytes": 3689312,
+                "zero_fill": false
+              },
+              {
+                "name": "__got",
+                "address_bytes": 336,
+                "zero_fill": false
+              }
+            ]
+          },
+          {
+            "name": "__DATA",
+            "file_offset": 100745216,
+            "file_bytes": 32768,
+            "sections": [
+              {
+                "name": "__la_symbol_ptr",
+                "address_bytes": 2568,
+                "zero_fill": false
+              },
+              {
+                "name": "__data",
+                "address_bytes": 13928,
+                "zero_fill": false
+              },
+              {
+                "name": "__thread_vars",
+                "address_bytes": 816,
+                "zero_fill": false
+              },
+              {
+                "name": "__thread_data",
+                "address_bytes": 192,
+                "zero_fill": false
+              },
+              {
+                "name": "__thread_bss",
+                "address_bytes": 928,
+                "zero_fill": true
+              },
+              {
+                "name": "__common",
+                "address_bytes": 135248,
+                "zero_fill": true
+              },
+              {
+                "name": "__bss",
+                "address_bytes": 3728,
+                "zero_fill": true
+              }
+            ]
+          },
+          {
+            "name": "__LINKEDIT",
+            "file_offset": 100777984,
+            "file_bytes": 1052736,
+            "sections": []
+          }
+        ],
+        "scope": "Segment file_bytes are file-backed ranges. Section address_bytes can include zero-fill and are not added to package disk usage."
+      }
+    },
+    "limits": "Logical sizes count regular file data; allocation uses st_blocks and can depend on APFS/compression/cloning. Directory metadata, symlink payloads, resource forks and filesystem sharing are not modeled as occupied physical storage. ZIP size is a transfer artifact, not the extracted app size.",
+    "archive": {
+      "path": "dist/Parquet Viewer-macOS-arm64.zip",
+      "logical_bytes": 34615040,
+      "allocated_bytes": 34656256,
+      "sha256": "b382c717577a44f05757c6619cf44ed38b8f46684d2423f5808d400755ce475c",
+      "entries": 29,
+      "crc_check_passed": true,
+      "executable_and_info_match_app": true,
+      "expanded_entry_bytes": 101980673,
+      "payload_compressed_bytes": 34609086,
+      "archive_to_app_logical_ratio": 0.3394334199395012
+    }
+  },
+  "install": {
+    "installed_app": "/Applications/Parquet Viewer.app",
+    "backup_app": "target/installed-app-backups/20261104-222114/Parquet Viewer.app",
+    "files_match_dist": true,
+    "strict_signature_verified": true,
+    "installed_executable_sha256": "d6bb2ff2451c504021fecc292c87fe5870ddf513e8f23cce82111829dd643550"
+  },
+  "gui": {
+    "independent_debug_fixture": "target/demo/aggregation.parquet",
+    "debug_profile": {
+      "examined": 1000,
+      "nulls": 100,
+      "text_distinct": 3,
+      "category_counts": [
+        300,
+        300,
+        300
+      ]
+    },
+    "debug_find_original_row": 17,
+    "debug_jump_original_row": 500,
+    "debug_named_view_restore": {
+      "before_restore_rows": 200000,
+      "after_restore_rows": 1000
+    },
+    "debug_drilldown": {
+      "group": "华东",
+      "detail_rows": 300,
+      "first_source_rows": [
+        1,
+        4,
+        7,
+        13
+      ],
+      "restored_rows": 1000
+    },
+    "debug_csv": {
+      "summary_csv": "target/demo/feature-suite-summary-1793801742123.csv",
+      "summary_groups": 4,
+      "summary_counts": [
+        300,
+        300,
+        300,
+        100
+      ],
+      "detail_csv": "target/demo/feature-suite-detail-1793801777104.csv",
+      "detail_rows": 300,
+      "detail_fields": 9,
+      "all_detail_ids_category_text_and_nested_values_verified": true,
+      "all_nine_detail_fields_match_fixture_values": true
+    },
+    "debug_scope": "QA build preceded toolbar removal and compact Find modal layout. The two final UI changes were rechecked on the installed Release.",
+    "installed_release": {
+      "toolbar_labels_visible": 15,
+      "folder_removed_from_toolbar": true,
+      "folder_entry_in_file_menu": true,
+      "recent_file_open": true,
+      "saved_view_restored_after_process_restart_and_app_replacement": true,
+      "find_layout_and_original_row_17_verified": true,
+      "test_view_removed": true,
+      "screenshot": "target/feature-suite-final-toolbar.png"
+    },
+    "independent_qa_exited": true
+  },
+  "benchmark_records": {
+    "query_pairs": "target/compact-index-pairs-20261104/comparison.json",
+    "offset_index": "target/offset-index-release-20261104.json",
+    "sparse_aggregate": "target/sparse-aggregation-release-20261104.json",
+    "high_cardinality": "target/high-cardinality-profile-20261104.json",
+    "high_cardinality_resources": "target/high-cardinality-profile-20261104-system.json",
+    "wide_nested": "target/feature-suite-wide-release-20261104.json",
+    "wide_nested_resources": "target/feature-suite-wide-release-20261104-system.json"
+  },
+  "benchmark_scope": "Query, sparse aggregate, and wide probes were built from the same query/index/gather algorithms as the final app, before the final page-index geometry and reader row-count guard changes. Query pair uses full-window reads. OffsetIndex probe was rebuilt after the final geometry guards. Desktop activity and OS caches are uncontrolled. Stage times are backend measurements.",
+  "production_source_freeze": "target/feature-suite-source-freeze.json"
+}

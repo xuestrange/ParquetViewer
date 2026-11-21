@@ -1,0 +1,580 @@
+{
+  "recorded_utc": "2026-11-03T14:08:17.774545+00:00",
+  "tests": {
+    "passed": 218,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_reason": "Audio output hardware required",
+    "fmt": true,
+    "strict_clippy_all_targets": true,
+    "logs": [
+      "target/arrow-df-review-final-tests.log",
+      "target/arrow-df-review-final-fmt.log",
+      "target/arrow-df-review-final-clippy.log"
+    ]
+  },
+  "gui": {
+    "debug_default": {
+      "uuid": "56F9F486-E300-3B18-BB31-A460F48264A7",
+      "width_logical_px": 1280,
+      "chinese_single_row_all_16_labels_visible": true,
+      "english_two_rows_all_16_labels_visible": true,
+      "loaded_source": "target/demo/aggregation.parquet",
+      "loaded_rows": 1000,
+      "source_rows": 200000,
+      "fields": 9,
+      "fields_dialog_checked": true,
+      "range_dialog_in_one_and_two_row_layout_checked": true,
+      "runtime_layout_switch_checked": true
+    },
+    "debug_narrow": {
+      "uuid": "09F3382E-B444-3664-8BF2-419E7FF32513",
+      "width_logical_px": 1000,
+      "only_startup_bounds_changed": true,
+      "languages": [
+        "SimplifiedChinese",
+        "English",
+        "Turkish"
+      ],
+      "all_16_labels_visible": true,
+      "chinese_light_dark_checked": true,
+      "settings_menu_below_full_toolbar_checked": true
+    },
+    "debug_scope": "UI builds precede the final sparse nested-memory guard; toolbar and overlay sources are unchanged by that backend-only guard. These observations verify layout, not final Release export performance.",
+    "preferences_restored": {
+      "language": "SimplifiedChinese",
+      "theme": "System",
+      "date": "Local"
+    },
+    "qa_quit_requested": true,
+    "qa_exited_verified": true,
+    "temporary_caffeinate_used": false,
+    "final_release_smoke": {
+      "app": "/Applications/Parquet Viewer.app",
+      "uuid": "398FAD39-C852-3FB9-983B-0B1FC85D863C",
+      "installed_executable_sha256": "53da716f3f91dcbbff1f3e7642593d6a7e7fb51c782bd71049103bf60212d988",
+      "source": "target/demo/aggregation.parquet",
+      "source_rows": 200000,
+      "fields": 9,
+      "native_open_panel_and_fields_apply_checked": true,
+      "load_all_rows": 200000,
+      "filter": {
+        "condition": "category = 华东",
+        "rows": 60000,
+        "source_row_anchors": [
+          1,
+          4,
+          7,
+          13
+        ],
+        "id_anchors": [
+          0,
+          3,
+          6,
+          12
+        ]
+      },
+      "summary": {
+        "method": "Count rows",
+        "result": 60000,
+        "main_table_remains_detail": true
+      },
+      "first_last": {
+        "first_source_row": 1,
+        "first_id": 0,
+        "last_source_row": 199999,
+        "last_id": 199998,
+        "navigates_current_filtered_result": true
+      },
+      "export": {
+        "path": "target/demo/arrow-df-review-gui-398F.parquet",
+        "format": "Parquet",
+        "rows": 60000,
+        "columns": 9,
+        "all_typed_values_and_nulls_match_source_filter": true,
+        "verification": "Independent Parquet reader and Arrow array equality against source filtered by Arrow kernel",
+        "output_bytes": 670901,
+        "validation_report": "target/arrow-df-review-gui-export-validation.json"
+      },
+      "restart": {
+        "prior_process_exited_verified": true,
+        "recent_opens_field_picker": true,
+        "fields_apply_rows": 1000,
+        "load_all_rows": 200000
+      },
+      "initial_open_wait": {
+        "observed": true,
+        "localized_to": "File::open / system __open before Arrow decode",
+        "diagnostic_stack": "target/installed-schema-profile.txt",
+        "system_cause_confirmed": false,
+        "production_or_system_permission_changes_made_for_wait": false,
+        "native_panel_open_then_restart_recent_succeeded": true
+      },
+      "final_toolbar_screenshot": "target/arrow-df-review-final-toolbar.png",
+      "final_state": "Installed app running with one 200000-row fixture window, no sidebar; all QA apps exited.",
+      "scope": "Release correctness and Chinese 1280px toolbar checked in installed app. Narrow/multilingual and light/dark layout checks belong to the separately identified debug builds. No GUI timings used as paired performance evidence."
+    }
+  },
+  "performance": {
+    "comparison": "target/arrow-df-review-comparison-20261103.json",
+    "comparison_sha256": "2f36ad876994c0c0aec51bd5524cfd1055c720a1760a9108f62d50a951b6f206",
+    "runner": "target/arrow-df-review-runner.json",
+    "runner_sha256": "dfd11e35359b2a3fa785682bdea0f5c3e8922adef5f4884f5afd491b148022c5",
+    "provenance": {
+      "binaries_hashed_at_comparison_time": {
+        "query_before": {
+          "path": "target/release/examples/__streaming_baseline",
+          "sha256": "6a41e46d2514f74a8b438542d7a4927c45b12c8927006635be5065612e174fa3"
+        },
+        "query_after": {
+          "path": "target/release/examples/check_streaming_performance",
+          "sha256": "7b85876c08841f67097242de4fc7a0576555a93a811084521869629e9d5d01f5"
+        },
+        "gather_before": {
+          "path": "target/release/examples/__gather_baseline",
+          "sha256": "aba9e741cd6e187b88839502f41e38bca056b06771e8505920bc88c6a9efebde"
+        },
+        "gather_after": {
+          "path": "target/release/examples/check_gather_performance",
+          "sha256": "6b4bed4f1c1c179ddbd74f45107199274531a95154da1992ffae695e41b04cf9"
+        }
+      },
+      "before_freeze": {
+        "path": "target/arrow-df-review-before-source-freeze.json",
+        "sha256": "2c8bcf93710e8f14871bcb551c206e8df82e1389817a61f529a8837e97ec8d26",
+        "baseline_backend_files_match": true
+      },
+      "after_freeze": {
+        "path": "target/arrow-df-review-source-freeze.json",
+        "sha256": "79783a8633a3ac609b5abcda17a0782afa13f769217f31a4507c7154f4d4b8f5",
+        "current_backend_and_workload_files_match": true,
+        "checked_files": [
+          "src/aggregation.rs",
+          "src/arrow_types.rs",
+          "src/columnar.rs",
+          "src/datafusion_session.rs",
+          "src/engine.rs",
+          "src/export.rs",
+          "src/filtering.rs",
+          "src/nested.rs",
+          "src/parquet_compat.rs",
+          "src/resource_budget.rs",
+          "src/source_guard.rs",
+          "src/source_loader.rs",
+          "Cargo.toml",
+          "Cargo.lock",
+          "examples/check_streaming_performance.rs",
+          "examples/check_gather_performance.rs"
+        ]
+      },
+      "scope": "Binary hashes identify the files present when comparison runs. Build provenance and actual process launch order must be recorded by the benchmark runner; timestamps and raw filenames do not prove execution order or source-to-binary correspondence. UI-only source edits are excluded from this backend verification."
+    },
+    "query_fixture": {
+      "source": "target/demo/index-memory.parquet",
+      "rows": 10000000,
+      "source_metadata": {
+        "bytes": 20011858,
+        "modified_ns": 1793701645973313928
+      }
+    },
+    "query_correctness": {
+      "all_phase_rows_values_and_source_row_anchors_match_expected": true,
+      "source_size_mtime_equal_across_all_six_reports": true,
+      "source_metadata_unchanged_each_run": true,
+      "sorted_export_rows_checked_per_run": 32345,
+      "export_file_bytes": {
+        "before": [
+          92358,
+          92358,
+          92358
+        ],
+        "after": [
+          92358,
+          92358,
+          92358
+        ]
+      },
+      "export_file_sizes_equal": true,
+      "export_scope": "The same-body workload exhaustively checks decoded sorted export IDs and row count before producing its report. Equal file size alone is not a binary content comparison."
+    },
+    "phase_metrics": {
+      "load": {
+        "query_milliseconds": {
+          "before": [
+            29.485,
+            16.254082999999998,
+            14.828084
+          ],
+          "after": [
+            17.314209,
+            14.993917000000001,
+            15.138333000000001
+          ],
+          "before_median": 16.254082999999998,
+          "after_median": 15.138333000000001,
+          "median_delta_after_minus_before": -1.1157499999999967,
+          "median_reduction_percent": 6.864429079142741
+        },
+        "post_publish_physical_footprint_bytes": {
+          "before": [
+            103334488,
+            104088152,
+            102842968
+          ],
+          "after": [
+            105235032,
+            103924312,
+            101745240
+          ],
+          "before_median": 103334488,
+          "after_median": 103924312,
+          "median_delta_after_minus_before": 589824,
+          "median_reduction_percent": -0.5707910412252684
+        }
+      },
+      "broad_filter": {
+        "query_milliseconds": {
+          "before": [
+            123.995916,
+            113.773291,
+            112.742708
+          ],
+          "after": [
+            117.497125,
+            106.76879100000001,
+            108.790458
+          ],
+          "before_median": 113.773291,
+          "after_median": 108.790458,
+          "median_delta_after_minus_before": -4.982832999999999,
+          "median_reduction_percent": 4.379615774672457
+        },
+        "post_publish_physical_footprint_bytes": {
+          "before": [
+            263193320,
+            267010768,
+            264241872
+          ],
+          "after": [
+            185500320,
+            185041592,
+            183730848
+          ],
+          "before_median": 264241872,
+          "after_median": 185041592,
+          "median_delta_after_minus_before": -79200280,
+          "median_reduction_percent": 29.9726456676026
+        }
+      },
+      "repeat_filter": {
+        "query_milliseconds": {
+          "before": [
+            105.825375,
+            107.112708,
+            108.974583
+          ],
+          "after": [
+            105.143958,
+            107.10816700000001,
+            107.551333
+          ],
+          "before_median": 107.112708,
+          "after_median": 107.10816700000001,
+          "median_delta_after_minus_before": -0.004540999999989026,
+          "median_reduction_percent": 0.004239459616676881
+        },
+        "post_publish_physical_footprint_bytes": {
+          "before": [
+            343458584,
+            347554560,
+            344982272
+          ],
+          "after": [
+            266142416,
+            265552616,
+            264618704
+          ],
+          "before_median": 344982272,
+          "after_median": 265552616,
+          "median_delta_after_minus_before": -79429656,
+          "median_reduction_percent": 23.024271809538085
+        }
+      },
+      "descending": {
+        "query_milliseconds": {
+          "before": [
+            286.7275,
+            268.95075,
+            242.21741699999998
+          ],
+          "after": [
+            240.825042,
+            240.742208,
+            243.687542
+          ],
+          "before_median": 268.95075,
+          "after_median": 240.825042,
+          "median_delta_after_minus_before": -28.12570800000003,
+          "median_reduction_percent": 10.45756816071345
+        },
+        "post_publish_physical_footprint_bytes": {
+          "before": [
+            733742136,
+            736363552,
+            737936416
+          ],
+          "after": [
+            659014640,
+            656835592,
+            660440048
+          ],
+          "before_median": 736363552,
+          "after_median": 659014640,
+          "median_delta_after_minus_before": -77348912,
+          "median_reduction_percent": 10.504174438009121
+        }
+      },
+      "clear": {
+        "query_milliseconds": {
+          "before": [
+            0.382208,
+            0.25341600000000003,
+            0.258292
+          ],
+          "after": [
+            0.22175,
+            0.17725,
+            0.167042
+          ],
+          "before_median": 0.258292,
+          "after_median": 0.17725,
+          "median_delta_after_minus_before": -0.08104200000000003,
+          "median_reduction_percent": 31.376116952906024
+        },
+        "post_publish_physical_footprint_bytes": {
+          "before": [
+            733742136,
+            736379936,
+            737936416
+          ],
+          "after": [
+            659014640,
+            656835592,
+            660440048
+          ],
+          "before_median": 736379936,
+          "after_median": 659014640,
+          "median_delta_after_minus_before": -77365296,
+          "median_reduction_percent": 10.506165665002584
+        }
+      }
+    },
+    "whole_run_metrics": {
+      "open_milliseconds": {
+        "before": [
+          2.030083,
+          0.419208,
+          0.485667
+        ],
+        "after": [
+          2.0169580000000003,
+          0.396791,
+          0.49229199999999995
+        ],
+        "before_median": 0.485667,
+        "after_median": 0.49229199999999995,
+        "median_delta_after_minus_before": 0.0066249999999999365,
+        "median_reduction_percent": -1.3641033877121436
+      },
+      "sum_of_five_query_phase_milliseconds": {
+        "before": [
+          546.415999,
+          506.34424800000005,
+          479.021084
+        ],
+        "after": [
+          481.00208399999997,
+          469.79033300000003,
+          475.33470800000003
+        ],
+        "before_median": 506.34424800000005,
+        "after_median": 475.33470800000003,
+        "median_delta_after_minus_before": -31.009540000000015,
+        "median_reduction_percent": 6.124201098853998
+      },
+      "all_query_phases_observed_rss_peak_bytes": {
+        "before": [
+          758022144,
+          760659968,
+          762216448
+        ],
+        "after": [
+          682901504,
+          680706048,
+          684326912
+        ],
+        "before_median": 760659968,
+        "after_median": 682901504,
+        "median_delta_after_minus_before": -77758464,
+        "median_reduction_percent": 10.222499838456072
+      },
+      "all_query_phases_observed_physical_footprint_peak_bytes": {
+        "before": [
+          733758520,
+          736379936,
+          737952800
+        ],
+        "after": [
+          659031024,
+          656851976,
+          660456432
+        ],
+        "before_median": 736379936,
+        "after_median": 659031024,
+        "median_delta_after_minus_before": -77348912,
+        "median_reduction_percent": 10.503940726597962
+      },
+      "all_query_phases_max_sampled_spill_logical_bytes_present": {
+        "before": [
+          0,
+          0,
+          0
+        ],
+        "after": [
+          0,
+          0,
+          0
+        ],
+        "before_median": 0,
+        "after_median": 0,
+        "median_delta_after_minus_before": 0,
+        "median_reduction_percent": null
+      },
+      "all_query_phases_max_sampled_spill_allocated_bytes_present": {
+        "before": [
+          0,
+          0,
+          0
+        ],
+        "after": [
+          0,
+          0,
+          0
+        ],
+        "before_median": 0,
+        "after_median": 0,
+        "median_delta_after_minus_before": 0,
+        "median_reduction_percent": null
+      }
+    },
+    "gather_correctness": {
+      "all_six_reports_verify_every_selected_id_order_scalar_null_text_and_nested_value_where_present": true,
+      "result_row_counts_and_index_logical_bytes_match": true,
+      "case_sets_and_input_column_counts_match": true
+    },
+    "gather_cases": [
+      "contiguous_export_8192",
+      "single_batch_sparse_duplicate_materialize",
+      "flat_single_batch_sparse_duplicate_materialize",
+      "cross_batch_fallback_export_8192"
+    ],
+    "scope": [
+      "Three raw process reports per version are compared; process-launch independence and execution order come from the runner, not inferred from numeric output.",
+      "No statistical significance or confidence interval is inferred from three runs. Negative reduction percentages are regressions and are retained.",
+      "OS page cache, CPU cache, allocator retention, memory compression and unrelated desktop activity can affect observations; runner notes must describe controls actually applied.",
+      "Nominal 5ms query sampling can miss short peaks; reported observed maxima also include the before and after-publish boundaries.",
+      "Zero sampled spill bytes only means none was observed simultaneously present; it does not prove zero cumulative disk writes.",
+      "The query fixture is a narrow table that emphasizes index overhead; it does not establish the same percentage improvement for wide Struct/Binary-heavy data.",
+      "Gather results are kernel/iterator work with a generated shared source and separate allocation accounting, not end-to-end export, operating-system RAM, or disk performance."
+    ]
+  },
+  "package": {
+    "record": "target/arrow-df-review-package-final.json",
+    "uuid": "398FAD39-C852-3FB9-983B-0B1FC85D863C",
+    "executable_sha256": "53da716f3f91dcbbff1f3e7642593d6a7e7fb51c782bd71049103bf60212d988",
+    "app_logical_file_bytes": 101864224,
+    "zip_bytes": 34533292,
+    "zip_sha256": "8a77169dcaa5be2cd2a40fe406595825b3d09ad9f55012631c0f8464cc6e519e",
+    "checks": {
+      "frozen_sources_match": true,
+      "roundtrip_all_files_match_dist_and_installed": true,
+      "roundtrip_deep_strict_signature_verified": true
+    }
+  },
+  "installation": {
+    "installed_app": "/Applications/Parquet Viewer.app",
+    "backup_app": "target/installed-app-backups/20261103-214331/Parquet Viewer.app",
+    "files_match_dist": true,
+    "strict_signature_verified": true,
+    "installed_executable_sha256": "53da716f3f91dcbbff1f3e7642593d6a7e7fb51c782bd71049103bf60212d988",
+    "final_release_gui_verified": true,
+    "gui_validation_record": "docs/arrow-datafusion-review-validation-2026-11-03.json",
+    "restart_recent_and_load_all_verified": true
+  },
+  "source_sha256": {
+    "src/filter_controls.rs": "0b6d258cdea096b95d9373386b413f40321ab4bd9289a919ba66297828e8d77f",
+    "src/resource_budget.rs": "afe9fe349d2d803c1cadb0d9f64fb79a91e73f7d114eb48f91e74bfb72891f44",
+    "src/parquet_compat.rs": "aad2ef8eecefc88b3dacf6492bc1561bd7a307991df051b45ec874c338aec1f1",
+    "src/table_state.rs": "c8aaf374128836bc442f00c7d55c4d9acf3a49031178547eba7d7a95de84d418",
+    "src/export.rs": "c63243aee8669e2526404441c8d19b47bd99c745e8da69e2d3131e3452b14fb5",
+    "src/formatting.rs": "9327b34d623c0a2a21d2b4834513e774a43032c3fd3ce85ec7b3dbac07941780",
+    "src/i18n_zh_dynamic.rs": "205851052bf971cb41cb782f8c1b0507813c9819e8637289908ee8fb468f20ec",
+    "src/icons.rs": "131560a6f16a9774906e85220a549a03a2dab6d342c9a144ff526415962287fc",
+    "src/filtering.rs": "2663c4d3f0db3aa9d7e76eb420d3fe2cc8e38cca22573964f9125e9dbfee2de4",
+    "src/date_picker.rs": "fdb2b281e97a69358c71cc80a2d56f48b6606dfe2c29468028e49dac3605091f",
+    "src/source_loader.rs": "ddcd339b499d2079511dcc0df7b987c71b8f8c37fb3cf1d7de7332b122fd4057",
+    "src/process_memory.rs": "e2501e33b3d94f851b4386d73537b135f151c2722ba74ec0bdce11c60c84b685",
+    "src/i18n_zh.rs": "ad6a3f43de48c6089388eb5f0781e2d36f3c31b53d10dde960b88d7caadb4bde",
+    "src/metadata.rs": "6034befad1489db41fb7fa575dab02b8f1486157a336e905d0af876e02f94549",
+    "src/datafusion_session.rs": "b332f652a60c37d9972a17be55bae2c935e7e6b36152b7b21496668ae54e4eb6",
+    "src/columnar.rs": "9e59ce118104b7e94c903fcab6162481a775d8c3b136f348ba9f5aa0add430be",
+    "src/aggregation.rs": "6772f94a198241bfbeba2f6a567d9f26e462c93cc167dd5203bb72b0d37e1606",
+    "src/aggregation_editor.rs": "9c8bbb268d105e70f499f86c2804d4cccc0acf95771e9f4a811abf884d995257",
+    "src/theme.rs": "6f128c7e864684a82dd8e7eb35d35599bfdd95bf6cf60d7063b6dccf30e9b4f6",
+    "src/filter_editor.rs": "79649051e9776921115c0f05811d2e9a839b5506c8a7fd604c57f2781b6c35fa",
+    "src/test_support.rs": "e3381627ea9cba9c8867b1f1d4b16215bdd039d02b641fc9ea2758d8b624029d",
+    "src/source_guard.rs": "c88b9a0759ea5c803eefd170f3cd8de89fae2e5cf4d2c36ec2a993ec730205a8",
+    "src/text_input.rs": "4a893c924584e5bde881034f9ad702cd3a3d1d8e3e3631d80ca5b76d46494a22",
+    "src/nested.rs": "eb1780a9f0f5070a1d04ff85f7dc58af457ccc7d1ec1ab9ebdf578c65e29d869",
+    "src/arrow_types.rs": "42d4c604c6cd1ce8fb2cd3b9d158930fb0e44ebe146bd2c0d131b90bff2902d3",
+    "src/selection.rs": "027083a138de00150ee7f8bf07c5d19b982cce907158ba76626c5409ed15859d",
+    "src/aggregation_controls.rs": "16db6f771617ad4981f2c05fb704255968397c0349e1570a904609c922c9a4f5",
+    "src/table_interactions.rs": "fa07844a789eff6313e828fa0f0f36c7f349353d8bf169a4ca7213624368f147",
+    "src/audio.rs": "b2f4eecaf6e60e2c04eaf2eda4ca15ce4cc83246d38127a239484a841b454e8f",
+    "src/table_view.rs": "f8b22d98333ac00e1ac9d6a31fc53b39dabfe0305ef9dedc2bbd6f19d685109e",
+    "src/main.rs": "db3646e14384dbad2c607c616bc2d446ad61cf0743520a5441d8fc6274680cac",
+    "src/macos_icon.rs": "1184b5ee97f589264122d5f9b19d55cad2155c2d31a0a5ddc0b3f8459219e0d8",
+    "src/window_chrome.rs": "28663a79df1f0d9f289bd4ff26c605f32d8302fc18f533e90a8ed6ec88c4cf78",
+    "src/display_cache.rs": "925aefd65a4c4806054e2d60dc82c23b31b7303242bcec9701ab33b96872e88f",
+    "src/peek.rs": "0f211ba0b3be3126c49ceacb1e168644cecdefaf47e5217e2610d9284a1c03e6",
+    "src/i18n.rs": "c0ee0d3ada1b796c48fce14c582ce00f2747bbec8d2d061602bee25bbc212f9a",
+    "src/settings_menu.rs": "4e984cbef50e4635a4788c7ca542cd8700b6164ff6bdc03a6bbb8943a3fdc5f5",
+    "src/app.rs": "5a363710e2a2dff4809558e806d088908edc131648e2bf92319b9e9075b26c7c",
+    "src/toolbar.rs": "3c47353f643b45806feb5806eca1a449855626ba9d63d2430b42d6802e76506d",
+    "src/engine.rs": "8fe7d8cf5bad10321dcf27f205a1fde945623e01f30528cb861cd89fd68c2609",
+    "Cargo.toml": "0f62a9aea856796aebdd1072df1d386593eb938769b4d98bfebe02776bbd7fb4",
+    "Cargo.lock": "b7e20681fa0e06538f38bc8fc92aa756690f6e03d42c1c3685052c18d1341340",
+    "examples/check_streaming_performance.rs": "bb4eb789c1b1513f2157cae9cbff707323fc1edcf7ada00ab7f958798ac148ce",
+    "examples/check_gather_performance.rs": "c69df914e825ae79e24255352ea608134099c26e745498cc58ddacc66f6fdc82"
+  },
+  "temporary_example_cleanup": {
+    "preserved_sources": [
+      {
+        "source": "examples/__streaming_baseline.rs",
+        "preserved": "target/arrow-df-review-validation-sources/__streaming_baseline.rs",
+        "sha256": "8966927e5a271adf02aa0c9df7b275f5cce0650226e8f251eac1b5aa6596997d"
+      },
+      {
+        "source": "examples/__gather_baseline.rs",
+        "preserved": "target/arrow-df-review-validation-sources/__gather_baseline.rs",
+        "sha256": "bd9a4aa3ce006dc785e9378e8451345cc8af665f81132debc41b366b18ca92f6"
+      },
+      {
+        "source": "examples/__verify_gui_export.rs",
+        "preserved": "target/arrow-df-review-validation-sources/__verify_gui_export.rs",
+        "sha256": "d3d519a6bf33676af9bb191ce86b28c8833a5918b5e59dc2f20284dd381e60b9"
+      }
+    ],
+    "production_sources_unchanged": true
+  }
+}

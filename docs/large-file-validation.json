@@ -1,0 +1,2384 @@
+{
+  "parquet": {
+    "source": "target/large-data/struct-5gb.parquet",
+    "file_bytes": 5523882977,
+    "source_rows": 2600000,
+    "open_ms": 26,
+    "first_1000_with_struct_ms": 53,
+    "loaded_window_filter_sort_ms": 14,
+    "last_1000_with_struct_ms": 18,
+    "all_five_exports": true,
+    "all_five_source_overwrites_blocked": true,
+    "source_sha256_before_and_after": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+    "source_mtime_unchanged": true,
+    "scope": "windowed access, typed nested values, filter/sort and derived exports; no full 5GB materialization",
+    "maximum_resident_set_bytes": 170721280,
+    "swaps": 0
+  },
+  "delimited_text": {
+    "source": "target/large-data/text-5gb.records",
+    "file_bytes": 5468522249,
+    "source_rows": 2600000,
+    "delimiter": "|",
+    "arbitrary_extension": "records",
+    "sniff_ms": 69,
+    "sampled_bytes": 2094369,
+    "open_ms": 29,
+    "first_1000_ms": 43,
+    "last_1000_sequential_offset_ms": 7695,
+    "initial_total_unknown": true,
+    "exact_total_only_after_EOF": true,
+    "window_filter_sort_export": true,
+    "source_overwrite_blocked": true,
+    "source_sha256_before_and_after": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+    "source_mtime_unchanged": true,
+    "maximum_resident_set_bytes": 544440320,
+    "swaps": 0
+  },
+  "post_GUI_source_checks": [
+    {
+      "source": "target/large-data/struct-5gb.parquet",
+      "bytes": 5523882977,
+      "sha256_after_final_GUI": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+      "matches_generated_source": true,
+      "mtime_ns_observed_after_GUI": 1793370182628594905
+    },
+    {
+      "source": "target/large-data/text-5gb.records",
+      "bytes": 5468522249,
+      "sha256_after_final_GUI": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+      "matches_generated_source": true,
+      "mtime_ns_observed_after_GUI": 1793370489206921090
+    }
+  ],
+  "conditions": {
+    "local_single_run": true,
+    "warm_cache_after_sha256": true,
+    "validation_processes_ran_concurrently": true,
+    "not_full_dataset_materialization": true
+  },
+  "application": {
+    "architecture": "arm64",
+    "mach_o_uuid": "084AABC9-F85C-392F-97C2-1AAF4F32992F",
+    "unit_tests_passed": 84,
+    "unit_tests_failed": 0,
+    "unit_tests_ignored": 1,
+    "strict_clippy": "passed",
+    "signature": "ad hoc; strict verification passed"
+  },
+  "recorded_at_UTC": "2026-10-30T14:52:59.442875+00:00",
+  "input_layout_followup": {
+    "current_application_mach_o_uuid": "26CD9194-79B9-3969-A676-AF5D8D232819",
+    "removed_duplicate_outer_border": true,
+    "single_line_height_pixels": 28,
+    "text_input_regressions_passed": 3,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "GUI_checked": [
+      "filter/offset/count",
+      "field search",
+      "custom date",
+      "six import wizard inputs"
+    ]
+  },
+  "ui_refresh_followup": {
+    "application_mach_o_uuid": "3CCA8F2F-CB50-37E1-AC26-D9D8BFBA4FEE",
+    "shared_light_and_dark_palette": true,
+    "text_input_regressions_passed": 3,
+    "localization_regressions_passed": 4,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "GUI_checked": [
+      "light and dark data grid",
+      "Chinese filter and focused input",
+      "Fields",
+      "export format cards",
+      "delimited import wizard",
+      "nested Quick Peek"
+    ],
+    "previous_large_file_measurements_rerun": false
+  },
+  "logo_followup": {
+    "application_mach_o_uuid": "A0B909AE-5AE3-3F05-9B2F-B38D5A3CCA18",
+    "GUI_checked": [
+      "toolbar logo",
+      "welcome logo",
+      "About logo"
+    ],
+    "native_application_icon_set_at_startup": true,
+    "bundle_icns_decoded": true,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "Finder_Dock_visual_confirmation": false,
+    "previous_large_file_measurements_rerun": false
+  },
+  "visual_filter_followup": {
+    "application_mach_o_uuid": "7D0F9E11-7C3C-3249-8102-8473B3E36A82",
+    "tests_passed": 92,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "new_model_engine_tests": 8,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "GUI_debug_validation": {
+      "loaded_rows": 10,
+      "id_between_2_and_4_AND_active_true": 2,
+      "id_between_2_and_4_OR_active_true": 6,
+      "after_removing_boolean_condition": 3,
+      "invalid_input_keeps_results": true,
+      "cancel_keeps_previous_conditions": true,
+      "advanced_replacement_notice": true,
+      "picker_escape_returns_to_conditions": true
+    },
+    "GUI_release_validation": {
+      "id_equals_2_AND_active_true": 1,
+      "field_picker_full_width": true
+    },
+    "scope": "loaded row window and selected fields",
+    "previous_large_file_measurements_rerun": false
+  },
+  "compact_table_threading_followup": {
+    "application_mach_o_uuid": "B3014F44-B346-3B54-B388-E5AAB5B27631",
+    "tests_passed": 102,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "toolbar_height_px": 36,
+    "status_height_px": 22,
+    "loading_controls_location": "More > Loading range…; Load All and Clear Filters in More / native Tools",
+    "query_range_requires_explicit_submit": true,
+    "GUI_debug_checked": [
+      "compact toolbar and status; no dataset title card",
+      "More menu and range dialog, Tab/Enter, offset 500 rows 10",
+      "right filter sidebar, id=2 AND active=true returns one row, draft survives closing",
+      "row number drag, mark and exact freeze of rows 3–5; regular band scroll",
+      "column name drag, auto fit, mark and freeze fare_amount/tip_amount; horizontal scroll"
+    ],
+    "GUI_release_restarted": false,
+    "runtime_config_this_host": {
+      "available_cpu_threads": 8,
+      "duckdb_workers": 7,
+      "duckdb_memory_budget_mib": 896,
+      "per_engine": true,
+      "rss_hard_cap": false,
+      "gpu_data_queries": false
+    },
+    "large_file_rerun": {
+      "log": "target/large-data/threading-validation.log",
+      "file_bytes": 5523882977,
+      "rows": 2600000,
+      "open_ms": 24,
+      "first_1000_with_struct_ms": 34,
+      "window_filter_sort_ms": 14,
+      "last_1000_with_struct_ms": 16,
+      "all_five_exports": true,
+      "source_hash_and_mtime_unchanged": true,
+      "strict_speedup_comparison": false,
+      "cpu_utilization_measured": false,
+      "rss_measured": false
+    }
+  },
+  "highlight_and_sql_ui_cleanup": {
+    "application_mach_o_uuid": "429CC005-9DA1-3782-AAAD-E8D45B24835C",
+    "tests_passed": 102,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "stronger_mark_fills": true,
+    "selection_preserves_mark_hue": true,
+    "hover_preserves_mark_fill": true,
+    "row_number_accent_width_px": 4,
+    "column_header_accent_height_px": 3,
+    "theme_text_null_link_contrast_test_minimum": 4.5,
+    "GUI_debug_checked": [
+      "light and dark marked rows and columns",
+      "header and row-number color bars",
+      "selected marked cell retains hue"
+    ],
+    "GUI_release_checked": [
+      "same release executable in isolated preview bundle",
+      "native Tools menu has no SQL CREATE TABLE command",
+      "native Edit menu has no Copy as WHERE command"
+    ],
+    "SQL_UI_removed": [
+      "SQL CREATE TABLE panel and action",
+      "Copy as WHERE in native, cell and axis menus",
+      "Cmd-Option-C shortcut",
+      "Metadata Current Query tab"
+    ],
+    "previous_large_file_measurements_rerun": false,
+    "original_user_process_restarted": false
+  },
+  "custom_titlebar_and_nested_json": {
+    "application_mach_o_uuid": "E9E1A15B-E0F0-3AE0-B453-CA631FF84B7C",
+    "tests_passed": 105,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "toolbar_and_titlebar_height_px": 36,
+    "native_buttons_hidden": true,
+    "macos27_titlebar_mouse_event_backport": "vendor/gpui/PATCHES.md",
+    "scalar_double_click_opens_peek": false,
+    "nested_single_click_opens_peek": false,
+    "nested_double_click_opens_peek": true,
+    "nested_layout": "upper table 55 percent, lower pretty JSON 45 percent",
+    "json_preview_budget_bytes": 262144,
+    "full_copy_and_save_use_untruncated_node": true,
+    "GUI_release_checked": [
+      "same release build copied to isolated preview bundle; UUID matched",
+      "native Open panel opens demo and a nested List of Struct test file",
+      "integer, decimal, timestamp, NULL, text and Boolean double-click leave source table open",
+      "nested single-click selects; double-click opens table and pretty JSON",
+      "first B struct shows id 1; Back then second B shows id null; node and JSON stay synchronized",
+      "Return to Cell restores source selection; Peek Close returns to main table",
+      "More, Open, Reload in custom titlebar work",
+      "titlebar drag followed by reload, double-click zoom, native fullscreen enter and exit",
+      "native window buttons remain hidden after fullscreen transitions",
+      "main preview Close exits process; app inventory confirms not running"
+    ],
+    "minimize_button": "clicked; resulting state not independently verified because UI tool raises the app",
+    "debug_preview_file_open_observation": "occasionally blocked in system __open while reading schema; no proven root cause; final release acceptance used native file picker successfully",
+    "previous_large_file_measurements_rerun": false,
+    "original_user_process_restarted": false,
+    "GUI_delivery_bundle_checked": [
+      "dist application launched with original bundle identifier",
+      "recent demo.parquet directly opens and reaches Choose Fields without file picker"
+    ]
+  },
+  "minimal_logo_lucide_photo_preview": {
+    "application_mach_o_uuid": "446521B5-3393-3677-9C6E-F4D5A4D92545",
+    "tests_passed": 109,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "application_icon": "original white tile and blue geometric table; no lens, gradient or shadow",
+    "iconset_entries": 10,
+    "application_icon_sizes_inspected_px": [
+      16,
+      32,
+      1024
+    ],
+    "command_icons": {
+      "library": "Lucide",
+      "version": "1.65.0",
+      "commit": "81875c8c42d2320fa5123b37fee3554f4ca2bddc",
+      "count": 39,
+      "source": "official upstream SVGs; byte-identical Git blob SHA checked",
+      "licenses": "ISC with retained Feather MIT notice"
+    },
+    "checkbox": {
+      "size_px": 17,
+      "corner_radius_px": 4,
+      "checked_glyph": "Lucide check",
+      "contexts": [
+        "Fields",
+        "Remember fields",
+        "text import options"
+      ]
+    },
+    "image_preview": "embedded image bytes take precedence on double-click; dedicated contain-fit image area",
+    "preview_cache_separates_image_and_nested_modes": true,
+    "GUI_release_checked": [
+      "welcome, toolbar and About logo",
+      "Lucide More menu icons",
+      "light/dark field checkboxes in checked and unchecked states",
+      "toggle first field: Apply 7 to Apply 6; Select All and Apply 7",
+      "native file picker opens photo-ui.parquet",
+      "Photo STRUCT bytes/path and binary BLOB PNG double-click display a 16516-byte image in main preview area",
+      "Return to Cell",
+      "ordinary Struct remains table and JSON",
+      "original dark preference restored"
+    ],
+    "GUI_import_rerun": false,
+    "all_image_encodings_GUI_checked": false,
+    "previous_large_file_measurements_rerun": false,
+    "original_user_process_restarted": false,
+    "independent_release_preview_left_open": true
+  },
+  "slate_iris_color_system": {
+    "application_mach_o_uuid": "F21D8AFF-A939-3A9D-BB8C-6C88661D6746",
+    "tests_passed": 112,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "strict_bundle_signature": "passed",
+    "references": [
+      "IBM Carbon neutral layering",
+      "Radix Colors 3.0.0 Slate and Iris"
+    ],
+    "radix_commit": "dbdb85470547c7d34b9001f48fddb08ded335979",
+    "palette_is_application_adaptation": true,
+    "contrast_tests": [
+      "table/panel text, secondary text and links: 4.5",
+      "input placeholder: 4.5",
+      "primary normal/hover text and checkmark: 4.5",
+      "focus and input/unchecked checkbox outlines: 3",
+      "status text: 4.5",
+      "marked cell normal/selected text: existing 4.5 threshold retained",
+      "mark fill and marker: existing thresholds retained"
+    ],
+    "GUI_delivery_checked": [
+      "fresh dist process started; dark welcome screen and primary button observed",
+      "continued GUI acceptance after manual unlock; table, Fields, sidebar and marks checks below use 4F0DEF03; final import followup is attributed separately"
+    ],
+    "GUI_table_sidebar_marks": [
+      "dark demo: 1000 rows and 11 fields; headers, alternating rows, text, NULL and nested links",
+      "light/dark Fields: default and focused search outlines, Select All and Select None",
+      "light/dark Fields: Apply 0 disabled label remains readable; Apply 11 normal state; modal scrim",
+      "primary button hover visually checked in dark theme only",
+      "light/dark filter sidebar: default and focused inputs, selected All, Not applied notice",
+      "dark filter id=0 Apply shows 1 result; clear draft and Apply restores 1000 rows",
+      "light/dark Blue, Teal and Amber row marks; selected Amber row retains mark hue",
+      "light/dark Blue column fill and header color bar; ordinary column selection",
+      "dark theme restored after acceptance"
+    ],
+    "original_preview_process_restarted": false,
+    "previous_large_file_measurements_rerun": false,
+    "temporary_awake": "temporary caffeinate stopped at end of acceptance; no persistent power setting changed",
+    "GUI_application_mach_o_uuid": "4F0DEF03-9B31-36BC-B9A4-E1C4FA05C83A",
+    "import_theme_sync_followup": {
+      "change": "update all six existing import wizard TextInput entities when switching theme",
+      "release_rebuild": "passed; full tests 112 passed, 0 failed, 1 ignored; format and strict Clippy passed",
+      "final_delivery_mach_o_uuid": "F21D8AFF-A939-3A9D-BB8C-6C88661D6746",
+      "GUI_import_theme_switch": "not separately verified in place; user resumed main-window interaction, which was preserved; code path and full checks passed",
+      "strict_bundle_signature": "passed",
+      "GUI_final_delivery_checked": [
+        "fresh final dist process started",
+        "dark import wizard and all six inputs observed",
+        "final light demo table observed after user resumed main-window interaction"
+      ]
+    },
+    "previous_media_suite_rerun": false,
+    "original_preview_untouched": true,
+    "final_user_window_state_preserved": true
+  },
+  "system_theme_selection_memory": {
+    "application_mach_o_uuid": "5B058764-D3B9-330C-A643-EE9F32518F7C",
+    "tests_passed": 124,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "tests_total": 125,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "release_build": "passed",
+    "strict_bundle_signature": "passed",
+    "theme": {
+      "modes": [
+        "light",
+        "dark",
+        "system"
+      ],
+      "menu": "More: Theme: Light / Theme: Dark / Theme: Follow System; native Edit > Theme — current mode",
+      "fresh_install_default": "system",
+      "legacy_dark_boolean_migration": {
+        "true": "dark",
+        "false": "light"
+      },
+      "fixed_modes_ignore_system_changes": true,
+      "system_event_sync_implementation": [
+        "main window",
+        "all existing main TextInput entities",
+        "filter editor",
+        "six text import inputs",
+        "open Quick Peek windows and their text input"
+      ],
+      "modifies_macos_appearance_preference": false
+    },
+    "selection_outline": {
+      "width_px": 2,
+      "layout_affecting": false,
+      "interactive": false,
+      "regions": [
+        "single cell",
+        "rectangular selection",
+        "clipped visible region in each frozen row/column pane"
+      ],
+      "mark_fill_and_hue_preserved": true
+    },
+    "process_memory": {
+      "label": "Memory",
+      "metric": "current process physical footprint; not RSS, peak memory, DuckDB budget or system-wide memory",
+      "macos_api": "proc_pid_rusage(self_pid, RUSAGE_INFO_V0): ri_phys_footprint",
+      "sample_interval_seconds": 2,
+      "sampling": "background task; render only reads cached value",
+      "format": "rounded IEC byte units",
+      "unavailable_display": "—",
+      "non_macos": "unavailable; does not substitute RSS",
+      "activity_monitor_exact_match_claimed": false
+    },
+    "automatic_check_scope": [
+      "theme resolution follows system light/dark appearances while fixed modes remain fixed",
+      "legacy boolean migration, fresh default and three-mode preference roundtrip",
+      "selection region/span geometry including frozen panes",
+      "macOS real self-process footprint reading and public V0 ABI layout",
+      "memory unavailable/zero distinction and IEC rounding through u64 maximum"
+    ],
+    "GUI_validation": "completed for the scope below; real global OS appearance changes and high-contrast transitions were not exercised",
+    "GUI_release_checked": [
+      "same release executable used in an independent QA bundle; original user main process not restarted",
+      "native Open panel opened demo: 1000 rows, 11 fields",
+      "light/dark single-cell closed outline; dark dragged rectangle closed outline",
+      "light row/column header selection and rectangle spanning all four frozen panes",
+      "22px status bar memory values updated across welcome and data views, including 129.8 MiB and 143.6 MiB observations",
+      "More three theme choices; Follow System checkmark and match to current light macOS appearance",
+      "from focused open nested Peek, native Edit Theme Dark then Light updates existing Peek table and JSON input",
+      "Return to Cell works; original fixed Light mode restored"
+    ],
+    "previous_large_file_measurements_rerun": false,
+    "GUI_application_mach_o_uuid": "5B058764-D3B9-330C-A643-EE9F32518F7C",
+    "GUI_preview_bundle_id": "org.parquetviewer.feature-qa",
+    "GUI_not_exercised": [
+      "global macOS light/dark transition while following system",
+      "macOS high-contrast appearance transitions",
+      "full import wizard and filter input suite for this build"
+    ],
+    "original_user_process_restarted": false,
+    "temporary_awake_used": false,
+    "previous_media_suite_rerun": false
+  },
+  "missing_value_highlighting": {
+    "application_mach_o_uuid": "A3F2F481-B690-3A6D-8CD5-07421A9655C2",
+    "tests_passed": 128,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "tests_total": 129,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "release_build": "passed",
+    "strict_bundle_signature": "passed",
+    "GUI_validation": "completed for the historical background experiment; does not validate the new text-only UI",
+    "GUI_checked": [
+      "independent QA org.parquetviewer.feature-qa; release, dist and QA executable UUIDs match",
+      "native Open null-density.parquet, 100000 source rows and 8 columns; first 1000 rows show real NULL rose foreground and light fill",
+      "empty string and literal NULL/NaN/null strings remain ordinary data",
+      "Load All shows 100000 rows; scrolling and CmdEnd reach the last row with NULL styling following visible rows",
+      "dark selected NULL retains selection background and rose foreground",
+      "CmdHome then Blue/Teal/Amber row marks keep NULL foreground readable; Amber whole-row selected",
+      "Peek items [0,null,1]: dark NULL foreground and light fill; after Light switch selected NULL keeps selected background; Return restores source",
+      "details.records three-row Peek distinguishes and highlights null record and null field in light theme",
+      "fixed Light restored at end"
+    ],
+    "semantic_detection": {
+      "main_table": "existing Cell.is_null; never matches the displayed text",
+      "non_missing_examples": [
+        "empty string",
+        "literal text NULL",
+        "numeric NaN"
+      ],
+      "text_import": "missing-token settings determine parsed missing values",
+      "nested": "model distinguishes JSON null, missing field and null record from ordinary strings"
+    },
+    "colors": {
+      "light": {
+        "null_text": "#91366F",
+        "null_bg": "#F8EDF5"
+      },
+      "dark": {
+        "null_text": "#EEB4D7",
+        "null_bg": "#30212C"
+      },
+      "role": "missing value; not an error status",
+      "background_priority": "row/column marks and selection preserve their backgrounds; NULL foreground stays distinct",
+      "text_contrast_regression_minimum": 4.5
+    },
+    "rendering": {
+      "row_virtualization_buffer_pixels": 120,
+      "buffer_applies": "above and below visible rows",
+      "foreground_lookup": "O(1) from existing semantic flags",
+      "full_table_highlight_scan": false,
+      "extra_per_cell_badge_or_element": false,
+      "additional_null_cache": false,
+      "horizontal_column_virtualization": false,
+      "horizontal_behavior": "clipping and scrolling; each rendered row still lays out its columns",
+      "loaded_window_and_export_semantics_unchanged": true
+    },
+    "contexts": [
+      "main table",
+      "Quick Peek nested table",
+      "five-row text import preview"
+    ],
+    "previous_large_file_measurements_rerun": false,
+    "previous_media_suite_rerun": false,
+    "record_scope": "historical NULL foreground plus light-background experiment; superseded by text-only styling",
+    "superseded_by": "null_text_only_multiwindow",
+    "fixture": {
+      "name": "null-density.parquet",
+      "source_rows": 100000,
+      "columns": 8,
+      "file_bytes": 228638,
+      "top_level_null_count": 578834,
+      "top_level_null_percent": 72.35425,
+      "engine_display_budget_estimate_mib": 104.5,
+      "display_budget_estimate_is_rss": false
+    },
+    "independent_qa_bundle_id": "org.parquetviewer.feature-qa",
+    "GUI_import_preview_checked": false,
+    "FPS_p95_CPU_profile_measured": false,
+    "original_user_process_restarted": false
+  },
+  "null_text_only_multiwindow": {
+    "application_mach_o_uuid": "26D95E7F-2160-3FDE-ADF8-78A79A19B01C",
+    "tests_passed": 139,
+    "tests_failed": 0,
+    "tests_ignored": 1,
+    "tests_total": 140,
+    "format_check": "passed",
+    "strict_clippy": "passed",
+    "release_build": "passed",
+    "strict_bundle_signature": "passed",
+    "GUI_validation": "completed for the listed final QA interactions; untested scopes are explicit below",
+    "GUI_checked": [
+      "Window 1 blue title opens NULL fixture, initial 1000 rows then Load All 100000, last id 99999",
+      "light/dark true NULL only changes rose text; alternating, hover and selection backgrounds preserved; literal NULL/NaN/null/empty strings remain ordinary",
+      "Window 2 teal title independently opens demo.parquet, 5000 total and 1000 loaded; id=0 filter returns one row",
+      "Cmd-grave back to Window 1 retains 100000 rows and last-row amount selection, unaffected by Window 2 filter",
+      "select Dark in Window 1 updates Window 2 to Dark while their title colors stay distinct",
+      "Window 1 items Peek has [0,null,1], null remains foreground-only in ordinary and selected states; Peek inherits blue title",
+      "Cmd-N from Peek creates Window 3 violet title inheriting Dark; Cmd-W closes only Window 3 and returns to Peek",
+      "Return to Cell restores the exact original items cell in Window 1",
+      "Cmd-W closing Window 1 leaves Window 2 one-row filtered result intact",
+      "after Window 1 closes Cmd-grave stays in Window 2; native Window menu lists only demo.parquet Window 2, without Window 1, its Peek or Window 3",
+      "Window 2 restored to Light while keeping its teal title"
+    ],
+    "null_style": {
+      "foreground_only": true,
+      "special_background": false,
+      "light_text": "#91366F",
+      "dark_text": "#EEB4D7",
+      "existing_row_hover_selection_mark_backgrounds_preserved": true,
+      "semantic_detection_unchanged_from": "missing_value_highlighting",
+      "extra_per_cell_badge_or_element": false,
+      "additional_null_cache": false,
+      "full_tree_or_table_highlight_scan": false,
+      "contexts": [
+        "main table",
+        "Quick Peek nested table",
+        "five-row text import preview"
+      ]
+    },
+    "independent_dataset_windows": {
+      "status": "implemented; full automated suite and listed final QA interactions passed",
+      "new_window_commands": [
+        "Cmd-N",
+        "File > New Window",
+        "More > New Window"
+      ],
+      "clear_current_file_command": "File > Clear Current File",
+      "state_ownership": "dataset, query, result snapshot, task cancellation, selection and owned Peeks belong to each Viewer",
+      "external_file_routing": "reuse a genuinely blank window; otherwise open another without replacing occupied datasets or import/field drafts",
+      "close_and_cancel_isolation": "dataset/query/export isolation and cancellation covered by automated regression; GUI checked independent filtering and window close isolation",
+      "new_window_commands_GUI_checked": [
+        "Cmd-N from Peek"
+      ],
+      "external_file_routing_automated_or_code_checked": true,
+      "external_file_routing_GUI_checked": false,
+      "owned_peek_cleanup_GUI_checked": true,
+      "final_native_Window_menu": "only demo.parquet — Parquet Viewer · Window 2; no Window 1, its Peek or Window 3"
+    },
+    "window_colors": {
+      "ordinal": "allocated once per main-window creation; surviving windows are not renumbered",
+      "first_eight_hues": [
+        "blue",
+        "teal",
+        "violet",
+        "rose",
+        "amber",
+        "green",
+        "cyan",
+        "slate"
+      ],
+      "distinct_rgb_values_per_theme": 4096,
+      "cycles_after": 4096,
+      "all_4096_perceptually_distinguishable_claimed": false,
+      "peek_inherits_source_window_ordinal": true,
+      "generation": "compile-time color-key table; O(1) rendering lookup with no allocation",
+      "foreground_contrast_regression_minimum": 4.5,
+      "GUI_main_window_hues_checked": [
+        "blue",
+        "teal",
+        "violet"
+      ],
+      "GUI_peek_parent_tint_checked": true,
+      "all_4096_colors_individually_GUI_checked": false
+    },
+    "shared_preferences": {
+      "status": "implemented and automated checks passed",
+      "theme_scope": "all dataset windows and their Peeks",
+      "persistent_preference_updates": "shared authority with field-level merge; per-window query state remains independent",
+      "GUI_theme_broadcast_checked": "Window 1 Dark changes Window 2 to Dark; new Window 3 inherits Dark"
+    },
+    "process_memory_monitor": {
+      "status": "implemented; shared-cache and sampling regression passed; no per-window profiling claim",
+      "application_heartbeat_count": 1,
+      "sample_interval_seconds": 2,
+      "process_wide_cache": true,
+      "metric": "whole-process physical footprint, not per-window usage",
+      "new_window_adds_sampling_loop": false
+    },
+    "heavy_operations": {
+      "status": "implemented; concurrency, queued cancellation, RAII and independent-engine regression passed",
+      "maximum_simultaneous_operations": 2,
+      "waiting_is_cancellable": true,
+      "global_mutex_held_during_engine_execution": false,
+      "is_total_process_rss_limit": false,
+      "throughput_or_fps_improvement_claimed": false,
+      "coverage": [
+        "open Parquet",
+        "open delimited text",
+        "query",
+        "export"
+      ]
+    },
+    "historical_background_experiment": "missing_value_highlighting remains a foreground-plus-background experiment; its GUI appearance does not validate this text-only version",
+    "previous_large_file_measurements_rerun": false,
+    "FPS_p95_CPU_profile_measured": false,
+    "test_command": "cargo test --locked",
+    "clippy_command": "cargo clippy --locked --all-targets -- -D warnings",
+    "release_command": "scripts/bundle-macos.sh",
+    "strict_QA_signature": "passed",
+    "dist_QA_uuid_match": true,
+    "GUI_scope_limits": {
+      "FPS_measured": false,
+      "p95_measured": false,
+      "CPU_profile_recorded": false,
+      "five_GB_rerun": false,
+      "text_import_preview_GUI_checked": false,
+      "Finder_real_external_routing_GUI_checked": false,
+      "full_media_suite_GUI_checked": false,
+      "all_window_color_values_GUI_checked": false,
+      "task_cancellation_isolation_GUI_checked": false
+    },
+    "previous_media_suite_rerun": false
+  },
+  "arrow_columnar_greedy": {
+    "record_scope": "Final image Copy Value fix build and its targeted BLOB/Photo smoke; full GUI retains base119E provenance; >=5GB windowed evidence applies to unchanged backend only",
+    "application_mach_o_uuid": "982A499C-78E0-37F0-AB48-D67553F55204",
+    "initial_full_tests": {
+      "command": "cargo test --locked",
+      "passed": 157,
+      "failed": 0,
+      "ignored": 1,
+      "total": 158,
+      "ignored_scope": "audio hardware"
+    },
+    "final_validation": {
+      "format_check": "passed",
+      "strict_clippy": "passed",
+      "release_build": "passed",
+      "strict_bundle_signature": "passed",
+      "strict_QA_signature": "passed",
+      "release_dist_QA_uuid_match": true,
+      "GUI_validation": "Final982 targeted image-copy smoke completed; all full GUI_release_checked items retain GUI_validation_base_uuid119E provenance",
+      "headless_benchmark": "completed single local debug storage/correctness run; not GUI FPS, RSS or controlled speed comparison",
+      "clippy_command": "cargo clippy --locked --all-targets -- -D warnings",
+      "release_command": "scripts/bundle-macos.sh",
+      "5GB_windowed_rerun": "passed before final app/peek-only copy fix; unchanged backend evidence retained, not rerun on final bundle",
+      "final_formatting_run": "completed",
+      "format_check_command": "cargo fmt --check",
+      "root_final_verification": {
+        "format_check_exit": 0,
+        "dist_codesign_deep_strict_exit": 0,
+        "dwarfdump_uuid": "982A499C-78E0-37F0-AB48-D67553F55204"
+      }
+    },
+    "columnar_results": {
+      "owner": "ArrowTable holding typed Arrow RecordBatch arrays",
+      "production_Vec_Vec_Cell_storage": false,
+      "whole_table_VARCHAR_or_to_json_projection": false,
+      "typed_exceptions": {
+        "UNION_leaves": "Exact JSON UTF-8 preserves SQL NULL and active branch tags which native Arrow UNION conflates",
+        "complex_MAP_keys": "Keep original typed key with an exact spelling auxiliary field to avoid formatted-key collisions"
+      },
+      "fetch": "stream_arrow fetches batches; the entire requested result window remains resident",
+      "scroll_driven_disk_IO": false,
+      "unbounded_streaming_claimed": false,
+      "arrow_budget_bytes_per_result": 134217728,
+      "old_and_new_snapshots_share_budget": false,
+      "budget_is_total_process_RSS_limit": false,
+      "NULL_detection": "Existing Arrow validity bitmap; no text inference or whole-table highlight scan",
+      "export_source": "Immutable typed DuckDB query snapshot, independent of display clipping and formatting"
+    },
+    "greedy_engines": {
+      "threads": "All available_parallelism workers, minimum 1",
+      "reserve_one_CPU": false,
+      "maximum_16_workers": false,
+      "global_max_2_gate": false,
+      "process_wide_CPU_or_memory_pool": false,
+      "managed_memory_formula_mib": "clamp(workers * 128, 512, 2048) per Engine",
+      "spill_limit": "4GB per Engine",
+      "independent_windows_may_use_their_own_allowances_concurrently": true,
+      "allowance_is_reservation_or_process_RSS_limit": false
+    },
+    "format_cache": {
+      "policy": "SharedString LRU, local to each window/client",
+      "active_limit_bytes": 8388608,
+      "inactive_limit_bytes": 1048576,
+      "cross_window_quota": false,
+      "normal_display_limit_Unicode_characters": 2000,
+      "copy_save_export_keep_complete_values": true,
+      "binary_options_capabilities": {
+        "predicate": "BinaryFormat::is_supported; no converted-string allocation",
+        "evaluation": "background calculation cached for the current snapshot"
+      }
+    },
+    "virtualization": {
+      "rows": true,
+      "columns": true,
+      "overscan_pixels_each_side": 120,
+      "frozen_panes_calculate_visibility_independently": true,
+      "row_height_measurement": "Visible rows, only wrapped columns; horizontal scrolling does not change row height",
+      "extra_NULL_badge_element_or_cache": false
+    },
+    "on_demand_details": {
+      "nested_JSON_and_NestedTable_initial_preparation": "background task",
+      "image_preview_builds_JSON": false,
+      "image_Copy_Value": "Explicit action on shallow one-cell Arrow slice: BLOB borrows full bytes and applies BinaryFormat captured when preview opened; Photo STRUCT serializes complete JSON",
+      "slice_retention": "May retain the selected column buffers of its original batch; does not pin unrelated columns or batches",
+      "JSON_preview_limit_bytes": 262144,
+      "copy_save_values_complete": true,
+      "explicit_JSON_media_and_writer_allocations_within_Arrow_budget": false
+    },
+    "fixtures": {
+      "wide": {
+        "path": "target/demo/wide-arrow.parquet",
+        "rows": 5000,
+        "columns": 1000,
+        "file_bytes": 10059223,
+        "status": "generated; stored-data, headless storage/correctness and listed release GUI checks passed"
+      },
+      "NULL_density": {
+        "path": "target/demo/null-density.parquet",
+        "rows": 100000,
+        "columns": 8,
+        "status": "existing fixture reused; headless full-window and listed release GUI checks passed"
+      }
+    },
+    "benchmark_measurements": {
+      "report_path": "target/arrow-storage-check-53407-1793444884249150000/report.json",
+      "scope": "One local correctness/storage run; not GUI FPS, peak RSS, or a controlled before/after speed comparison",
+      "build": "debug; rust_debug_assertions=true",
+      "available_workers": 8,
+      "memory_metric": "Arrow get_array_memory_size estimates retained array buffers/metadata; not process RSS or peak physical footprint",
+      "null_density_full": {
+        "rows": 100000,
+        "columns": 8,
+        "open_ms": 54,
+        "query_ms": 266,
+        "arrow_array_memory_bytes": 5823733,
+        "checks": {
+          "anchors": [
+            {
+              "row": 0,
+              "id": "0",
+              "literal": ""
+            },
+            {
+              "row": 50000,
+              "id": "50000",
+              "literal": ""
+            },
+            {
+              "row": 99999,
+              "id": "99999",
+              "literal": "ordinary text"
+            }
+          ],
+          "top_level_nulls_by_column": {
+            "amount": 95000,
+            "details": 97297,
+            "enabled": 96551,
+            "event_date": 95652,
+            "items": 96774,
+            "optional_text": 97560
+          },
+          "top_level_nulls_total": 578834,
+          "literal_NULL_NaN_empty_are_not_null": true,
+          "nested_null_record_and_value_preserved": true
+        }
+      },
+      "wide": {
+        "source": "target/demo/wide-arrow.parquet",
+        "open_ms": 329,
+        "default_window": {
+          "rows": 1000,
+          "columns": 1000,
+          "query_ms": 671,
+          "engine_elapsed_ms": 671,
+          "arrow_array_memory_bytes": 9385464,
+          "checks": {
+            "anchors": [
+              {
+                "row": 0,
+                "first": "0",
+                "middle": "MIDDLE · row=0 · col_0500",
+                "last": "LAST · row=0 · col_0999",
+                "decimal": "9007199254740993.123456789012340001",
+                "large_integer": "90071992547409931234567890123456789"
+              },
+              {
+                "row": 500,
+                "first": "500",
+                "middle": "MIDDLE · row=500 · col_0500",
+                "last": "LAST · row=500 · col_0999",
+                "decimal": "9007199254741493.123456789012340001",
+                "large_integer": "90071992547409931234567890123457289"
+              },
+              {
+                "row": 999,
+                "first": "999",
+                "middle": "MIDDLE · row=999 · col_0500",
+                "last": "LAST · row=999 · col_0999",
+                "decimal": "9007199254741992.123456789012340001",
+                "large_integer": "90071992547409931234567890123457788"
+              }
+            ],
+            "decimal_and_beyond_u64_integer_exact": true,
+            "null_bitmap_and_empty_string_distinct": true,
+            "nested_list_preserved": true
+          }
+        },
+        "full_window": {
+          "rows": 5000,
+          "columns": 1000,
+          "query_ms": 1253,
+          "engine_elapsed_ms": 1253,
+          "arrow_array_memory_bytes": 46975871,
+          "checks": {
+            "anchors": [
+              {
+                "row": 0,
+                "first": "0",
+                "middle": "MIDDLE · row=0 · col_0500",
+                "last": "LAST · row=0 · col_0999",
+                "decimal": "9007199254740993.123456789012340001",
+                "large_integer": "90071992547409931234567890123456789"
+              },
+              {
+                "row": 2500,
+                "first": "2500",
+                "middle": "MIDDLE · row=2500 · col_0500",
+                "last": "LAST · row=2500 · col_0999",
+                "decimal": "9007199254743493.123456789012340001",
+                "large_integer": "90071992547409931234567890123459289"
+              },
+              {
+                "row": 4999,
+                "first": "4999",
+                "middle": "MIDDLE · row=4999 · col_0500",
+                "last": "LAST · row=4999 · col_0999",
+                "decimal": "9007199254745992.123456789012340001",
+                "large_integer": "90071992547409931234567890123461788"
+              }
+            ],
+            "decimal_and_beyond_u64_integer_exact": true,
+            "null_bitmap_and_empty_string_distinct": true,
+            "nested_list_preserved": true
+          }
+        }
+      },
+      "image_previews": [
+        {
+          "source": "target/demo/demo.parquet",
+          "field": "photo",
+          "sql_type": "BLOB",
+          "row": 0,
+          "image_bytes": 16516,
+          "preview_has_no_json": true,
+          "preview_text_bytes": 21,
+          "deferred_copy_source_shares_binary_buffer": true
+        },
+        {
+          "source": "target/demo/photo-ui.parquet",
+          "field": "photo",
+          "sql_type": "STRUCT(bytes BLOB, path VARCHAR)",
+          "row": 0,
+          "image_bytes": 16516,
+          "preview_has_no_json": true,
+          "preview_text_bytes": 32,
+          "deferred_copy_source_shares_binary_buffer": true
+        }
+      ],
+      "concurrent_independent_engines": {
+        "start": "Two OS threads synchronized at a barrier; no global operation gate",
+        "wall_ms": 129,
+        "datasets": [
+          {
+            "dataset": "null_density",
+            "query_ms": 10,
+            "query_and_export_validation_ms": 100,
+            "filtered_rows": 10,
+            "filtered_first_id": "19",
+            "old_snapshot_export_rows": 100000,
+            "old_snapshot_export": "target/arrow-storage-check-53407-1793444884249150000/null-old-snapshot.csv",
+            "old_snapshot_and_new_filter_independent": true
+          },
+          {
+            "dataset": "wide",
+            "query_ms": 57,
+            "query_and_export_validation_ms": 117,
+            "filtered_rows": 10,
+            "filtered_first_id": "19",
+            "old_snapshot_export_rows": 1000,
+            "old_snapshot_export": "target/arrow-storage-check-53407-1793444884249150000/wide-old-snapshot.csv",
+            "old_snapshot_and_new_filter_independent": true
+          }
+        ]
+      },
+      "sources_sha256_and_mtime_unchanged": true,
+      "source_hashes": [
+        {
+          "source": "target/demo/null-density.parquet",
+          "sha256": "d1b3d73de114430f36cb70fce32ca98aa8cf4ed760a6bdc7951d60127624b30b"
+        },
+        {
+          "source": "target/demo/wide-arrow.parquet",
+          "sha256": "fdc1eedd2ff5a6786f0bebda773f69821727989366c2365a6885ff6242b8366c"
+        },
+        {
+          "source": "target/demo/demo.parquet",
+          "sha256": "25bdc234fcbdcad270ef91dad9904f2c981cd1f6437440404281528c21693fdf"
+        },
+        {
+          "source": "target/demo/photo-ui.parquet",
+          "sha256": "14c28bad4a1d9a923f6f35837da48ee0b00e2adb72c887ee70b600f40f474d21"
+        }
+      ],
+      "GUI_FPS_or_RSS_improvement_claimed": false,
+      "controlled_before_after_comparison": false
+    },
+    "historical_records_preserved": true,
+    "supersedes_resource_strategy_of": "null_text_only_multiwindow; the historical max-2 and CPU-minus-one/16-cap records are not current policy",
+    "full_tests": {
+      "command": "cargo test --locked",
+      "passed": 160,
+      "failed": 0,
+      "ignored": 1,
+      "total": 161,
+      "ignored_scope": "audio hardware"
+    },
+    "GUI_release_checked": [
+      "Window 1 blue opens wide-arrow.parquet: 1000 fields, initial 1000 rows, More Load All 5000; interface reports 248 ms, separate from debug benchmark",
+      "Cmd-End reaches last row 5000 and col_0999 LAST row=4999; Cmd-Home returns to first row",
+      "Freeze column 0; drag row numbers to select and freeze first two rows; at Cmd-End top ids 0/1 remain and left last id4999 matches right last-column value",
+      "Automatic column width context menu operates",
+      "Window 2 teal independently opens NULL fixture: initial1000 then Load All100000; interface reports40ms",
+      "Double-click items asynchronously opens upper table [0,null,1] and lower pretty JSON; Return restores exact source items cell",
+      "Save Value creates target/demo/cell.jsonarrow-items-qa-119E; independent read validates20bytes and [0,null,1]",
+      "Details then records shows Chinese, emoji, null record and null field with synchronized table/JSON",
+      "Window2 id=1 filter yields1row; Dark shows amount NULL as foreground-only with closed selection outline and literal NULL as ordinary text",
+      "Cmd-grave back to Window1 retains5000rows, frozen rows/column and last-cell selection; Dark synchronizes while blue/teal titles remain distinct",
+      "Same release/code after unlock: Dark wide table retains5000 rows plus first column and first two frozen rows; horizontal thumb manually dragged from about2180px to1440px reveals col494..504",
+      "At horizontal position col500 MIDDLE values match main row ids including2800; left frozen ids0/1 and top frozen rows remain synchronized without blank cells",
+      "Window3 violet opens photo-ui.parquet; Photo STRUCT double-click displays actual16516-byte PNG with blue-violet checkerboard; title tint inherited",
+      "Photo Copy Value completes in background with Copied toast; clipboard original text not read or independently verified",
+      "Return restores Window3 original cell; binary_image BLOB double-click displays the same PNG and violet title",
+      "Restore Light, close Window3 then Window1; Window2 retains id1 one-row filter and selected NULL",
+      "Cmd-Q exits independent QA; original main process not restarted; no caffeinate or global system-theme change"
+    ],
+    "GUI_pending": [],
+    "GUI_saved_value": {
+      "path": "target/demo/cell.jsonarrow-items-qa-119E",
+      "bytes": 20,
+      "parsed_value": [
+        0,
+        null,
+        1
+      ],
+      "independent_readback_passed": true
+    },
+    "GUI_interface_elapsed_ms": {
+      "wide_5000x1000_Load_All": 248,
+      "NULL_100000x8_Load_All": 40,
+      "scope": "release UI labels from separate interactions; not interchangeable with the debug headless query timings"
+    },
+    "scope_limits": {
+      "five_GB_rerun": true,
+      "FPS_measured": false,
+      "p95_measured": false,
+      "CPU_profile_recorded": false,
+      "RSS_improvement_claimed": false,
+      "full_media_suite_GUI_checked": false,
+      "Finder_real_external_routing_GUI_checked": false,
+      "five_GB_GUI_checked": false,
+      "entire_five_GB_result_loaded": false
+    },
+    "GUI_image_copy_value": {
+      "background_completion_toast": "Copied",
+      "clipboard_original_text_independently_read": false,
+      "raw_clipboard_value_equivalence_claimed": false
+    },
+    "GUI_session_cleanup": {
+      "independent_QA_exited": true,
+      "original_user_process_restarted": false,
+      "caffeinate_used": false,
+      "global_macos_theme_changed": false
+    },
+    "5GB_windowed": {
+      "status": "passed",
+      "report_path": "target/arrow-large-validation-1793445591102613000/report.json",
+      "scope": "Typed Arrow windowed actual >=5GB regression; cached debug rlib rustc build. No GUI FPS, peak physical footprint, or controlled before/after speed comparison. Full-file SHA-256 passes are integrity checks, separate from lazy Engine window queries.",
+      "build": {
+        "method": "rustc --edition 2024 using existing target/debug/deps rlibs, no Cargo or release build",
+        "rust_debug_assertions": true
+      },
+      "parquet": {
+        "source": "target/arrow-large-validation-1793445591102613000/parquet-direct/struct-5gb.parquet",
+        "file_bytes": 5523882977,
+        "source_rows": 2600000,
+        "open_ms": 217,
+        "first_1000_with_struct_ms": 69,
+        "loaded_window_filter_sort_ms": 37,
+        "last_1000_with_struct_ms": 40,
+        "all_five_exports": true,
+        "all_five_source_overwrites_blocked": true,
+        "source_sha256_before_and_after": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+        "source_mtime_unchanged": true,
+        "scope": "windowed access, typed nested values, filter/sort and derived exports; no full 5GB materialization"
+      },
+      "delimited_text": {
+        "source": "target/arrow-large-validation-1793445591102613000/text-direct/text-5gb.records",
+        "file_bytes": 5468522249,
+        "source_rows": 2600000,
+        "delimiter": "|",
+        "arbitrary_extension": "records",
+        "sniff_ms": 690,
+        "sampled_bytes": 2094369,
+        "open_ms": 221,
+        "first_1000_ms": 111,
+        "last_1000_sequential_offset_ms": 51698,
+        "initial_total_unknown": true,
+        "exact_total_only_after_EOF": true,
+        "window_filter_sort_export": true,
+        "source_overwrite_blocked": true,
+        "source_sha256_before_and_after": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+        "source_mtime_unchanged": true
+      },
+      "resource_measurement": "wait4 child rusage, maximum resident set size in Darwin bytes; includes harness/native work and integrity-hashing subprocess scope, not GUI physical footprint",
+      "executions": [
+        {
+          "dataset": "parquet-direct",
+          "exit_code": 0,
+          "resource_measurement": {
+            "wall_seconds": 29.835914750001393,
+            "user_cpu_seconds": 25.525708,
+            "system_cpu_seconds": 2.7517169999999997,
+            "maximum_resident_set_size_raw": 176406528,
+            "maximum_resident_set_size_unit": "bytes on Darwin",
+            "maximum_resident_set_size_bytes": 176406528,
+            "minor_page_faults": 11522,
+            "major_page_faults": 3384,
+            "block_input_operations": 0,
+            "block_output_operations": 0,
+            "scope": "Raw wait4 child rusage; includes harness work and its integrity-hashing subprocesses. Not physical footprint or simultaneous sum across windows. Instantaneous/peak CPU percentage not sampled."
+          },
+          "stdout": "target/arrow-large-validation-1793445591102613000/parquet-direct/stdout.json",
+          "stderr": "target/arrow-large-validation-1793445591102613000/parquet-direct/stderr.log",
+          "engine_report": "target/arrow-large-validation-1793445591102613000/parquet-direct/validation.json",
+          "binary_sha256": "611b0bf1326448e4ac46062133fc59a1a611924358dc7d1cb43de638971afa1b"
+        },
+        {
+          "dataset": "text-direct",
+          "exit_code": 0,
+          "resource_measurement": {
+            "wall_seconds": 83.06339395800023,
+            "user_cpu_seconds": 72.597412,
+            "system_cpu_seconds": 6.174486,
+            "maximum_resident_set_size_raw": 1073414144,
+            "maximum_resident_set_size_unit": "bytes on Darwin",
+            "maximum_resident_set_size_bytes": 1073414144,
+            "minor_page_faults": 170614,
+            "major_page_faults": 144,
+            "block_input_operations": 0,
+            "block_output_operations": 0,
+            "scope": "Raw wait4 child rusage; includes harness work and its integrity-hashing subprocesses. Not physical footprint or simultaneous sum across windows. Instantaneous/peak CPU percentage not sampled."
+          },
+          "stdout": "target/arrow-large-validation-1793445591102613000/text-direct/stdout.json",
+          "stderr": "target/arrow-large-validation-1793445591102613000/text-direct/stderr.log",
+          "engine_report": "target/arrow-large-validation-1793445591102613000/text-direct/text-validation.json",
+          "binary_sha256": "e1b00635b8d2ba8e5a124dc23a413b6ae1ada9a7d0dad9fc7fc1c9b01f7eb5e2"
+        }
+      ],
+      "measurement_wrapper_retry": {
+        "first_time_l_attempt_exit_code": 1,
+        "reason": "/usr/bin/time -l cannot read sysctl kern.clockrate in the sandbox; harness completed and generated validation. Original wrapper failure preserved rather than ignored. Both harnesses subsequently run directly with os.wait4 rusage in new subdirectories.",
+        "first_attempt_log": "target/arrow-large-validation-1793445591102613000/parquet/time-l.log",
+        "first_attempt_progress": "target/arrow-large-validation-1793445591102613000/execution-progress.json"
+      },
+      "source_integrity": {
+        "original_and_all_alias_sha256_mtime_inode_size_unchanged": true,
+        "hardlinks_no_data_copy": true,
+        "integrity": {
+          "parquet-direct": {
+            "original_before": {
+              "path": "target/large-data/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            },
+            "alias_before": {
+              "path": "target/arrow-large-validation-1793445591102613000/parquet-direct/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            },
+            "original_after": {
+              "path": "target/large-data/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            },
+            "alias_after": {
+              "path": "target/arrow-large-validation-1793445591102613000/parquet-direct/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            }
+          },
+          "text-direct": {
+            "original_before": {
+              "path": "target/large-data/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            },
+            "alias_before": {
+              "path": "target/arrow-large-validation-1793445591102613000/text-direct/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            },
+            "original_after": {
+              "path": "target/large-data/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            },
+            "alias_after": {
+              "path": "target/arrow-large-validation-1793445591102613000/text-direct/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            }
+          }
+        },
+        "initial_aliases": {
+          "parquet": {
+            "original_before": {
+              "path": "target/large-data/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            },
+            "alias_before": {
+              "path": "target/arrow-large-validation-1793445591102613000/parquet/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            },
+            "alias_after": {
+              "path": "target/arrow-large-validation-1793445591102613000/parquet/struct-5gb.parquet",
+              "sha256": "068e250e905273d0a52dfeab6815febdb1aaba111beda7030b0f914f643a130a",
+              "bytes": 5523882977,
+              "mtime_ns": 1793370182628594905,
+              "device": 16777231,
+              "inode": 67846165
+            }
+          },
+          "text": {
+            "original_before": {
+              "path": "target/large-data/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            },
+            "alias_before": {
+              "path": "target/arrow-large-validation-1793445591102613000/text/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            },
+            "alias_after": {
+              "path": "target/arrow-large-validation-1793445591102613000/text/text-5gb.records",
+              "sha256": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+              "bytes": 5468522249,
+              "mtime_ns": 1793370489206921090,
+              "device": 16777231,
+              "inode": 67849548
+            }
+          }
+        }
+      },
+      "text_last_page_is_sequential_offset": true,
+      "fast_random_last_page_claimed": false,
+      "full_harness_wall_includes_integrity_hashing": true,
+      "full_wall_is_query_time": false,
+      "arrow_128_MiB_is_process_RSS_cap": false,
+      "five_GB_GUI": false,
+      "full_five_GB_Arrow_materialization": false,
+      "cold_cache_controlled": false,
+      "controlled_speed_or_RSS_improvement_claimed": false,
+      "final_copy_fix_scope": {
+        "source_changes_after_measurement": [
+          "src/app.rs",
+          "src/peek.rs"
+        ],
+        "backend_changed": false,
+        "evidence_retained_for_same_backend_scope": true,
+        "rerun_after_final_copy_fix": false
+      }
+    },
+    "GUI_validation_base_uuid": "119E7A1E-3768-390C-BDEB-76F7E07EE523",
+    "full_tests_before_copy_fix": {
+      "command": "cargo test --locked",
+      "passed": 159,
+      "failed": 0,
+      "ignored": 1,
+      "total": 160,
+      "ignored_scope": "audio hardware"
+    },
+    "GUI_base_validation": {
+      "application_mach_o_uuid": "119E7A1E-3768-390C-BDEB-76F7E07EE523",
+      "full_tests": {
+        "command": "cargo test --locked",
+        "passed": 159,
+        "failed": 0,
+        "ignored": 1,
+        "total": 160,
+        "ignored_scope": "audio hardware"
+      },
+      "format_check": "passed",
+      "strict_clippy": "passed",
+      "release_build": "passed",
+      "strict_bundle_signature": "passed",
+      "strict_QA_signature": "passed",
+      "checked_items_field": "arrow_columnar_greedy.GUI_release_checked",
+      "scope": "Full listed wide/NULL/freeze/nested/theme/multiwindow interactions belong to this base; not rerun in full on the final copy-fix build"
+    },
+    "GUI_final_copy_fix_smoke": {
+      "application_mach_o_uuid": "982A499C-78E0-37F0-AB48-D67553F55204",
+      "source_changes": [
+        "src/app.rs",
+        "src/peek.rs"
+      ],
+      "backend_or_layout_changed": false,
+      "bug_fixed": "BLOB Copy Value previously returned the binary summary label through slice.cell().text; now applies captured BinaryFormat to complete borrowed bytes",
+      "Photo_STRUCT_copy_semantics": "Complete JSON including path/bytes",
+      "automatic_regression": {
+        "name": "deferred_image_copy_preserves_full_binary_format_and_photo_json",
+        "binary_formats": 13,
+        "binary_samples": 3,
+        "sample_lengths_bytes": [
+          3,
+          16,
+          4096
+        ],
+        "above_preview_clip_tested": true,
+        "Photo_JSON_path_and_bytes_checked": true
+      },
+      "GUI_checked": [
+        "photo-ui.parquet loads7fields",
+        "binary_image BLOB double-click displays actual16516-byte PNG",
+        "BLOB Copy Value completes with Copied to clipboard toast",
+        "BLOB Return restores exact selected source cell",
+        "Photo STRUCT double-click displays same16516-byte PNG",
+        "Photo Copy Value completes with success toast",
+        "Photo Return restores exact selected source cell",
+        "Cmd-Q exits QA without relaunch"
+      ],
+      "clipboard_original_text_manually_inspected": false,
+      "complete_GUI_base_rerun": false,
+      "original_app_restarted": false,
+      "caffeinate_used": false,
+      "system_settings_changed": false,
+      "independent_QA_running_after_cleanup": false,
+      "cleanup_verification": "Root CUA listApps independently reports org.parquetviewer.feature-qa isRunning=false; no claim that the original app remains running"
+    }
+  },
+  "text_random_paging": {
+    "record_scope": "Current release with session-local sparse text paging; final automatic checks, actual5GB release backend run and scoped small-file GUI; previous top-level objects preserved verbatim",
+    "application_mach_o_uuid": "E262D7C4-5243-33B8-8F61-763B9BFE758B",
+    "release_dist_QA_uuid_match": true,
+    "full_tests": {
+      "command": "cargo test --locked",
+      "passed": 169,
+      "failed": 0,
+      "ignored": 1,
+      "total": 170,
+      "ignored_scope": "audio hardware"
+    },
+    "final_validation": {
+      "format_check": "passed",
+      "strict_clippy": "passed",
+      "release_build": "passed",
+      "strict_dist_deep_signature": "passed",
+      "strict_QA_deep_signature": "passed",
+      "GUI_validation": "passed for the small text fixture interactions listed below, not5GB or previous full GUI",
+      "clippy_command": "cargo clippy --locked --all-targets -- -D warnings",
+      "release_command": "scripts/bundle-macos.sh",
+      "root_final_format_check_exit": 0
+    },
+    "index_design": {
+      "source_module": "src/text_index.rs",
+      "scope": "one Engine session, private spill directory",
+      "storage": "disk-backed sparse checkpoints, not a per-row in-memory offset table",
+      "stride_accepted_raw_data_records": 4096,
+      "checkpoint_bytes": 32,
+      "scanner_buffer_bytes": 65536,
+      "maximum_record_bytes": 16777216,
+      "skipped_field_strings_materialized": false,
+      "encodings": [
+        "UTF-8 including optional BOM",
+        "UTF-16LE BOM",
+        "UTF-16BE BOM"
+      ],
+      "record_framing": [
+        "Unicode",
+        "quoted multiline",
+        "escaped double quotes",
+        "CRLF",
+        "CR",
+        "LF"
+      ],
+      "first_unindexed_distant_page": "incrementally scan from known frontier through requested end; not constant-time random access",
+      "already_indexed_page": "seek nearest checkpoint, frame at most4095 accepted raw records plus requested page; invalid skipped records and varying record sizes can add work",
+      "background_full_source_prescan": false,
+      "persists_across_reopen": false,
+      "standard_page_double_prefix_count_then_query": false
+    },
+    "page_materialization": {
+      "path": "indexed source range -> private UTF-8 page -> explicit missing/type projection -> window filter/sort -> immutable snapshot -> typed Arrow",
+      "UTF16_full_source_transcode": false,
+      "private_page_cleanup": "RAII, immediately after CTAS; failure/cancellation also cleans up",
+      "source_stamps": [
+        "device",
+        "inode",
+        "length",
+        "mtime",
+        "ctime"
+      ],
+      "validation": "before/after locate and page read, after snapshot CTAS; change rejects current query and leaves prior immutable exports usable",
+      "source_writeback": false,
+      "EOF_exact_total": "unknown until EOF; ignore-errors does not promote raw framing count into exact typed count",
+      "advanced_API_scope": "not UI; UTF8 full-source SELECT does not use standard page assumptions, UTF16 advanced SELECT rejected"
+    },
+    "resource_policy": "unchanged greedy per-window CPU; independent Arrow128MiB result and local formatting cache quotas, no global resource pool or RSS hard limit",
+    "release_backend_benchmark": {
+      "report_path": "target/text-random-pages-1793447530360820000/report.json",
+      "resource_report_path": "target/text-random-resources-1793447530360823000.json",
+      "report": {
+        "source": "target/large-data/text-5gb.records",
+        "source_bytes": 5468522249,
+        "source_rows": 2600000,
+        "compiled_with_debug_assertions": false,
+        "sniff_ms": 59,
+        "sampled_bytes": 2094369,
+        "open_ms": 26,
+        "queries": [
+          {
+            "label": "first_1000",
+            "offset": 0,
+            "limit": 1000,
+            "elapsed_ms": 24,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2611059,
+            "total_rows_known": false,
+            "sparse_index_disk_bytes": 32,
+            "request_framed_bytes": 2096469
+          },
+          {
+            "label": "cold_last_1000",
+            "offset": 2599000,
+            "limit": 1001,
+            "elapsed_ms": 4658,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 5466425780
+          },
+          {
+            "label": "warm_random_0",
+            "offset": 1300000,
+            "limit": 1000,
+            "elapsed_ms": 26,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 5403252
+          },
+          {
+            "label": "warm_random_1",
+            "offset": 17,
+            "limit": 1000,
+            "elapsed_ms": 23,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 2132131
+          },
+          {
+            "label": "warm_random_2",
+            "offset": 2599000,
+            "limit": 1000,
+            "elapsed_ms": 26,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 6598368
+          },
+          {
+            "label": "warm_random_3",
+            "offset": 500000,
+            "limit": 1000,
+            "elapsed_ms": 23,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 2707652
+          },
+          {
+            "label": "warm_random_4",
+            "offset": 2000000,
+            "limit": 1000,
+            "elapsed_ms": 22,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 4527948
+          },
+          {
+            "label": "warm_random_5",
+            "offset": 1300000,
+            "limit": 1000,
+            "elapsed_ms": 23,
+            "loaded_rows": 1000,
+            "returned_rows": 1000,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 5403252
+          },
+          {
+            "label": "beyond_EOF",
+            "offset": 2600100,
+            "limit": 1000,
+            "elapsed_ms": 0,
+            "loaded_rows": 0,
+            "returned_rows": 0,
+            "total_rows": 2600000,
+            "total_rows_known": true,
+            "sparse_index_disk_bytes": 20320,
+            "request_framed_bytes": 0
+          }
+        ],
+        "all_page_values_checked": true,
+        "quote_and_missing_rules_checked": true,
+        "old_snapshot_export_after_random_jumps": true,
+        "source_overwrite_blocked": true,
+        "source_sha256_before_and_after": "81d8c96f253c6a1eb186a7e89c60b70c263b5208f7906f7751faa52262636dc3",
+        "source_metadata_before_and_after": {
+          "bytes": 5468522249,
+          "dev": 16777231,
+          "inode": 67849548,
+          "mtime_seconds": 1793370489,
+          "mtime_nanoseconds": 206921090,
+          "ctime_seconds": 1793445714,
+          "ctime_nanoseconds": 537316137
+        },
+        "scope": "One local backend run. First unindexed distant page still discovers CSV boundaries; subsequent indexed pages seek. No GUI FPS, controlled cold-cache, controlled before/after speedup, or RSS improvement claim. External wait4 measurement may report process peak RSS separately."
+      },
+      "resources": {
+        "output": "target/text-random-pages-1793447530360820000",
+        "log": "target/text-random-resources-1793447530360823000.log",
+        "exit_code": 0,
+        "wall_seconds": 37.77065025000047,
+        "max_rss_bytes": 49348608,
+        "user_seconds": 29.113603,
+        "system_seconds": 2.872408,
+        "scope": "wait4 backend harness process and waited-for children, including full source hashes; not GUI physical footprint or query-only wall time"
+      },
+      "measurement_scope": "single local release example; first unindexed != OS cold cache; framed bytes exclude read-ahead and are not total process I/O",
+      "warm_page_elapsed_ms": [
+        26,
+        23,
+        26,
+        23,
+        22,
+        23
+      ],
+      "final_sparse_index_bytes": 20320,
+      "max_RSS_MiB": 47.0625,
+      "wall_includes_two_full_SHA256_passes": true,
+      "harness_RSS_is_GUI_physical_footprint": false,
+      "controlled_before_after_speedup_claimed": false,
+      "RSS_improvement_claimed": false,
+      "old_debug_51698_ms_comparison": "historical unindexed debug observation, not a controlled speedup baseline"
+    },
+    "GUI_release_checked": {
+      "application_mach_o_uuid": "E262D7C4-5243-33B8-8F61-763B9BFE758B",
+      "fixture": "target/demo/text-index-qa-1793447584008068000.records",
+      "fixture_bytes": 406974,
+      "source_rows": 9007,
+      "fields": 4,
+      "steps": [
+        "NativeOpen then first1000 logical-record sniff; header and pipe delimiter; Chinese, multiline and decimal NULL verified",
+        "Initial1000 records start id0; unknown source total; UI label6ms",
+        "More Loading range offset9000 rows1000 ->7 records id9000..9006, NULL at9002, exact total9007; UI label10ms",
+        "offset4096 ->1000 rows starting4096, known9007; UI label8ms",
+        "offset0 ->1000 rows starting0, known9007; UI label8ms",
+        "Cmd-Q exits independent QA"
+      ],
+      "UI_timings_are_5GB_benchmark": false,
+      "five_GB_GUI_checked": false,
+      "previous_full_GUI_rerun": false,
+      "original_app_opened_or_restarted": false,
+      "system_settings_changed": false,
+      "caffeinate_used": false,
+      "independent_QA_running_after_cleanup": false,
+      "cleanup_verification": "Root independently checked CUA listApps: org.parquetviewer.feature-qa isRunning=false; original application not touched and no claim that it remains running"
+    },
+    "standalone_stress": {
+      "source": "independent stress agent report relayed by root",
+      "rows": 12553,
+      "encodings": 3,
+      "random_and_boundary_jumps_per_encoding": 60,
+      "comparison": "every returned value matched complete CSV decoding; Unicode and mixed newlines included",
+      "included_as_extra_Cargo_tests": false
+    },
+    "scope_limits": {
+      "five_GB_GUI_checked": false,
+      "full_media_or_previous_GUI_suite_rerun": false,
+      "FPS_measured": false,
+      "p95_measured": false,
+      "CPU_profile_recorded": false,
+      "OS_cold_cache_controlled": false,
+      "full_5GB_Arrow_materialization": false,
+      "process_RSS_hard_limit_claimed": false
+    },
+    "history": "Earlier sequential-offset timings, including old Arrow debug51.698s and early7.695s, retain their original unindexed build scope; all earlier JSON objects are unchanged"
+  },
+  "parquet_only_progress_resident_all": {
+    "date": "2026-10-31",
+    "release_uuid": "8F4A81B1-21F2-33A1-9F78-BC6F8F7783E0",
+    "app_bundle": "dist/Parquet Viewer.app",
+    "storage": "All imported typed Arrow arrays remain in system RAM; viewport rendering only limits UI elements and GPU drawing.",
+    "csv_ui_removed": true,
+    "csv_file_associations_removed": true,
+    "csv_export_ui_removed": true,
+    "display_result_fixed_byte_limit": null,
+    "duckdb_managed_memory_mib_on_this_8_cpu_machine": 2048,
+    "cpu_policy": "Every engine may independently use all available CPUs; no shared resource pool.",
+    "query_optimization": "Ordinary queries avoid an unnecessary full materialized CTE copy; aggregate RowFilter keeps its window CTE.",
+    "checks": {
+      "cargo_test": {
+        "passed": 184,
+        "failed": 0,
+        "ignored": 1,
+        "ignored_reason": "macOS audio device required"
+      },
+      "cargo_fmt_check": true,
+      "strict_clippy_all_targets": true,
+      "strict_deep_bundle_signatures": true,
+      "plist_lint": true
+    },
+    "small_load_all": {
+      "source": "target/demo/load-all-progress.parquet",
+      "loaded_fixture": "target/demo/load-all-progress.parquet",
+      "all_rows": 200000,
+      "arrow_owned_bytes": 433040811,
+      "load_all_ms": 322,
+      "final_fraction": 1.0,
+      "anchors": [
+        {
+          "row": 0,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 100000,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 199999,
+          "id_checked": true,
+          "nested_checked": true
+        }
+      ],
+      "cancelled_after_work_started": true,
+      "previous_snapshot_export_after_cancel": "target/demo/load-all-retained-60633.parquet",
+      "retained_slice_after_engine_drop": true,
+      "source_size_mtime_unchanged": true,
+      "scope": "Every fixture row imported into owned Arrow RAM; logical Arrow bytes are not process RSS."
+    },
+    "full_5gb_load_all": {
+      "source": "target/large-data/struct-5gb.parquet",
+      "loaded_fixture": "target/large-data/struct-5gb.parquet",
+      "all_rows": 2600000,
+      "arrow_owned_bytes": 5632191967,
+      "load_all_ms": 9536,
+      "final_fraction": 1.0,
+      "anchors": [
+        {
+          "row": 0,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 1300000,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 2599999,
+          "id_checked": true,
+          "nested_checked": true
+        }
+      ],
+      "cancelled_after_work_started": true,
+      "previous_snapshot_export_after_cancel": "target/large-data/load-all-retained-60710.parquet",
+      "retained_slice_after_engine_drop": true,
+      "source_size_mtime_unchanged": true,
+      "scope": "Every fixture row imported into owned Arrow RAM; logical Arrow bytes are not process RSS."
+    },
+    "full_5gb_progress": {
+      "samples": 403,
+      "phases": [
+        "Loading",
+        "Preparing"
+      ],
+      "complete_fraction": 1.0
+    },
+    "reports": [
+      "target/load-all-tests.log",
+      "target/load-all-validation.json",
+      "target/load-all-5gb-validation.json"
+    ],
+    "gui": {
+      "independent_bundle_id": "org.parquetviewer.feature-qa",
+      "original_application_launched": false,
+      "top_toolbar_load_all_and_range": true,
+      "nonzero_range": {
+        "offset": 4096,
+        "count": 25,
+        "first_id": 4096,
+        "last_id": 4120
+      },
+      "load_all_from_nonzero_range": {
+        "rows": 2600000,
+        "loaded_offset": 0,
+        "ui_reported_query_ms": 9346,
+        "last_id": 2599999
+      },
+      "actual_progress_bar_observed": {
+        "phase": "Reading Parquet data",
+        "percentage": 7
+      },
+      "csv_open_rejected_in_chinese_and_old_table_retained": true,
+      "file_menu_no_import": true,
+      "export_formats": [
+        "JSON",
+        "XLSX",
+        "XLS",
+        "Parquet"
+      ],
+      "observed_footer_process_memory": "8.0 GiB",
+      "memory_scope": "One sampled GUI process footprint, not a peak measurement or Arrow-only size."
+    },
+    "limits": "One local run, no controlled cold-cache benchmark or FPS claim. Arrow bytes are logical buffer accounting, not process RSS. GPUI still keeps per-row layout metadata. Native workspace may spill; imported Arrow arrays stay RAM-owned."
+  },
+  "filter_source_rows_range_reference": {
+    "date": "2026-10-31",
+    "release_uuid": "49202AF5-D139-374A-855D-CB036276F6EF",
+    "checks": {
+      "tests_passed": 187,
+      "tests_failed": 0,
+      "tests_ignored": 1,
+      "ignored_reason": "macOS audio output device",
+      "strict_clippy_all_targets": true,
+      "cargo_fmt": true,
+      "bundle_strict_signature": true
+    },
+    "performance": {
+      "source": "target/large-data/struct-5gb.parquet",
+      "source_bytes": 5523882977,
+      "source_rows": 2600000,
+      "runs": [
+        {
+          "case": "numeric_all",
+          "ms": 28,
+          "rows": 1000,
+          "arrow_bytes": 2175380,
+          "ids": [
+            "1300000",
+            "1300500",
+            "1300999"
+          ],
+          "source_row_numbers": [
+            1300001,
+            1300501,
+            1301000
+          ]
+        },
+        {
+          "case": "numeric_all_repeat",
+          "ms": 16,
+          "rows": 10,
+          "arrow_bytes": 23144,
+          "ids": [
+            "1290000",
+            "1290005",
+            "1290009"
+          ],
+          "source_row_numbers": [
+            1290001,
+            1290006,
+            1290010
+          ]
+        },
+        {
+          "case": "text_all",
+          "ms": 42,
+          "rows": 1,
+          "arrow_bytes": 3579,
+          "ids": [
+            "2200001",
+            "2200001",
+            "2200001"
+          ],
+          "source_row_numbers": [
+            2200002,
+            2200002,
+            2200002
+          ]
+        },
+        {
+          "case": "numeric_window_sort",
+          "ms": 25,
+          "rows": 50,
+          "arrow_bytes": 110112,
+          "ids": [
+            "1499999",
+            "1499974",
+            "1499950"
+          ],
+          "source_row_numbers": [
+            1500000,
+            1499975,
+            1499951
+          ]
+        }
+      ],
+      "scope": "single local run; warm OS cache may differ; not GUI/FPS/peak RSS"
+    },
+    "load_all_regression": {
+      "source": "target/large-data/struct-5gb.parquet",
+      "loaded_fixture": "target/large-data/struct-5gb.parquet",
+      "all_rows": 2600000,
+      "arrow_owned_bytes": 5632191967,
+      "load_all_ms": 9001,
+      "final_fraction": 1.0,
+      "anchors": [
+        {
+          "row": 0,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 1300000,
+          "id_checked": true,
+          "nested_checked": true
+        },
+        {
+          "row": 2599999,
+          "id_checked": true,
+          "nested_checked": true
+        }
+      ],
+      "cancelled_after_work_started": true,
+      "previous_snapshot_export_after_cancel": "target/large-data/load-all-retained-62532.parquet",
+      "retained_slice_after_engine_drop": true,
+      "source_size_mtime_unchanged": true,
+      "scope": "Every fixture row imported into owned Arrow RAM; logical Arrow bytes are not process RSS."
+    },
+    "behavior": {
+      "source_window_before_filter_sort_preserved": true,
+      "original_one_based_source_row_numbers": true,
+      "helper_excluded_from_json_parquet_xlsx_xls": true,
+      "physical_helper_name_collisions_preserved": true,
+      "non_intersecting_partition_not_read": true,
+      "unfiltered_single_partition_affine_lineage": true,
+      "filtered_sorted_or_multiple_partitions_typed_lineage": true,
+      "same_apply_request_does_not_rerun": true,
+      "sidebar_repaint_no_filter_compilation": true,
+      "range_total_remaining_from_metadata": true
+    },
+    "gui": {
+      "status": "passed",
+      "release_uuid": "49202AF5-D139-374A-855D-CB036276F6EF",
+      "independent_bundle_id": "org.parquetviewer.feature-qa",
+      "source_rows": 2600000,
+      "source_bytes": 5523882977,
+      "language": "English as found; no preference change",
+      "range_reference": {
+        "total_label": "2,600,000",
+        "offset": 4096,
+        "remaining_label": "2,595,904",
+        "updates_while_editing": true,
+        "all_controls_fit": true
+      },
+      "loaded_window": {
+        "offset": 4096,
+        "count": 1000,
+        "first_id": 4096
+      },
+      "filter": {
+        "conditions": [
+          "id >= 5000",
+          "note IS NULL"
+        ],
+        "match": "all",
+        "rows": 9,
+        "ui_reported_ms": 27,
+        "original_source_row_labels": [
+          5006,
+          5017,
+          5028,
+          5039,
+          5050,
+          5061,
+          5072,
+          5083,
+          5094
+        ],
+        "original_labels_preserved_after_descending_sort": true
+      },
+      "unchanged_apply": {
+        "selected_cell_preserved": true,
+        "unchanged_ui_query_ms": 27
+      },
+      "peek": {
+        "title": "details · Row 5094 · Quick Peek",
+        "value_id": 5093,
+        "return_to_source_cell": true
+      },
+      "original_application_launched": false,
+      "scope": "Range metadata reference, multiple-field filtering, gap-preserving original row labels, descending sort, unchanged Apply, nested Peek title and Return to Cell. No repeat of previous complete theme/media suites.",
+      "qa_exit_verified": true
+    },
+    "reports": [
+      "target/filter-optimization/tests.log",
+      "target/filter-optimization/performance.json",
+      "target/filter-optimization/load-all-regression.json"
+    ],
+    "measurement_scope": "One local warm-cache backend run, no controlled before/after benchmark, no peak RSS or GUI FPS claim."
+  },
+  "typed_filter_controls_and_english_terms": {
+    "recorded_at_UTC": "2026-10-31T14:55:14.963927+00:00",
+    "application_mach_o_uuid": "B0CD9CDF-E6FC-393D-B61B-3034D01FBADB",
+    "architecture": "arm64",
+    "unit_tests": {
+      "passed": 198,
+      "failed": 0,
+      "ignored": 1,
+      "ignored_reason": "requires a real macOS audio output device"
+    },
+    "format": "passed",
+    "strict_clippy_all_targets": "passed",
+    "release_bundle": "dist/Parquet Viewer.app",
+    "strict_deep_bundle_signature": "passed",
+    "backend_fixture": {
+      "path": "target/demo/typed-filters.parquet",
+      "rows": 60,
+      "columns": 11,
+      "checks_passed": 10,
+      "checks": [
+        {
+          "field": "amount",
+          "kind": "Number",
+          "operator": "Gt",
+          "rows": 49
+        },
+        {
+          "field": "amount",
+          "kind": "Number",
+          "operator": "Between",
+          "rows": 3
+        },
+        {
+          "field": "event_date",
+          "kind": "Date",
+          "operator": "Between",
+          "rows": 3
+        },
+        {
+          "field": "event_date",
+          "kind": "Date",
+          "operator": "Gt",
+          "rows": 32
+        },
+        {
+          "field": "happened_at",
+          "kind": "DateTime",
+          "operator": "Gt",
+          "rows": 32
+        },
+        {
+          "field": "local_time",
+          "kind": "Time",
+          "operator": "Between",
+          "rows": 3
+        },
+        {
+          "field": "active",
+          "kind": "Boolean",
+          "operator": "Eq",
+          "rows": 30
+        },
+        {
+          "field": "title",
+          "kind": "Text",
+          "operator": "Contains",
+          "rows": 9
+        },
+        {
+          "field": "items",
+          "kind": "NullOnly",
+          "operator": "IsNotNull",
+          "rows": 60
+        },
+        {
+          "field": "numeric_text",
+          "kind": "Text",
+          "operator": "Contains",
+          "rows": 15
+        }
+      ],
+      "source_row_identities_checked_for_every_result": true,
+      "report": "target/typed-filter-validation.json"
+    },
+    "regressions": [
+      "field kind classification shared by UI and validation, including aliases and precision-qualified types",
+      "numeric quick comparisons and range, Decimal precision and exact BIGNUM/TIME_NS literals",
+      "Date/DateTime/Time labels and typed placeholders",
+      "changing incompatible field families clears stale values and selects a valid operator",
+      "calendar month/leap-day bounds and RFC3339 lowercase t initialization",
+      "calendar selection preserves time/fraction/zone after trimming outer whitespace",
+      "Chinese UI keeps professional type names and True/False in English"
+    ],
+    "gui": {
+      "status": "passed",
+      "independent_bundle_id": "org.parquetviewer.feature-qa",
+      "language": "Simplified Chinese; professional type names remain English",
+      "initial_release_uuid": "5855A569-88EF-384F-AA13-6E84E0CAF3B8",
+      "initial_release_checks": {
+        "id_gt_10": {
+          "rows": 49,
+          "first_id": 11,
+          "first_original_row_label": 12,
+          "visible_numeric_comparison_chips": true
+        },
+        "date_between_inclusive": {
+          "start": "2024-02-28",
+          "end": "2024-03-01",
+          "calendar_month_navigation": true,
+          "rows": 3,
+          "original_row_labels": [
+            28,
+            29,
+            30
+          ]
+        },
+        "boolean_true": {
+          "rows": 30,
+          "true_false_buttons_english": true,
+          "original_odd_row_labels": true
+        },
+        "numeric_text_contains_2": {
+          "raw_type": "VARCHAR",
+          "rows": 15,
+          "text_operators_only": true
+        },
+        "time": {
+          "raw_type": "TIME",
+          "equality_before_after_range_controls": true,
+          "placeholder": "HH:MM:SS"
+        }
+      },
+      "final_release_uuid": "B0CD9CDF-E6FC-393D-B61B-3034D01FBADB",
+      "final_release_checks": {
+        "relaunch_and_open_fixture": true,
+        "calendar_footer_iso_hint_on_one_line": true,
+        "timestamp_calendar": {
+          "input": " 2024-02-28 12:34:56.123456789 ",
+          "initial_month": "2024-02",
+          "initial_selected_day": 28,
+          "selected_day": 29,
+          "result_value": "2024-02-29 12:34:56.123456789",
+          "rows": 1,
+          "id": 28,
+          "original_row_label": 29
+        },
+        "list": {
+          "raw_type": "BIGINT[]",
+          "only_NULL_checks": true,
+          "no_value_input": true
+        },
+        "chinese_controls_and_english_SQL_type_badges": true
+      },
+      "qa_exit_verified": true,
+      "original_application_launched": false
+    },
+    "scope": "Typed controls and local calendar do not scan source data. No repeat of prior 5GB benchmark or claim of new throughput/RSS measurements."
+  },
+  "nested_filters_and_preview_sidebar": {
+    "recorded_at_UTC": "2026-10-31T15:47:57.906643+00:00",
+    "application_mach_o_uuid": "E2AEC0C9-2366-38AB-9A60-8921798F172E",
+    "architecture": "arm64",
+    "unit_tests": {
+      "passed": 202,
+      "failed": 0,
+      "ignored": 1,
+      "ignored_reason": "requires a real macOS audio output device",
+      "count_note": "Removed the obsolete Return to Cell-only regression with that action; the current request/token regression remains."
+    },
+    "format_check": "passed",
+    "strict_clippy_all_targets": "passed",
+    "release_bundle": "dist/Parquet Viewer.app",
+    "strict_deep_bundle_signature": "passed",
+    "backend": {
+      "fixture": "target/demo/nested-filters.parquet",
+      "rows": 60,
+      "checks": [
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"age\"], operator: Gt, value: \"70\", second_value: \"\" }]",
+          "rows": 9,
+          "ids": [
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"stats\", \"score\"], operator: Eq, value: \"27.123456789012345678\", second_value: \"\" }]",
+          "rows": 1,
+          "ids": [
+            27
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"stats\", \"active\"], operator: Eq, value: \"true\", second_value: \"\" }]",
+          "rows": 24,
+          "ids": [
+            2,
+            4,
+            6,
+            8,
+            12,
+            14,
+            16,
+            18,
+            22,
+            24,
+            26,
+            28,
+            32,
+            34,
+            36,
+            38,
+            42,
+            44,
+            46,
+            48,
+            52,
+            54,
+            56,
+            58
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"tags\"], operator: Contains, value: \"Alpha\", second_value: \"\" }]",
+          "rows": 46,
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9,
+            11,
+            12,
+            13,
+            15,
+            16,
+            17,
+            18,
+            19,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            29,
+            31,
+            32,
+            33,
+            34,
+            36,
+            37,
+            38,
+            39,
+            41,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            51,
+            52,
+            53,
+            54,
+            55,
+            57,
+            58,
+            59
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"tags\"], operator: Contains, value: \"alpha\", second_value: \"\" }]",
+          "rows": 0,
+          "ids": []
+        },
+        {
+          "conditions": "[FilterCondition { field: \"numbers\", path: [], operator: Contains, value: \"28\", second_value: \"\" }]",
+          "rows": 1,
+          "ids": [
+            27
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"numbers\", path: [], operator: IsEmpty, value: \"\", second_value: \"\" }]",
+          "rows": 8,
+          "ids": [
+            7,
+            14,
+            21,
+            28,
+            35,
+            42,
+            49,
+            56
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"numbers\", path: [], operator: IsNull, value: \"\", second_value: \"\" }]",
+          "rows": 6,
+          "ids": [
+            0,
+            10,
+            20,
+            30,
+            40,
+            50
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"flags\", path: [], operator: Contains, value: \"true\", second_value: \"\" }]",
+          "rows": 30,
+          "ids": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            22,
+            24,
+            26,
+            28,
+            30,
+            32,
+            34,
+            36,
+            38,
+            40,
+            42,
+            44,
+            46,
+            48,
+            50,
+            52,
+            54,
+            56,
+            58
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"dates\", path: [], operator: Contains, value: \"2024-02-29\", second_value: \"\" }]",
+          "rows": 1,
+          "ids": [
+            28
+          ]
+        },
+        {
+          "conditions": "[FilterCondition { field: \"profile\", path: [\"stats\", \"active\"], operator: Eq, value: \"true\", second_value: \"\" }, FilterCondition { field: \"numbers\", path: [], operator: Contains, value: \"33\", second_value: \"\" }]",
+          "rows": 1,
+          "ids": [
+            32
+          ]
+        }
+      ],
+      "scope": "Real Struct/List typed filters, exact Decimal, whole Text membership, Boolean, Date, empty/NULL, All conditions and original row identities. Also contains an embedded SVG Photo for sidebar GUI validation."
+    },
+    "additional_unit_coverage": [
+      "25 actual Parquet Struct/List cases including quoted field paths, exact Decimal and BIGINT, Date, Boolean, empty List, NULL List and NULL elements",
+      "literal dot-containing root fields stay distinct from Struct path segments",
+      "unsafe paths and unsupported nested element literals rejected before query",
+      "List Text matches whole elements case-sensitively; scalar Text remains case-insensitive",
+      "original one-based row identity preserved"
+    ],
+    "gui": {
+      "status": "passed",
+      "independent_bundle_id": "org.parquetviewer.feature-qa",
+      "language": "Simplified Chinese with English professional type names",
+      "initial_release_uuid": "975C37EA-098A-376B-A348-B32091E26293",
+      "initial_release_checks": {
+        "struct_path_search": "profile.stats.score",
+        "struct_decimal_equality": {
+          "value": "27.123456789012345678",
+          "rows": 1,
+          "id": 27,
+          "original_row_label": 28
+        },
+        "combined_all_condition": "numbers contains 28; same id 27 / original row 28",
+        "same_window_Struct_and_List_table_JSON_preview": true
+      },
+      "intermediate_release_uuid": "EFBA342A-A2F6-3E4D-B18B-136A7EC0F7B9",
+      "intermediate_release_scope": "360 px matching panels, Close only, embedded Photo SVG and Close checked; Data type text was collapsed to an ellipsis and subsequently fixed in the final build.",
+      "final_release_uuid": "E2AEC0C9-2366-38AB-9A60-8921798F172E",
+      "final_release_checks": {
+        "Struct_table_and_JSON": "profile id 1 / original row 2, raw STRUCT type line visible, table plus scrollable JSON",
+        "matching_sidebars": {
+          "width_logical_px": 360,
+          "single_header_row": true,
+          "only_close_action_in_header": true,
+          "matching_padding_and_buttons": true,
+          "Return_to_Cell_removed": true,
+          "nested_Back_retained": true
+        },
+        "list_membership": {
+          "field": "numbers",
+          "value": 28,
+          "rows": 1,
+          "id": 27,
+          "original_row_label": 28,
+          "preview_values": [
+            27,
+            null,
+            28
+          ]
+        },
+        "list_empty_labels": [
+          "空 List",
+          "非空 List"
+        ],
+        "draft_preservation": {
+          "applied_value": 28,
+          "unapplied_value": 29,
+          "retained_after_preview_and_back_to_filters": true,
+          "result_unchanged": true
+        },
+        "copy_and_focus": "Selected List preview element 27, Copy Cell, switched to Filters, Cmd+A/Cmd+V pasted 27 into the value input without copying the main table.",
+        "photo": {
+          "data_type": "STRUCT(bytes BLOB, path VARCHAR)",
+          "embedded_format": "SVG",
+          "bytes": 680,
+          "image_visible_in_same_sidebar": true,
+          "raw_type_visible": true
+        },
+        "Esc_closes_panel_only": true,
+        "Reload_closes_old_preview_and_retains_query_result": true,
+        "main_window_title_remains_dataset_title": true,
+        "no_extra_preview_window_created": true
+      },
+      "qa_exit_verified": true,
+      "user_original_process_was_already_running_and_left_alone": true,
+      "scope": "Focused nested filter and sidebar validation. No repeat of the previous 5GB load, complete media suite, theme suite, or controlled FPS/RSS benchmark."
+    },
+    "concurrent_export_followup": {
+      "temporary_name_includes_process_atomic_counter": true,
+      "existing_parallel_engine_regression_passed": 1,
+      "direct_test_binary_repeats_passed": 20,
+      "note": "An earlier full run once exported 8 rows where 5 were expected; isolated and subsequent full runs passed. The counter eliminates timestamp-only temporary-name collisions, but that event was not conclusively attributed to a collision."
+    },
+    "performance_scope": "Targets are derived once from Schema; no data-value type inference. Preview preparation stays off the UI thread and affects one requested cell. Replaced requests are cancelled/invalidated; conversion of a single giant nested cell can still finish before cancellation is observed. Loaded Arrow remains resident RAM and each window keeps greedy CPU use.",
+    "references": [
+      "https://duckdb.org/docs/1.5/sql/functions/struct.html",
+      "https://duckdb.org/docs/1.5/sql/functions/list.html"
+    ],
+    "reports": [
+      "target/nested-panel-tests.log",
+      "target/nested-panel-clippy.log",
+      "target/nested-panel-release.log",
+      "target/nested-filter-validation.json"
+    ]
+  }
+}

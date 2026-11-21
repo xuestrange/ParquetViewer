@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+    </array>
+    <key>CFBundleDisplayName</key>
+    <string>Parquet Viewer</string>
+    <key>CFBundleName</key>
+    <string>Parquet Viewer</string>
+    <key>CFBundleExecutable</key>
+    <string>parquet-viewer</string>
+    <key>CFBundleIconFile</key>
+    <string>ParquetViewer.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.parquetviewer.macos</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>12.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Parquet Viewer contributors. GPL-3.0-or-later.</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Apache Parquet file</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>ParquetDocument.icns</string>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+                <string>parquet</string>
+                <string>parquet.gz</string>
+                <string>parquet.gzip</string>
+            </array>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>org.parquetviewer.parquet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Comma-separated values file</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>CSVDocument.icns</string>
+            <key>LSHandlerRank</key>
+            <string>Default</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>public.comma-separated-values-text</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Delimited text file</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>public.tab-separated-values-text</string>
+                <string>public.utf8-plain-text</string>
+            </array>
+        </dict>
+    </array>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>org.parquetviewer.parquet</string>
+            <key>UTTypeDescription</key>
+            <string>Apache Parquet file</string>
+            <key>UTTypeIconFile</key>
+            <string>ParquetDocument.icns</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>parquet</string>
+                    <string>parquet.gz</string>
+                    <string>parquet.gzip</string>
+                </array>
+                <key>public.mime-type</key>
+                <string>application/vnd.apache.parquet</string>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>

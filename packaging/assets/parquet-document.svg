@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Parquet document</title>
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1">
+      <stop stop-color="#F7F7FF"/>
+      <stop offset="1" stop-color="#E3E3FA"/>
+    </linearGradient>
+  </defs>
+  <path d="M231 70h365l241 241v583a60 60 0 0 1-60 60H231a60 60 0 0 1-60-60V130a60 60 0 0 1 60-60Z" fill="#29284F" opacity=".16" transform="translate(8 10)"/>
+  <path d="M239 68h365l241 241v583a60 60 0 0 1-60 60H239a60 60 0 0 1-60-60V128a60 60 0 0 1 60-60Z" fill="url(#paper)" stroke="#AAAADA" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M604 68v192a49 49 0 0 0 49 49h192Z" fill="#C8C7EF"/>
+  <g fill="#5852B8">
+    <rect x="312" y="335" width="110" height="274" rx="17"/>
+    <rect x="457" y="335" width="110" height="96" rx="17"/>
+    <rect x="457" y="458" width="110" height="151" rx="17"/>
+    <rect x="602" y="335" width="110" height="274" rx="17"/>
+  </g>
+  <path d="M176 692h672v200a63 63 0 0 1-63 63H239a63 63 0 0 1-63-63Z" fill="#504AA9"/>
+  <text x="512" y="852" text-anchor="middle" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="106" font-weight="700" letter-spacing="2" fill="#FFFFFF">PARQUET</text>
+</svg>

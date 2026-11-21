@@ -1,0 +1,194 @@
+{
+  "completed_utc": "2026-11-01T07:01:30.032023+00:00",
+  "scope": "Same-range field reuse and project-before-gather exports; final UI width/result publication fix. CPU and memory performance are measured CLI workloads, not GUI latency or FPS.",
+  "final_app_uuid": "C89318B0-6CAD-3FD2-8EA6-2A819461A042",
+  "final_artifacts": {
+    "binaries": [
+      {
+        "path": "target/release/parquet-viewer",
+        "bytes": 122300640,
+        "sha256": "55b76891c80d94a26900b5bf8f6ed6d18b321687f9f1896980fa607fc5fb2a24",
+        "uuid": "UUID: C89318B0-6CAD-3FD2-8EA6-2A819461A042 (arm64) target/release/parquet-viewer"
+      },
+      {
+        "path": "dist/Parquet Viewer.app/Contents/MacOS/parquet-viewer",
+        "bytes": 121589696,
+        "sha256": "9daf349de38929d45a0da4e5ee55cccc1e15acbf82d72667c25bc034fd695609",
+        "uuid": "UUID: C89318B0-6CAD-3FD2-8EA6-2A819461A042 (arm64) dist/Parquet Viewer.app/Contents/MacOS/parquet-viewer"
+      },
+      {
+        "path": "target/feature-qa/Parquet Viewer QA.app/Contents/MacOS/parquet-viewer",
+        "bytes": 121589712,
+        "sha256": "4ba5e6fe14b91ec00c546ca703092144975666ff76e7a8d6d4fed7f0324a7687",
+        "uuid": "UUID: C89318B0-6CAD-3FD2-8EA6-2A819461A042 (arm64) target/feature-qa/Parquet Viewer QA.app/Contents/MacOS/parquet-viewer"
+      }
+    ],
+    "signing": "ad hoc; strict deep verification passed for dist and isolated QA"
+  },
+  "checks": {
+    "unit": {
+      "passed": 203,
+      "failed": 0,
+      "ignored": 1,
+      "ignored_reason": "audio output hardware",
+      "log": "target/projection-tests-final-fixed.log"
+    },
+    "fmt": "passed",
+    "strict_all_target_clippy": {
+      "passed": true,
+      "log": "target/projection-clippy-fixed.log"
+    },
+    "release": {
+      "passed": true,
+      "log": "target/projection-final-release-build.log"
+    },
+    "original_fixtures": {
+      "report": "target/fixture-regressions-78845-1793514295107661000/report.json",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typed_queries": 10,
+    "typed_report": "target/projection-typed-filters.json",
+    "nested_queries": 11,
+    "nested_report": "target/projection-nested-filters.json"
+  },
+  "performance": {
+    "report": "docs/projection-performance-2026-11-01.json",
+    "sha256": "d63350393a9f7bcb00f2e08fd6ba4330bf55cc6bda0866482edac0ebb70db940",
+    "run_protocol": "target/projection-perf-20261101/protocol.json",
+    "run_execution": "target/projection-perf-20261101/execution.json",
+    "large_after_only": "target/projection-large-fields-after.json",
+    "large_system": "target/projection-large-fields-after-system.json",
+    "claim_limit": "Large source is an after-only single correctness run, not a paired speedup or RSS improvement."
+  },
+  "source_integrity": {
+    "path": "target/demo/load-all-progress.parquet",
+    "sha256_before_after": "9c58378ac1b3b054402d7945c265966a2bd92d154efd864634a6898d2617f33d",
+    "unchanged_after_final_gui": true,
+    "bytes": 424711247,
+    "device": 16777231,
+    "inode": 68143692,
+    "mtime_ns": 1793453824213147686
+  },
+  "source_provenance": {
+    "changed_rust_sources": [
+      {
+        "file": "src/columnar.rs",
+        "added_lines": 545,
+        "removed_lines": 11,
+        "sha256": "aba7caa2870b7c9071db73a715069c870a54a5b19b26e4179b2dbbf07820bbec"
+      },
+      {
+        "file": "src/engine.rs",
+        "added_lines": 370,
+        "removed_lines": 27,
+        "sha256": "2253e1895bf55baa0d3618a5df226c5c80d65160690f19e2ce6b8a989d59aa73"
+      },
+      {
+        "file": "src/export.rs",
+        "added_lines": 232,
+        "removed_lines": 22,
+        "sha256": "c63243aee8669e2526404441c8d19b47bd99c745e8da69e2d3131e3452b14fb5"
+      },
+      {
+        "file": "src/source_loader.rs",
+        "added_lines": 13,
+        "removed_lines": 1,
+        "sha256": "ddcd339b499d2079511dcc0df7b987c71b8f8c37fb3cf1d7de7332b122fd4057"
+      }
+    ],
+    "benchmark_body_sha256": "554ce7446a6a822e85bee47e9f8897d528b407cc28507de3c732edfc62f09235",
+    "benchmark_bodies_identical": true,
+    "cargo_toml_unchanged": true,
+    "cargo_lock_unchanged": true,
+    "ui_fix_sources": [
+      {
+        "file": "src/app.rs",
+        "sha256": "7fcbc9061345c696e908e8bf7f3706254e9fc7ff21ecef8754420d68e539c721"
+      },
+      {
+        "file": "src/table_state.rs",
+        "sha256": "c8aaf374128836bc442f00c7d55c4d9acf3a49031178547eba7d7a95de84d418"
+      }
+    ],
+    "scope": "Four measured backend sources remain unchanged since paired release profiling; UI fix updates result/width publication only. Bench example does not import app.rs or table_state.rs."
+  },
+  "gui": {
+    "passed": true,
+    "app_uuid": "C89318B0-6CAD-3FD2-8EA6-2A819461A042",
+    "data_rows": 200000,
+    "load_id_details_status_ms": 147,
+    "checks": [
+      "subset id without losing rows",
+      "add missing note",
+      "reselect cached details",
+      "unchanged Fields Apply without crash",
+      "id descending sort",
+      "Number id >= 199997 retains source row numbers",
+      "Struct table and JSON Preview",
+      "native Parquet export and exact readback"
+    ],
+    "export": {
+      "app_uuid": "C89318B0-6CAD-3FD2-8EA6-2A819461A042",
+      "export": "target/projection-final-ui/export.parquet",
+      "rows": 3,
+      "columns": [
+        "id",
+        "details",
+        "note"
+      ],
+      "validated": [
+        {
+          "id": 199999,
+          "gui_original_row_number": 200000,
+          "note": "record 199999",
+          "customer": {
+            "id": 99996,
+            "city": "杭州"
+          },
+          "payload_bytes": 2048,
+          "optional": 199999
+        },
+        {
+          "id": 199998,
+          "gui_original_row_number": 199999,
+          "note": "record 199998",
+          "customer": {
+            "id": 99995,
+            "city": "上海"
+          },
+          "payload_bytes": 2048,
+          "optional": 199998
+        },
+        {
+          "id": 199997,
+          "gui_original_row_number": 199998,
+          "note": "record 199997",
+          "customer": {
+            "id": 99994,
+            "city": "杭州"
+          },
+          "payload_bytes": 2048,
+          "optional": null
+        }
+      ],
+      "roundtrip_report": "target/fixture-regressions-79914-1793516364551492000/report.json",
+      "cells_compared": 9,
+      "sort_checks": 6,
+      "source_unchanged": true
+    },
+    "limits": "Final GUI focused on fields, Number filter, sort, Struct Preview and Parquet export. Theme/freeze/multiwindow/photo suites were not all rerun in this final GUI pass."
+  },
+  "cleanup": {
+    "qa_app_confirmed_stopped": true,
+    "original_parquet_apps_running": false,
+    "temporary_caffeinate_stopped": true,
+    "persistent_power_settings_changed": false
+  },
+  "delivery": {
+    "app": "dist/Parquet Viewer.app",
+    "applications_copy_updated": false,
+    "signing": "ad hoc; no Developer ID or notarization"
+  }
+}
