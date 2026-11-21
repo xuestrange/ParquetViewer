@@ -351,7 +351,7 @@ fn main() -> Result<()> {
             ..Default::default()
         },
     )?;
-    let null_report = json!({"source":null_path.canonicalize()?,"rows":null_full.row_count(),"columns":null_full.columns.len(),"open_ms":null_open_ms,"query_ms":null_query_ms,"engine_elapsed_ms":null_full.elapsed_ms,"arrow_array_memory_bytes":null_full.data.memory_size(),"historical_display_budget_estimate_mib":104.50,"historical_estimate_scope":"Prior Cell representation estimate recorded in docs/data-behavior.md; not an observed RSS baseline or a controlled memory comparison","checks":null_checks(&null_full)?});
+    let null_report = json!({"source":null_path.canonicalize()?,"rows":null_full.row_count(),"columns":null_full.columns.len(),"open_ms":null_open_ms,"query_ms":null_query_ms,"engine_elapsed_ms":null_full.elapsed_ms,"arrow_array_memory_bytes":null_full.data.memory_size(),"historical_display_budget_estimate_mib":104.50,"historical_estimate_scope":"Prior Cell representation estimate from docs/data-behavior.md at commit d390c20. No process RSS or controlled comparison was measured.","checks":null_checks(&null_full)?});
     let null_snapshot = null_full.snapshot_id.clone();
     drop(null_full);
 
