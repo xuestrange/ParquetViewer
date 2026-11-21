@@ -1,0 +1,76 @@
+name: Release macOS DMG
+run-name: Release ${{ github.ref_name }}
+
+on:
+  push:
+    tags: ['**']
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    env:
+      RUSTUP_TOOLCHAIN: 1.88.0
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
+      PARQUET_VIEWER_BUILD_NUMBER: ${{ github.run_number }}
+      DMG: dist/Parquet-Viewer-macOS-arm64.dmg
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up the tagged build
+        shell: bash
+        run: |
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --no-self-update
+          # Apple requires a numeric bundle version, even for named or prerelease tags.
+          version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' packaging/Info.plist)
+          if [[ "$GITHUB_REF_NAME" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+)([-+].+)?$ ]]; then
+            version=${BASH_REMATCH[1]}
+          fi
+          echo "PARQUET_VIEWER_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Build and package the Apple Silicon app
+        run: scripts/bundle-macos.sh --dmg
+
+      - name: Verify the app inside the disk image
+        shell: bash
+        run: |
+          mount_dir=$(mktemp -d "$RUNNER_TEMP/parquetviewer.XXXXXX")
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount_dir" "$DMG"
+          trap 'hdiutil detach "$mount_dir"' EXIT
+          app="$mount_dir/Parquet Viewer.app"
+          plist="$app/Contents/Info.plist"
+          codesign --verify --deep --strict "$app"
+          lipo "$app/Contents/MacOS/parquet-viewer" -verify_arch arm64
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")" = "$PARQUET_VIEWER_VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")" = "$PARQUET_VIEWER_BUILD_NUMBER"
+          test "$(readlink "$mount_dir/Applications")" = /Applications
+
+      - name: Publish the verified DMG
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=$GITHUB_REF_NAME
+          if release=$(gh release view --json isDraft,assets -- "$tag"); then
+            if [[ $(jq -r '.isDraft' <<< "$release") == true ]]; then
+              gh release upload --clobber -- "$tag" "$DMG"
+              gh release edit --draft=false --verify-tag -- "$tag"
+            elif ! jq -e --arg name "${DMG##*/}" '.assets | any(.name == $name and .size > 0)' <<< "$release" >/dev/null; then
+              gh release upload -- "$tag" "$DMG"
+            fi
+          else
+            flags=(--verify-tag --title "ParquetViewer $tag" --generate-notes)
+            if [[ "$tag" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+- ]]; then
+              flags+=(--prerelease)
+            fi
+            gh release create "${flags[@]}" -- "$tag" "$DMG"
+          fi

@@ -16,7 +16,7 @@ ParquetViewer is a native macOS app for browsing, filtering, and analyzing Parqu
 
 ## Install
 
-On Apple Silicon, open `Parquet-Viewer-macOS-arm64.dmg` and drag **Parquet Viewer** into **Applications**. The default build is ad hoc signed and has no Apple notarization. To create the disk image on your Mac, follow the [build instructions](#build-from-source).
+On Apple Silicon, download the DMG, open it, and drag **Parquet Viewer** into **Applications**. The app is ad hoc signed and has no Apple notarization. [Download the latest DMG](https://github.com/xuestrange/ParquetViewer/releases/latest/download/Parquet-Viewer-macOS-arm64.dmg)
 
 ## Quick start
 
@@ -41,3 +41,14 @@ The app uses Rust and GPUI for the interface and Apache Arrow and DataFusion for
 | Build the app and DMG | `scripts/bundle-macos.sh --dmg` |
 
 The packaging script writes the app and DMG to `dist/`.
+
+## Publish a release
+
+Push a new Git tag to start the release workflow. GitHub Actions builds the tagged source on an Apple Silicon Mac, checks the signed app inside the DMG, and attaches the image to the GitHub Release.
+
+```sh
+git tag -a v0.2.0 -m "Release v0.2.0"
+git push origin v0.2.0
+```
+
+A tag such as `v0.2.0` sets the app version to `0.2.0`. A tag such as `v0.2.0-beta.1` publishes a GitHub prerelease with the same numeric app version. Other tag names use the version in the app’s Info.plist.
