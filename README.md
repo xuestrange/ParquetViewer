@@ -2,12 +2,12 @@
 
 <img src="packaging/assets/app-icon-1024.png" width="128" height="128" alt="ParquetViewer app icon">
 
-ParquetViewer is a native macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files. You can open files in separate windows. Source files stay read-only. The interface supports English and Simplified Chinese, with light, dark, and system appearance.
+ParquetViewer is a native and embarassingly fast macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files, powered by Rust Arrow, DataFusion, and GPUI. 
 
 ![A table of bookshop orders with the selected delivery cell open in Quick Peek, showing its city and service as a table and as JSON.](docs/screenshots/parquet-quick-peek.jpg)
 
 ## Features
-
+- **Fast and Memory Efficient**  Powered by Rust Arrow and DataFusion, it sufficiently utilize the memory and CPU resources, supporting the check of big datasets.
 - **Preview text imports.** Check the delimiter, header, and inferred column types before opening a CSV or TSV. Set an identifier to **Text** to keep its leading zeros.
 - **Navigate large tables.** Load a row range, choose which fields to display, freeze rows or columns, and sort by multiple fields. For large text files, you can cancel a range load and reuse the row index for later jumps. Save a view and restore it when you reopen the same file.
 - **Find and filter records.** Search the current result or combine filter conditions across the loaded range or the whole file. Filters can inspect fields inside a Struct and values inside a List. Source row numbers stay attached to matching records.
