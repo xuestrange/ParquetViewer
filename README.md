@@ -1,6 +1,8 @@
-# Parquet Viewer for macOS
+# ParquetViewer
 
-Parquet Viewer is a native macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files. You can open files in separate windows. Source files stay read-only. The interface supports English and Simplified Chinese, with light, dark, and system appearance.
+<img src="packaging/assets/app-icon-1024.png" width="128" height="128" alt="ParquetViewer app icon">
+
+ParquetViewer is a native macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files. You can open files in separate windows. Source files stay read-only. The interface supports English and Simplified Chinese, with light, dark, and system appearance.
 
 ![A table of bookshop orders with the selected delivery cell open in Quick Peek, showing its city and service as a table and as JSON.](docs/screenshots/parquet-quick-peek.jpg)
 
