@@ -6,7 +6,7 @@ use std::{
         Arc, Mutex,
         atomic::{AtomicBool, Ordering},
     },
-    time::{Duration, SystemTime},
+    time::{Duration, Instant, SystemTime},
 };
 
 use crate::controls::{self, ButtonStyle};
@@ -30,7 +30,7 @@ use crate::{
     },
     filter_editor::{FilterEditor, FilterEditorEvent},
     filtering::FilterGroup,
-    formatting::{BinaryFormat, FloatDisplay},
+    formatting::{BinaryFormat, FloatDisplay, count_label},
     i18n::{self, Language, t},
     icons::{self, Icon},
     peek::{PeekData, PeekEvent, PeekKey, PeekView},
@@ -51,8 +51,6 @@ mod export_controls;
 mod fields_controls;
 #[path = "filter_controls.rs"]
 mod filter_controls;
-#[path = "find_controls.rs"]
-mod find_controls;
 #[path = "profile_controls.rs"]
 mod profile_controls;
 #[path = "saved_views.rs"]
@@ -61,6 +59,8 @@ mod saved_views;
 mod settings_menu;
 #[path = "sort_controls.rs"]
 mod sort_controls;
+#[path = "status_bar.rs"]
+mod status_bar;
 #[path = "table_interactions.rs"]
 mod table_interactions;
 #[path = "table_view.rs"]
@@ -87,9 +87,6 @@ actions!(
         OpenSavedViews,
         Fields,
         OpenStatistics,
-        FindInResults,
-        FindNext,
-        FindPrevious,
         Execute,
         LoadRange,
         LoadAll,
@@ -435,7 +432,6 @@ enum Panel {
     Export,
     AggregateExport,
     Sort,
-    Find,
     SavedViews,
     Cell,
     Help,
@@ -470,6 +466,20 @@ struct SidebarResize {
     dragged: bool,
 }
 
+struct BusyOperation {
+    label: &'static str,
+    started_at: Instant,
+}
+
+impl From<&'static str> for BusyOperation {
+    fn from(label: &'static str) -> Self {
+        Self {
+            label,
+            started_at: Instant::now(),
+        }
+    }
+}
+
 pub struct Viewer {
     main_window: Option<gpui::WindowHandle<Viewer>>,
     pub(super) window_color_index: u64,
@@ -497,7 +507,6 @@ pub struct Viewer {
     sidebar_width: Option<f32>,
     sidebar_resize: Option<SidebarResize>,
     sort_controls: Option<sort_controls::SortControls>,
-    find: Option<find_controls::FindControls>,
     saved_views: Option<saved_views::SavedViewsControls>,
     csv_import: Option<csv_controls::CsvImport>,
     csv_options: Option<CsvOptions>,
@@ -531,7 +540,7 @@ pub struct Viewer {
     pinned_scroll: RowsScrollState,
     frozen_horizontal: ScrollHandle,
     panel: Option<Panel>,
-    busy: Option<String>,
+    busy: Option<BusyOperation>,
     query_progress: Option<QueryProgress>,
     status_progress_tick: u8,
     error: Option<String>,
@@ -574,6 +583,16 @@ pub struct Viewer {
 }
 
 impl Viewer {
+    fn status_activity(&self) -> Option<(&'static str, Instant)> {
+        self.busy
+            .as_ref()
+            .map(|job| (job.label, job.started_at))
+            .or_else(|| {
+                self.column_profile_started_at()
+                    .map(|started| ("Calculating descriptive statistics…", started))
+            })
+    }
+
     fn new(window_color_index: u64, cx: &mut Context<Self>) -> Self {
         let preferences = cx.global::<SharedPreferences>().0.clone();
         i18n::set_language(preferences.language);
@@ -664,7 +683,6 @@ impl Viewer {
             sidebar_width: None,
             sidebar_resize: None,
             sort_controls: None,
-            find: None,
             saved_views: None,
             csv_import: None,
             csv_options: None,
@@ -741,7 +759,6 @@ impl Viewer {
         };
         cx.on_release(|this, cx| {
             this.close_column_profile();
-            this.cancel_find();
             this.cancel_aggregation_chart_refresh();
             this.binary_scan_cancel.store(true, Ordering::Relaxed);
             if let Some(cancel) = this.operation_cancel.take() {
@@ -975,7 +992,6 @@ impl Viewer {
                 match outcome.take().unwrap() {
                     Ok((engine, stamps, loaded)) => {
                         this.csv_import = None;
-                        this.reset_find();
                         this.saved_views = None;
                         this.reset_aggregation_controls(cx);
                         this.close_preview(cx);
@@ -1430,7 +1446,6 @@ impl Viewer {
             self.refresh_aggregation_charts(cx);
         }
         if language_changed {
-            self.sync_find_inputs(cx);
             self.sync_saved_view_input(cx);
             self.sync_sort_inputs(cx);
             self.display_cache.borrow_mut().clear();
@@ -1456,7 +1471,6 @@ impl Viewer {
         }
         self.preferences.dark = dark;
         self.set_csv_import_dark(dark, cx);
-        self.sync_find_inputs(cx);
         self.sync_saved_view_input(cx);
         self.sync_sort_inputs(cx);
         for input in [
@@ -1506,7 +1520,6 @@ impl Viewer {
         }
     }
     fn close_file(&mut self, cx: &mut Context<Self>) {
-        self.reset_find();
         self.saved_views = None;
         self.file_menu_open = false;
         self.reset_aggregation_controls(cx);
@@ -1618,7 +1631,6 @@ impl Viewer {
     }
 
     fn dismiss_panel(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.cancel_find();
         self.sort_controls = None;
         if self.panel == Some(Panel::CsvImport) {
             self.dismiss_csv_import(cx);
@@ -1652,7 +1664,6 @@ impl Viewer {
                 self.statistics_tab == Some(StatisticsTab::Aggregation)
                     && editor.read(cx).input_focused(window, cx)
             })
-            || self.find_input_focused(window, cx)
             || self.saved_view_input_focused(window, cx)
             || self.sort_input_focused(window, cx)
             || self.csv_import_input_focused(window, cx)
@@ -3043,7 +3054,6 @@ impl Viewer {
         if result.is_none() {
             self.close_statistics_sidebar(cx);
         }
-        self.cancel_find();
         if let Some(next) = &result
             && (self.widths.len() != next.columns.len()
                 || self.result.as_ref().is_none_or(|previous| {
@@ -3397,250 +3407,6 @@ impl Viewer {
             .into_any_element()
     }
 
-    fn render_status_bar(&self, cx: &mut Context<Self>) -> gpui::Div {
-        let dark = self.preferences.dark;
-        let c = Colors::new(dark);
-        let memory = cx.global::<MainWindowRegistry>().process_memory_bytes;
-        let badge = |id, label: String, foreground, background| {
-            div()
-                .id(id)
-                .h(px(16.))
-                .px(px(6.))
-                .flex_shrink_0()
-                .flex()
-                .items_center()
-                .whitespace_nowrap()
-                .rounded(px(2.))
-                .bg(rgb(background))
-                .text_color(rgb(foreground))
-                .font_weight(gpui::FontWeight::MEDIUM)
-                .child(label)
-        };
-        div()
-            .h(px(22.))
-            .flex_shrink_0()
-            .flex()
-            .items_center()
-            .gap_1()
-            .px_2()
-            .bg(rgb(c.bar))
-            .border_t_1()
-            .border_color(rgb(c.border))
-            .text_size(px(10.))
-            .text_color(rgb(c.muted))
-            .when_some(self.paths.first(), |bar, path| {
-                let name = path
-                    .file_name()
-                    .unwrap_or(path.as_os_str())
-                    .to_string_lossy();
-                let label = if self.modified {
-                    format!("● {name}")
-                } else {
-                    name.into_owned()
-                };
-                bar.child(
-                    div()
-                        .id("dataset-file-name")
-                        .h(px(16.))
-                        .max_w(px(260.))
-                        .min_w_0()
-                        .px(px(6.))
-                        .flex()
-                        .items_center()
-                        .rounded(px(2.))
-                        .bg(rgb(c.accent_soft))
-                        .text_color(rgb(c.accent))
-                        .font_weight(gpui::FontWeight::BOLD)
-                        .tooltip(icons::tooltip(path.display().to_string(), dark))
-                        .child(div().min_w_0().truncate().child(label)),
-                )
-            })
-            .when(
-                self.aggregation_base.is_some() && self.busy.is_none(),
-                |bar| {
-                    bar.child(
-                        self.button(
-                            "back-to-details-status",
-                            "Back to all details",
-                            true,
-                            |this, _, cx| this.restore_aggregation_details(cx),
-                            cx,
-                        )
-                        .h(px(20.)),
-                    )
-                },
-            )
-            .child(div().flex_1().min_w_0().truncate().child(t(&self.notice)))
-            .when_some(
-                self.busy.as_deref().or_else(|| {
-                    self.column_profile_running()
-                        .then_some("Calculating descriptive statistics…")
-                }),
-                |bar, message| bar.child(self.render_status_progress(message, c, cx)),
-            )
-            .when_some(self.result.as_ref(), |bar, result| {
-                let offset = self.displayed_request.offset;
-                let whole_source = self.displayed_request.whole_source;
-                let loaded = result.loaded_rows;
-                let total = result.total_rows;
-                let all_rows =
-                    (whole_source || offset == 0) && result.total_rows_known && loaded == total;
-                let scope = if all_rows {
-                    t("All ({count} rows)").replace("{count}", &total.to_string())
-                } else if whole_source {
-                    format!("{} {loaded} / {total}", t("Matched source rows"))
-                } else if loaded == 0 {
-                    t("No rows loaded")
-                } else {
-                    let label = if result.total_rows_known {
-                        t("Rows {first}–{last} of {total}").replace("{total}", &total.to_string())
-                    } else {
-                        t("Rows {first}–{last}")
-                    };
-                    label
-                        .replace("{first}", &offset.saturating_add(1).to_string())
-                        .replace("{last}", &offset.saturating_add(loaded).to_string())
-                };
-                bar.when_some(result.filtered_rows, |bar, count| {
-                    bar.child(div().px_1().flex_shrink_0().whitespace_nowrap().child(
-                        t("Filtered to {count} rows").replace("{count}", &count.to_string()),
-                    ))
-                })
-                .child(badge("load-scope", scope, c.accent, c.accent_soft))
-                .child(
-                    badge(
-                        "load-time",
-                        format!("{} ms", result.elapsed_ms),
-                        c.success,
-                        c.success_bg,
-                    )
-                    .tooltip(icons::tooltip(t("Load time"), dark)),
-                )
-            })
-            .child(
-                badge(
-                    "process-memory",
-                    format!(
-                        "{} {}",
-                        t("Memory"),
-                        crate::process_memory::format_bytes(memory)
-                    ),
-                    c.blue_text,
-                    c.memory_bg,
-                )
-                .tooltip(icons::tooltip(
-                    t("Current process memory footprint; refreshed every 2 seconds."),
-                    dark,
-                )),
-            )
-    }
-
-    fn render_status_progress(
-        &self,
-        message: &str,
-        c: Colors,
-        cx: &mut Context<Self>,
-    ) -> gpui::Div {
-        let dark = self.preferences.dark;
-        let (label, fraction, rows) = self.query_progress.as_ref().map_or_else(
-            || (t(message), None, None),
-            |progress| {
-                let snapshot = progress.snapshot();
-                let scanned = snapshot.phase == QueryPhase::Aggregating
-                    && snapshot.fraction.is_some_and(|fraction| fraction >= 1.);
-                let label = match snapshot.phase {
-                    QueryPhase::Loading
-                        if snapshot.processed_rows == 0 && snapshot.total_rows.is_none() =>
-                    {
-                        message
-                    }
-                    QueryPhase::Loading => "Reading data",
-                    QueryPhase::Indexing => "Scanning text records",
-                    QueryPhase::Preparing => "Loading data into memory",
-                    QueryPhase::Filtering => "Filtering data",
-                    QueryPhase::Sorting => "Sorting data",
-                    QueryPhase::Aggregating if scanned => "Finishing summary…",
-                    QueryPhase::Aggregating => "Aggregating…",
-                    QueryPhase::FinishingAggregation => "Finishing summary…",
-                    QueryPhase::Charting => "Preparing charts…",
-                    QueryPhase::Complete => "Finishing",
-                };
-                let rows = snapshot
-                    .total_rows
-                    .map(|total| format!("{} / {} {}", snapshot.processed_rows, total, t("Rows")));
-                (
-                    t(label),
-                    snapshot
-                        .fraction
-                        .filter(|_| !scanned)
-                        .map(|value| value.clamp(0., 1.)),
-                    rows,
-                )
-            },
-        );
-        let detail = match rows {
-            Some(rows) => format!("{label}\n{rows}"),
-            None => label.clone(),
-        };
-        let fill = div().h_full().rounded(px(2.)).bg(rgb(c.accent));
-        let fill = match fraction {
-            Some(value) => fill.w(gpui::relative(value as f32)).into_any_element(),
-            None => fill
-                .absolute()
-                .w(gpui::relative(0.28))
-                .left(gpui::relative(
-                    f32::from(self.status_progress_tick) * 0.14 - 0.28,
-                ))
-                .into_any_element(),
-        };
-        div()
-            .flex()
-            .flex_shrink_0()
-            .items_center()
-            .gap_2()
-            .pr_1()
-            .child(
-                div()
-                    .id("status-progress")
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .tooltip(icons::tooltip(detail, dark))
-                    .child(div().max_w(px(150.)).truncate().child(label))
-                    .child(
-                        div()
-                            .relative()
-                            .w(px(84.))
-                            .h(px(5.))
-                            .overflow_hidden()
-                            .rounded(px(2.))
-                            .bg(rgb(c.border))
-                            .child(fill),
-                    )
-                    .when_some(fraction, |status, value| {
-                        status.child(format!("{:.0}%", (value * 100.).floor()))
-                    }),
-            )
-            .child(
-                self.button(
-                    "cancel",
-                    "Cancel",
-                    true,
-                    |this, _, cx| {
-                        if this.busy.is_some() {
-                            this.cancel(cx);
-                        } else {
-                            this.cancel_column_profile(cx);
-                        }
-                    },
-                    cx,
-                )
-                .h(px(18.))
-                .px_1()
-                .text_size(px(10.)),
-            )
-    }
-
     fn render_scrollbar(
         &self,
         horizontal: bool,
@@ -3773,7 +3539,6 @@ impl Viewer {
             Panel::Export => "Export Current Results",
             Panel::AggregateExport => "Export Summary Results",
             Panel::Sort => "Sort & Top N",
-            Panel::Find => "Find in Results",
             Panel::SavedViews => "Saved Views",
             Panel::Cell => "Cell Inspector",
             Panel::Help => "Table & Filter Help",
@@ -3808,27 +3573,14 @@ impl Viewer {
                         | Panel::AggregateExport
                         | Panel::About
                         | Panel::Sort
-                        | Panel::Find
                 ),
                 |body| body.overflow_y_scroll(),
             );
         match panel {
             Panel::CsvImport => body = body.child(self.render_csv_import(cx)),
             Panel::Sort => body = body.child(self.render_sort_controls(cx)),
-            Panel::Find => body = body.child(self.render_find_body(cx)),
             Panel::SavedViews => body = body.child(self.render_saved_views_body(cx)),
             Panel::Range => {
-                let grouped_rows = |count: usize| {
-                    let digits = count.to_string();
-                    let mut grouped = String::with_capacity(digits.len() + digits.len() / 3);
-                    for (index, digit) in digits.bytes().enumerate() {
-                        if index > 0 && (digits.len() - index).is_multiple_of(3) {
-                            grouped.push(',');
-                        }
-                        grouped.push(char::from(digit));
-                    }
-                    grouped
-                };
                 let total_rows = self
                     .info
                     .as_ref()
@@ -3883,7 +3635,7 @@ impl Viewer {
                                         .justify_between()
                                         .gap_3()
                                         .child(t("Total source rows"))
-                                        .child(grouped_rows(total)),
+                                        .child(count_label(total)),
                                 )
                                 .child(
                                     div()
@@ -3894,7 +3646,7 @@ impl Viewer {
                                         .child(t("Rows remaining from offset"))
                                         .child(
                                             remaining_rows
-                                                .map(grouped_rows)
+                                                .map(count_label)
                                                 .unwrap_or_else(|| "—".into()),
                                         ),
                                 ),
@@ -4169,7 +3921,6 @@ impl Viewer {
                     .w(px(match panel {
                         Panel::Range | Panel::ColumnDisplay { .. } => 420.,
                         Panel::ProfileChartLimit => 460.,
-                        Panel::Find => 640.,
                         Panel::Sort => 680.,
                         _ => 780.,
                     }))
@@ -4181,7 +3932,6 @@ impl Viewer {
                             Panel::Range => 300.,
                             Panel::ProfileChartLimit => 350.,
                             Panel::ColumnDisplay { .. } => 220.,
-                            Panel::Find => 400.,
                             Panel::Export | Panel::AggregateExport | Panel::About => 320.,
                             _ => 560.,
                         }))
@@ -4265,7 +4015,6 @@ impl Render for Viewer {
                 Some(Panel::CsvImport) => self.csv_import_focus(),
                 Some(Panel::ProfileChartLimit) => self.profile_chart_limit.focus_handle(cx),
                 Some(Panel::Range) => self.offset.focus_handle(cx),
-                Some(Panel::Find) => self.find_focus(cx),
                 Some(Panel::SavedViews) => self.saved_view_focus(cx),
                 None if self.fields_sidebar_open => self.field_search.focus_handle(cx),
                 _ => self.focus.clone(),
@@ -4313,9 +4062,6 @@ impl Render for Viewer {
             .on_action(cx.listener(|this, _: &Reload, _, cx| this.reload(cx)))
             .on_action(cx.listener(|this, _: &Export, _, cx| this.show_panel(Panel::Export, cx)))
             .on_action(cx.listener(|this, _: &OpenSavedViews, _, cx| this.open_saved_views(cx)))
-            .on_action(cx.listener(|this, _: &FindInResults, _, cx| this.open_find(false, cx)))
-            .on_action(cx.listener(|this, _: &FindNext, _, cx| this.find_value(false, cx)))
-            .on_action(cx.listener(|this, _: &FindPrevious, _, cx| this.find_value(true, cx)))
             .on_action(
                 cx.listener(|this, _: &Fields, window, cx| this.toggle_fields_sidebar(window, cx)),
             )
@@ -4545,7 +4291,7 @@ impl Render for Viewer {
                         |el, width| el.child(self.render_right_sidebar(width, cx)),
                     ),
             )
-            .child(self.render_status_bar(cx))
+            .child(self.render_status_bar(window, cx))
             .when(self.panel.is_some(), |el| {
                 el.child(self.render_panel(toolbar_layout.height, cx))
             })
@@ -4923,9 +4669,6 @@ pub fn run() {
             KeyBinding::new("cmd-e", LoadAll, None),
             KeyBinding::new("cmd-f", Fields, None),
             KeyBinding::new("ctrl-f", Fields, None),
-            KeyBinding::new("cmd-shift-f", FindInResults, Some("Viewer")),
-            KeyBinding::new("cmd-g", FindNext, Some("Viewer")),
-            KeyBinding::new("cmd-shift-g", FindPrevious, Some("Viewer")),
             KeyBinding::new("cmd-alt-f", FocusFilter, None),
             KeyBinding::new("cmd-alt-g", OpenStatistics, None),
             KeyBinding::new("cmd-c", Copy, Some("Viewer")),

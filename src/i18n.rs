@@ -155,7 +155,7 @@ mod tests {
             ("Statistical Analysis", "统计分析"),
             ("Maximum bars per chart", "每张图的最大柱数"),
             ("Median", "中位数"),
-            ("Original row number 42", "原始行号 42"),
+            ("Duplicate grouping field: city", "重复的分类字段：city"),
             (
                 "… ({count} bytes total; Save Value writes the original bytes)",
                 "…（共 {count} 字节，「保存值」会写出原始字节）",

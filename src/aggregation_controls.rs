@@ -6,7 +6,7 @@ use crate::{aggregation::AggregateResult, aggregation_charts::AggregateCharts};
 mod drilldown;
 
 pub(super) struct AggregationDetail {
-    base: Arc<QueryResult>,
+    pub(super) base: Arc<QueryResult>,
     rows: TableState,
 }
 

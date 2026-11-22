@@ -27,10 +27,10 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         icon: Icon::Filter,
-        title: ("Filter and find", "筛选与查找"),
+        title: ("Filter records", "筛选记录"),
         body: (
-            "Apply conditions in Filters. Choose Entire file to load matching source rows with their original row numbers. Press ⇧⌘F to find text in the current result or jump to an original row by number.",
-            "在「筛选」中添加并应用条件。选择「整个文件」可载入符合条件的源数据行，并保留原始行号。按 ⇧⌘F 可在当前结果中搜索文本，或输入原始行号跳转。",
+            "Open Filters (⌥⌘F) and choose Loaded range or Entire file. Click Add condition and select a text field. Choose Contains, enter the text, and click Apply. The table shows matching rows with their original row numbers.",
+            "打开「筛选」（⌥⌘F），选择「载入范围」或「整个文件」。点击「添加条件」，选择文本字段和「包含」，输入文本后点击「应用」。表格会显示匹配的记录，并保留原始行号。",
         ),
     },
     Topic {
@@ -65,11 +65,6 @@ const SHORTCUTS: &[(&str, Localized)] = &[
     ("⌘R", ("Reload", "重新载入")),
     ("⌘F", ("Choose fields", "选择字段")),
     ("⌥⌘F", ("Open filters", "打开筛选")),
-    ("⇧⌘F", ("Find in results", "在结果中查找")),
-    (
-        "⌘G / ⇧⌘G",
-        ("Next / previous match", "下一个 / 上一个匹配项"),
-    ),
     ("⌥⌘G", ("Open statistical analysis", "打开统计分析")),
     ("⌘C", ("Copy", "复制")),
     ("⇧⌘C", ("Copy with headers", "连同表头复制")),

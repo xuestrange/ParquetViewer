@@ -8,10 +8,7 @@ use arrow::{
     util::display::{ArrayFormatter, FormatOptions, array_value_to_string},
 };
 use serde_json::Value;
-use std::{
-    borrow::Cow,
-    sync::{Arc, OnceLock},
-};
+use std::sync::{Arc, OnceLock};
 
 /// Arrow's global row sorter compares Lists but does not accept Map containers.
 /// The entries of a Map have the same lexicographic order as a List of its
@@ -1319,23 +1316,6 @@ impl ArrowTable {
         scalar(array, row, &self.data.hints[col].label)
     }
 
-    /// Full Text values borrow their Arrow buffers. Other scalar values use
-    /// the same standard representation as the table's default format.
-    pub(crate) fn search_scalar_text(&self, row: usize, col: usize) -> Option<Cow<'_, str>> {
-        let (array, row) = self.array(row, col)?;
-        let hint = &self.data.hints[col].label;
-        if logical_null(array, row)
-            || nested(array.data_type())
-            || hint.starts_with("UNION(")
-            || self.data.columns[col].data_type == "BLOB"
-        {
-            return None;
-        }
-        Some(match utf8_value(array, row) {
-            Some(text) => Cow::Borrowed(text),
-            None => Cow::Owned(scalar(array, row, hint)),
-        })
-    }
     pub fn cell(&self, row: usize, col: usize) -> Cell {
         let Some((array, index)) = self.array(row, col) else {
             return Cell {

@@ -171,12 +171,6 @@ fn missing_tokens(text: &str) -> String {
 }
 
 pub(super) fn dynamic_text(text: &str) -> Option<String> {
-    if let Some(row) = text
-        .strip_prefix("Original row number ")
-        .filter(|n| number(n))
-    {
-        return Some(format!("原始行号 {row}"));
-    }
     for (prefix, translated) in [
         ("Duplicate grouping field: ", "重复的分类字段"),
         (

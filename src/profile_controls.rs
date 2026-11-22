@@ -15,6 +15,7 @@ pub(super) struct ColumnProfile {
     column: usize,
     info: ColumnInfo,
     mode: ProfileMode,
+    started_at: Instant,
     cancel: Option<Arc<AtomicBool>>,
     outcome: Option<anyhow::Result<ProfilePresentation>>,
 }
@@ -28,12 +29,17 @@ impl ColumnProfile {
 }
 
 impl Viewer {
+    pub(super) fn column_profile_started_at(&self) -> Option<Instant> {
+        self.column_profile
+            .as_ref()
+            .filter(|profile| {
+                self.statistics_tab == Some(StatisticsTab::Descriptive) && profile.cancel.is_some()
+            })
+            .map(|profile| profile.started_at)
+    }
+
     pub(super) fn column_profile_running(&self) -> bool {
-        self.statistics_tab == Some(StatisticsTab::Descriptive)
-            && self
-                .column_profile
-                .as_ref()
-                .is_some_and(|profile| profile.cancel.is_some())
+        self.column_profile_started_at().is_some()
     }
 
     pub(super) fn cancel_column_profile(&mut self, cx: &mut Context<Self>) {
@@ -117,6 +123,7 @@ impl Viewer {
         let cancel = Arc::new(AtomicBool::new(false));
         self.column_profile = Some(ColumnProfile {
             cancel: Some(cancel.clone()),
+            started_at: Instant::now(),
             column,
             info: info.clone(),
             mode,
@@ -346,18 +353,6 @@ impl Viewer {
         };
         body.into_any_element()
     }
-}
-
-fn count_label(value: usize) -> String {
-    let digits = value.to_string();
-    let mut grouped = String::with_capacity(digits.len() + (digits.len() - 1) / 3);
-    for (index, digit) in digits.bytes().enumerate() {
-        if index > 0 && (digits.len() - index).is_multiple_of(3) {
-            grouped.push(',');
-        }
-        grouped.push(char::from(digit));
-    }
-    grouped
 }
 
 fn ratio_label(count: usize, total: usize) -> String {

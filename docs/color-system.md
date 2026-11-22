@@ -45,7 +45,7 @@ Light `accent=#4747C2` is used for links, input focus and interactive text on ma
 
 The adapted values reduce differences in surface, grid, stripe and selection lightness. Their combinations require independent contrast checks. Dark `input_border=#777B84` uses the exact Slate dark 10 color in a role assigned by the application. Input boundaries have more visual weight than decorative grid lines.
 
-Ordinary actions use a flat treatment with hover or selected fills. Primary actions, editable inputs and selected dates keep distinct states. Inputs and buttons use 3 px corner radii. Pop-up menus use 4 px corners and one fine border. Filter conditions use thin separators. The compact main header is 36 px and the status bar is 22 px.
+Ordinary actions use a flat treatment with hover or selected fills. Primary actions, editable inputs and selected dates keep distinct states. Inputs and buttons use 3 px corner radii. Pop-up menus use 4 px corners and one fine border. Filter conditions use thin separators. The compact main header is 36 px and the status bar is 28 px.
 
 Text selection uses `#5B5BD633` in light mode and `#8E8CFF55` in dark mode. Modal and busy overlays use `#11111355` and `#00000088` respectively for light and dark appearances. Their final contrast depends on the surface underneath.
 
@@ -88,7 +88,7 @@ Primary text, secondary text and nested links are checked against each normal an
 
 ## Layout and rendering
 
-The compact design combines commands with the 36 px custom title bar, retains the 22 px status bar, shows filters on demand and groups more complex actions in secondary menus. Typed Arrow results and virtualization on both axes retain table density, frozen panes, NULL semantics and a selection outline painted outside layout.
+The compact design combines commands with the 36 px custom title bar, shows filters on demand and groups more complex actions in secondary menus. Typed Arrow results and virtualization on both axes retain table density, frozen panes, NULL semantics and a selection outline painted outside layout.
 
 Single and rectangular selections have a **2 pt indigo outline**. The table paints one overlay, aligning all four edges to device pixels. A whole-column selection encloses its header and data together. The outline continues across frozen boundaries and clips at the viewport. Grid lines inside the selection take the highlighted cell fill. Marks keep their own hues.
 
@@ -108,8 +108,10 @@ The first eight windows use blue, teal, violet, rose, amber, green, cyan and sla
 
 Follow System resolves GPUI appearance events and updates all main windows, existing TextInputs, filter editors, import wizards, owned Quick Peek views and their text inputs. Windows share persistent preferences and merge individual changes on save to avoid overwriting another window's newer settings. Query state remains per-window. AppKit matching maps high-contrast system appearances to the corresponding light or dark base palette. This neither changes the system appearance nor supplies a separate high-contrast palette. See [theme.rs](../src/theme.rs) and [app.rs](../src/app.rs).
 
-## Status-bar memory metric
+## Status bar
 
-The 22 px status bar displays the current process's **physical footprint** from the macOS public libproc API `proc_pid_rusage(RUSAGE_INFO_V0)`, field `ri_phys_footprint`. Footprint can include compressed memory. The field rounds in IEC units and displays `—` if unavailable.
+The footer spans the table and its sidebar. The iris block identifies the source and turns amber when it changes on disk. The adjacent block shows the displayed rows and fields. Hover over it for the source range, filter matches or Top N limit when available. The middle holds notices. The right side shows the active phase and Cancel, followed by elapsed time and process memory. When idle, the time block shows the duration of the displayed query. Narrow windows shorten the filename and phase label to keep these controls and metrics visible.
+
+The blue memory block displays the current process's **physical footprint** from the macOS public libproc API `proc_pid_rusage(RUSAGE_INFO_V0)`, field `ri_phys_footprint`. Footprint can include compressed memory. The field rounds in IEC units and displays `—` if unavailable.
 
 A single application heartbeat samples in the background roughly every two seconds and broadcasts results to all data windows. A process-wide cache also coalesces near-simultaneous requests. Adding windows adds no sampling loops, and the displayed per-process numbers cannot be summed across windows. Rendering formats cached values. Non-macOS platforms report unavailable. Sampling time and accounting definitions can differ among tools, including Activity Monitor. See [process_memory.rs](../src/process_memory.rs) for implementation and boundary tests.

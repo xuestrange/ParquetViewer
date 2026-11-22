@@ -10,7 +10,7 @@ ParquetViewer is a native and embarassingly fast macOS app for browsing, filteri
 - **Fast and Memory Efficient**  Powered by Rust Arrow and DataFusion, it sufficiently utilize the memory and CPU resources, supporting the check of big datasets.
 - **Preview text imports.** Check the delimiter, header, and inferred column types before opening a CSV or TSV. Set an identifier to **Text** to keep its leading zeros.
 - **Navigate large tables.** Load a row range, choose which fields to display, freeze rows or columns, and sort by multiple fields. For large text files, you can cancel a range load and reuse the row index for later jumps. Save a view and restore it when you reopen the same file.
-- **Find and filter records.** Search the current result or combine filter conditions across the loaded range or the whole file. Filters can inspect fields inside a Struct and values inside a List. Source row numbers stay attached to matching records.
+- **Filter records.** Combine conditions across the loaded range or the whole file. Filters can inspect fields inside a Struct and values inside a List. Source row numbers stay attached to matching records.
 - **Inspect individual cells.** Open a nested Parquet value in Quick Peek to explore its structure or copy its JSON. The sidebar also previews image and audio data.
 - **Analyze and export.** Check missing values, percentiles, and category counts. Group records, chart summaries, and drill into the rows behind a group. Export the current table or its summary to CSV, JSON, Excel, or Parquet.
 
@@ -25,7 +25,7 @@ On Apple Silicon, download the DMG, open it, and drag **Parquet Viewer** into **
 
    ![Text File Import showing the bookshop CSV with a comma delimiter, a header row, and an order date inferred as DATE.](docs/screenshots/csv-import.jpg)
 
-3. **Browse and filter.** Use **Fields** to choose columns and **Filters** to narrow the rows. Press `⇧⌘F` to find a value, `⌘G` for the next match, and `⇧⌘V` to save or restore a view.
+3. **Browse and filter.** Use **Fields** to choose columns. In **Filters**, choose **Entire file**, click **Add condition**, and select a text field. Choose **Contains**, enter the text, and click **Apply** to show matching rows. Press `⇧⌘V` to save or restore a view.
 4. **Analyze and export.** Open **Statistical Analysis** and select a column. In the example below, the median net sale across 720 orders is 24.50. Switch to **Aggregation** to see grouped results. Press `⌘S` to export the current table, or export a summary from the aggregation sidebar.
 
    <img src="docs/screenshots/column-statistics.jpg" width="420" alt="Descriptive Statistics for net_sales across 720 bookshop orders, showing zero missing values, a median of 24.50, and a 95th percentile of 70.50.">

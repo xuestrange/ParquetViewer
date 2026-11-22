@@ -16,16 +16,32 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Add a filter condition before scanning the entire file." => {
             "请先添加筛选条件，再扫描整个文件。"
         }
-        "Matched source rows" => "命中源数据行",
         "Not enough query memory to calculate this summary. Reduce the number of rows or groups." => {
             "计算此汇总所需的内存不足。请减少载入的行数或分组数。"
         }
         "Not enough memory to calculate exact Category counts. Reduce the loaded range." => {
             "可用内存不足以精确统计各类别的数量。请缩小载入范围。"
         }
-        "Load time" => "载入时间",
-        "All ({count} rows)" => "全部（{count} 行）",
-        "Filtered to {count} rows" => "筛选出 {count} 行",
+        "Elapsed {time}" => "已用 {time}",
+        "Elapsed time for the current operation." => "当前操作已用的时间。",
+        "Query {time}" => "查询 {time}",
+        "Elapsed time for the displayed query." => "生成当前查询结果所用的时间。",
+        "{count} files" => "{count} 个文件",
+        "1 field" => "1 个字段",
+        "{count} fields" => "{count} 个字段",
+        "1 row" => "1 行",
+        "{count} rows" => "{count} 行",
+        "1 row shown" => "显示 1 行",
+        "{count} rows shown" => "显示 {count} 行",
+        "1 group row" => "组内 1 行",
+        "{count} group rows" => "组内 {count} 行",
+        "Rows in parent result" => "分组前的结果行数",
+        "Matches in entire file" => "整个文件中匹配的行数",
+        "Matches in loaded range" => "载入范围内匹配的行数",
+        "Filtered within loaded range" => "已在载入范围内筛选",
+        "Loaded rows" => "已载入行数",
+        "Rows processed: {rows}" => "已处理行数：{rows}",
+        "Rows processed: {rows} / {total}" => "已处理行数：{rows} / {total}",
         "No rows loaded" => "未载入记录",
         "Rows {first}–{last} of {total}" => "第 {first}–{last} 行（共 {total} 行）",
         "Rows {first}–{last}" => "第 {first}–{last} 行",
@@ -116,28 +132,7 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
             "无法在当前行数下安全保留 Decimal 精度。请缩小载入范围或选择精度较低的字段。"
         }
         "Saved view contains an invalid Arrow Schema." => "已保存视图中的 Arrow Schema 无效。",
-        "Find in Results" => "在结果中查找",
-        "Find in Results…" => "在结果中查找…",
-        "Find Next" => "查找下一项",
-        "Find Previous" => "查找上一项",
-        "Go to Original Row…" => "跳到原始行…",
-        "Value to find" => "要查找的值",
         "Original row number" => "原始行号",
-        "Enter a value to find." => "请输入要查找的值。",
-        "Choose an available scalar field." => "请选择可用的 Scalar 字段。",
-        "No matching value in the current result." => "当前结果中没有匹配的值。",
-        "Enter a positive original row number." => "请输入大于零的原始行号。",
-        "That original row is not in the current result." => "当前结果中没有该原始行。",
-        "All scalar fields" => "所有 Scalar 字段",
-        "Find literal text in the current result. Text values are searched in full. Other scalar values use their standard representation." => {
-            "在当前结果中查找字面文本。Text 值搜索完整内容，其他 Scalar 值按默认表示查找。"
-        }
-        "Search in" => "查找范围",
-        "Match case" => "区分大小写",
-        "Searching current result…" => "正在查找当前结果…",
-        "Go to a 1-based original row in the current result." => {
-            "跳到当前结果中的原始行，行号从 1 开始。"
-        }
         "Go to Row" => "跳到该行",
         "Saved Views" => "已保存视图",
         "Saved Views…" => "已保存视图…",

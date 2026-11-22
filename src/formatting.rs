@@ -8,6 +8,18 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use serde::{Deserialize, Serialize};
 
+pub(crate) fn count_label(value: usize) -> String {
+    let digits = value.to_string();
+    let mut grouped = String::with_capacity(digits.len() + (digits.len() - 1) / 3);
+    for (index, digit) in digits.bytes().enumerate() {
+        if index > 0 && (digits.len() - index).is_multiple_of(3) {
+            grouped.push(',');
+        }
+        grouped.push(char::from(digit));
+    }
+    grouped
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BinaryFormat {
     #[default]

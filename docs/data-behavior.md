@@ -20,6 +20,8 @@ Quick Peek shares the main window with Filters. Switching to Quick Peek preserve
 
 A filter can apply to the loaded range or the entire file. For the loaded range, the engine evaluates typed conditions against the Arrow batches already in memory. A whole-file filter scans the source and retains the matching rows with their original row numbers. The Parquet scan can skip row groups when their statistics rule out a match.
 
+To filter text across the source, open **Filters** and choose **Entire file**. Click **Add condition**, select a text field, choose **Contains**, enter the text, and click **Apply**. For example, `paris` matches both `Paris` and `Paris, France`. Use **Equals** to match the complete text value.
+
 The sidebar generates typed DataFusion expressions. Struct fields use distinct path segments, and Lists match complete elements in their original type. Decimal and large integers avoid intermediate Float conversion. Date, Time and Timestamp input is validated against the relevant Arrow type. Ordinary Text filters and sorting ignore case, while Text List membership is case-sensitive. Equal sort keys use base indices to maintain stable source order. Each sort rule can place NULLs first or last. Map and nested Map sort keys adapt only the container metadata over shared buffers to a list of key/value structs. Source data remains Map.
 
 ## Filtering large datasets
