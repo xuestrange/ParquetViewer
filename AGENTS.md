@@ -2,6 +2,15 @@
 
 Parquet Viewer is a native macOS desktop app. GPUI owns the windows and table, Arrow holds typed data, and DataFusion runs filters, sorts, and aggregations. The [README](README.md) describes the user-facing workflows.
 
+## Maintenance workflow
+
+Parquet Viewer is in maintenance. Record every completed bug fix, feature addition, and documentation change in Git.
+
+1. Before editing, check the current branch, its upstream, and the staged and unstaged changes. Preserve existing work. Use a focused task branch for changes that need independent testing or review. If existing edits overlap the task, use a separate worktree or stage only the relevant hunks.
+2. Verify the affected workflow using the checks below. Review the staged diff and commit each independent change with a message that describes what it fixes or adds. Report the commit ID, checks run, and any remaining verification gaps.
+3. When asked to push, confirm the destination and use a fast-forward push. If the remote has advanced, fetch, integrate the new commits, and recheck the result. Verify the remote commit after pushing. Use a new corrective commit or `git revert` to undo a published change.
+4. Reserve tags for requested releases. Every tag pushed to this repository starts the macOS release workflow. Follow the [release instructions](README.md#publish-a-release) and push only the intended new annotated tag.
+
 ## Development commands
 
 Run commands from the repository root on macOS with Xcode Command Line Tools and Rust 1.88 or later. Use the checked-in Cargo lockfile.
