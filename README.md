@@ -18,6 +18,12 @@ ParquetViewer is a vibe-coded native and embarassingly fast macOS app for browsi
 
 On Apple Silicon, download the DMG, open it, and drag **Parquet Viewer** into **Applications**. The app is ad hoc signed and has no Apple notarization. [Download the latest DMG](https://github.com/xuestrange/ParquetViewer/releases/latest/download/Parquet-Viewer-macOS-arm64.dmg)
 
+If macOS blocks the first launch of the app from the release DMG, run this command in Terminal to remove its quarantine attribute, then open Parquet Viewer again.
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Parquet\ Viewer.app
+```
+
 ## Quick start
 
 1. **Open a file.** Drop a Parquet or delimited text file on the welcome screen, double-click the drop area to choose a file, or press `⌘O`. Under **Recent Files**, click **×** beside an entry to remove it from the list. CSV, TSV, TAB, TXT, and PSV files open with automatically detected settings. You can browse the indexed rows while the footer shows progress. Hover over the percentage to see how many rows and bytes have been indexed.
