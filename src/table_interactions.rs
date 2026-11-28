@@ -83,7 +83,7 @@ impl Viewer {
         if self.view_rows.is_empty() {
             self.result
                 .as_ref()
-                .filter(|result| source < result.row_count())
+                .filter(|_| source < self.table_row_count())
                 .map(|_| source)
         } else {
             self.view_rows.view(source)
@@ -104,16 +104,17 @@ impl Viewer {
     }
 
     pub(super) fn selected_source_rows(&self) -> Vec<usize> {
-        let (Some(result), Some((start, end))) = (&self.result, self.selection) else {
+        let Some((start, end)) = self.selection else {
             return Vec::new();
         };
-        if result.is_empty() {
+        let rows = self.table_row_count();
+        if rows == 0 {
             return Vec::new();
         }
-        let last = start.0.max(end.0).min(result.row_count() - 1);
+        let last = start.0.max(end.0).min(rows - 1);
         (start.0.min(end.0)..=last)
             .map(|row| self.source_row(row))
-            .filter(|row| *row < result.row_count())
+            .filter(|row| *row < rows)
             .collect()
     }
 
@@ -133,6 +134,7 @@ impl Viewer {
 
     pub(super) fn refresh_table_order(&mut self, cx: &mut Context<Self>) {
         if let Some(result) = &self.result {
+            let rows = self.table_row_count();
             let names: Vec<_> = result
                 .columns
                 .iter()
@@ -145,8 +147,8 @@ impl Viewer {
                     .collect::<Vec<_>>()
             });
             self.table_state
-                .reconcile(result.row_count(), available.as_deref().unwrap_or(&names));
-            self.view_rows = self.table_state.row_order(result.row_count());
+                .reconcile(rows, available.as_deref().unwrap_or(&names));
+            self.view_rows = self.table_state.row_order(rows);
             self.frozen_row_count = self.view_rows.frozen().len();
             let (mut columns, body) = self.table_state.column_order(&names);
             self.frozen_count = columns.len();
@@ -168,6 +170,11 @@ impl Viewer {
         self.audio_seek_drag = false;
         self.scroll.scrollbar_drag_ended();
         self.pinned_scroll.scrollbar_drag_ended();
+        if self.csv_browse.is_some() {
+            self.scroll.set_fixed_height(true);
+            self.pinned_scroll.set_fixed_height(true);
+            self.wrapped_columns.clear();
+        }
         self.scroll
             .reset(self.view_rows.len().saturating_sub(self.frozen_row_count));
         self.pinned_scroll.reset(self.frozen_row_count);
@@ -190,7 +197,7 @@ impl Viewer {
         let Some(result) = &self.result else {
             return;
         };
-        let (rows, columns) = (result.row_count(), result.columns.len());
+        let (rows, columns) = (self.table_row_count(), result.columns.len());
         if columns == 0 || index >= if axis == Axis::Rows { rows } else { columns } {
             return;
         }
@@ -228,15 +235,16 @@ impl Viewer {
         let (Some(result), Some((anchor, _))) = (&self.result, self.selection) else {
             return;
         };
-        if result.is_empty() || result.columns.is_empty() {
+        let rows = self.table_row_count();
+        if rows == 0 || result.columns.is_empty() {
             return;
         }
-        let row = row.min(result.row_count() - 1);
+        let row = row.min(rows - 1);
         let column = column.min(result.columns.len() - 1);
         self.selection = Some(match self.selection_kind {
             SelectionKind::Cells => (anchor, (row, column)),
             SelectionKind::Rows => ((anchor.0, 0), (row, result.columns.len() - 1)),
-            SelectionKind::Columns => ((0, anchor.1), (result.row_count() - 1, column)),
+            SelectionKind::Columns => ((0, anchor.1), (rows - 1, column)),
         });
         cx.notify();
     }
@@ -254,7 +262,7 @@ impl Viewer {
         let Some(result) = &self.result else {
             return;
         };
-        let (rows, columns) = (result.row_count(), result.columns.len());
+        let (rows, columns) = (self.table_row_count(), result.columns.len());
         if columns == 0 || index >= if axis == Axis::Rows { rows } else { columns } {
             return;
         }
@@ -415,7 +423,13 @@ impl Viewer {
         let c = Colors::new(self.preferences.dark);
         // A column selection spans every row. Do not allocate all row IDs just
         // to paint its menu (and vice versa for a whole-row selection).
-        let rows = if menu.axis == Axis::Rows {
+        // Row marks/pins store individual identities. A whole-file selection can
+        // still be copied (within the clipboard budget) without expanding it here.
+        let large_row_selection = self.csv_browse.is_some()
+            && self
+                .selection
+                .is_some_and(|(a, b)| a.0.abs_diff(b.0) >= 4096);
+        let rows = if menu.axis == Axis::Rows && !large_row_selection {
             self.selected_source_rows()
         } else {
             Vec::new()
@@ -430,7 +444,7 @@ impl Viewer {
                 rows.iter().any(|row| self.table_state.is_row_pinned(*row)),
                 !rows.is_empty() && rows.iter().all(|row| self.table_state.is_row_pinned(*row)),
                 self.frozen_row_count > 0,
-                !rows.is_empty(),
+                !rows.is_empty() || large_row_selection,
             ),
             Axis::Columns => (
                 columns
@@ -462,7 +476,11 @@ impl Viewer {
                 AxisMenuItem::action("Auto fit selected columns", AxisCommand::AutoFit, selected),
                 AxisMenuItem {
                     checked: wrapped,
-                    ..AxisMenuItem::action("Word Wrap", AxisCommand::WordWrap(!wrapped), selected)
+                    ..AxisMenuItem::action(
+                        "Word Wrap",
+                        AxisCommand::WordWrap(!wrapped),
+                        selected && self.csv_browse.is_none(),
+                    )
                 },
                 AxisMenuItem::action("Sort ascending", AxisCommand::Sort(false), selected),
                 AxisMenuItem::action("Sort descending", AxisCommand::Sort(true), selected),
@@ -478,7 +496,7 @@ impl Viewer {
                     "Freeze selected columns"
                 },
                 AxisCommand::Freeze,
-                selected && !all_pinned,
+                selected && !all_pinned && (menu.axis != Axis::Rows || !large_row_selection),
             ),
             AxisMenuItem::action(
                 if menu.axis == Axis::Rows {
@@ -518,7 +536,7 @@ impl Viewer {
             items.push(AxisMenuItem {
                 label: color.label(),
                 command: Some(AxisCommand::Mark(Some(color))),
-                enabled: selected,
+                enabled: selected && (menu.axis != Axis::Rows || !large_row_selection),
                 checked,
                 color: Some(color),
             });
@@ -526,7 +544,7 @@ impl Viewer {
         items.push(AxisMenuItem::action(
             "Clear marking",
             AxisCommand::Mark(None),
-            selected,
+            selected && (menu.axis != Axis::Rows || !large_row_selection),
         ));
         if columns.len() == 1
             && let Some(column) = self.selected_source_columns().first().copied()

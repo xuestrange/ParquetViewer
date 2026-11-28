@@ -55,6 +55,10 @@ impl Viewer {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.csv_browse.is_some() {
+            self.choose_browse_range(BrowseCommand::Statistics, cx);
+            return;
+        }
         if self.statistics_tab.is_some() {
             self.close_statistics_sidebar(cx);
             self.focus.focus(window);

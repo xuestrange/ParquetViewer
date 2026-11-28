@@ -681,7 +681,7 @@ impl PartitionStream for AggregateInput {
 
 enum DatasetSource {
     Parquet(ParquetSource),
-    Csv(Box<CsvSource>),
+    Csv(Arc<CsvSource>),
 }
 
 impl DatasetSource {
@@ -763,7 +763,52 @@ impl Engine {
 
     fn with_csv(csv: CsvSource) -> Result<Self> {
         let info = csv.info.clone();
-        Self::with_source(DatasetSource::Csv(Box::new(csv)), info)
+        Self::with_source(DatasetSource::Csv(Arc::new(csv)), info)
+    }
+
+    pub(crate) fn start_csv_index(&self) -> Result<csv_source::CsvBrowse> {
+        match &self.source {
+            DatasetSource::Csv(source) => source.start_browse(),
+            DatasetSource::Parquet(_) => anyhow::bail!("Expected a delimited text source"),
+        }
+    }
+
+    /// Seed the ordinary snapshot cache with the bounded first text page. Small
+    /// complete files can immediately use all existing analysis commands.
+    pub(crate) fn open_csv_view(
+        &mut self,
+        cancel: &AtomicBool,
+    ) -> Result<(csv_source::CsvBrowse, QueryRequest, QueryResult)> {
+        let started = Instant::now();
+        let DatasetSource::Csv(source) = &self.source else {
+            anyhow::bail!("Expected a delimited text source");
+        };
+        let browse = source.start_browse()?;
+        let rows = source.info.row_count.clamp(1, 1000);
+        let data = browse.read_page(0, rows, 1024 * 1024, &self.resources, cancel)?;
+        let progress = browse.progress();
+        self.info.row_count = progress.indexed_rows;
+        self.info.row_count_known = progress.complete;
+        let request = QueryRequest {
+            selected_columns: self
+                .info
+                .columns
+                .iter()
+                .map(|column| column.name.clone())
+                .collect(),
+            limit: data.row_count().max(1),
+            ..Default::default()
+        };
+        let key = WindowKey {
+            columns: request.selected_columns.clone(),
+            offset: 0,
+            limit: request.limit,
+            source_predicate: None,
+        };
+        self.window = Some(WindowCache::new(key, data, &self.info.columns));
+        let mut result = self.query_cancellable(&request, cancel)?;
+        result.elapsed_ms = started.elapsed().as_millis();
+        Ok((browse, request, result))
     }
 
     fn with_source(source: DatasetSource, info: DatasetInfo) -> Result<Self> {
@@ -1025,7 +1070,7 @@ impl Engine {
                             };
                             progress.csv_decoded_rows(rows, total, to_end, scanning_filter);
                         };
-                        let data = if let Some(predicate) = &key.source_predicate {
+                        if let Some(predicate) = &key.source_predicate {
                             let expr = physical_visual_filter(predicate, source.schema())?;
                             source.load_filtered(
                                 &missing,
@@ -1045,9 +1090,7 @@ impl Engine {
                                 on_rows,
                                 on_bytes,
                             )?
-                        };
-                        (self.info.row_count, self.info.row_count_known) = source.row_count();
-                        data
+                        }
                     }
                 };
                 check_cancel(cancel)?;
@@ -1253,6 +1296,9 @@ impl Engine {
             },
         );
         self.current_snapshot = Some(snapshot_id.clone());
+        if let DatasetSource::Csv(source) = &self.source {
+            (self.info.row_count, self.info.row_count_known) = source.row_count();
+        }
         let rows = data.row_count();
         let filtered_rows = if request.whole_source {
             (self.info.row_count_known && loaded_rows < self.info.row_count).then_some(loaded_rows)
@@ -2035,6 +2081,73 @@ mod tests {
             ArrowWriter::try_new(File::create(path)?, batch.schema(), Some(properties))?;
         writer.write(batch)?;
         writer.close()?;
+        Ok(())
+    }
+
+    #[test]
+    fn resuming_text_browsing_keeps_the_successful_first_page_after_indexing() -> Result<()> {
+        use std::fmt::Write;
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("wide.csv");
+        let payload = "x".repeat(16 * 1024);
+        let mut text = String::from("id,score,payload\n");
+        for id in 0..80 {
+            let score = if id == 20 { "unknown" } else { "42" };
+            writeln!(text, "{id},{score},{payload}")?;
+        }
+        fs::write(&path, text)?;
+        let cancel = AtomicBool::new(false);
+        let sample = csv_source::CsvProbe::read_for_browse(&path, &cancel)?;
+        assert!(sample.sampled_records < 20);
+        let mut engine = Engine::open_prepared_csv(&path, sample.prepared(), &cancel)?;
+        let (_, _, first) = engine.open_csv_view(&cancel)?;
+        let fixed = engine.query(&QueryRequest {
+            offset: 70,
+            limit: 10,
+            selected_columns: vec!["id".into()],
+            ..Default::default()
+        })?;
+        assert_eq!(fixed.source_row_number(9), Some(80));
+        let (_, _, restored) = engine.open_csv_view(&cancel)?;
+        assert_eq!(restored.row_count(), first.row_count());
+        assert_eq!(restored.columns, first.columns);
+        Ok(())
+    }
+
+    #[test]
+    fn text_browsing_and_fixed_queries_keep_independent_typed_snapshots() -> Result<()> {
+        use std::fmt::Write;
+        let directory = tempfile::tempdir()?;
+        let path = directory.path().join("pages.tsv");
+        let mut source = String::from("id\tcode\n");
+        for row in 0..3000 {
+            writeln!(source, "{row}\t{row:05}")?;
+        }
+        fs::write(&path, source)?;
+        let cancel = AtomicBool::new(false);
+        let sample = csv_source::CsvProbe::read_for_browse(&path, &cancel)?;
+        let mut engine = Engine::open_prepared_csv(&path, sample.prepared(), &cancel)?;
+        let (_, _, first) = engine.open_csv_view(&cancel)?;
+        assert_eq!(first.row_count(), 1000);
+        let selected = engine.query(&QueryRequest {
+            offset: 2500,
+            limit: 2,
+            selected_columns: vec!["code".into()],
+            ..Default::default()
+        })?;
+        assert_eq!(selected.cell(1, 0).text, "02501");
+        let (index, _, reopened) = engine.open_csv_view(&cancel)?;
+        assert_eq!(reopened.columns, first.columns);
+        assert_eq!(reopened.cell(0, 1).text, "00000");
+        let page = index.read_page(2500, 2, 1024, &engine.resources, &cancel)?;
+        assert_eq!(page.source_row_number(1), Some(2502));
+        assert_eq!(page.display_text(1, 1), selected.cell(1, 0).text);
+        let export = directory.path().join("selection.csv");
+        engine.export_result(&selected.snapshot_id, &export, ExportFormat::Csv)?;
+        assert_eq!(
+            fs::read_to_string(export)?.lines().collect::<Vec<_>>(),
+            ["code", "02500", "02501"]
+        );
         Ok(())
     }
 

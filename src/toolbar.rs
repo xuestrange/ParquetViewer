@@ -203,7 +203,11 @@ impl Viewer {
             },
             Command {
                 id: "loaded-first",
-                hint: "Jump to first loaded row (current result only)",
+                hint: if self.csv_browse.is_some() {
+                    "Jump to the first source row"
+                } else {
+                    "Jump to first loaded row (current result only)"
+                },
                 icon: Icon::MoveUp,
                 enabled: navigable,
                 active: false,
@@ -211,7 +215,11 @@ impl Viewer {
             },
             Command {
                 id: "loaded-last",
-                hint: "Jump to last loaded row (current result only)",
+                hint: if self.csv_browse.is_some() {
+                    "Jump to the last indexed row"
+                } else {
+                    "Jump to last loaded row (current result only)"
+                },
                 icon: Icon::MoveDown,
                 enabled: navigable,
                 active: false,

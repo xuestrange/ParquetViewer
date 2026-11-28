@@ -2,6 +2,8 @@
 
 fn fixed(text: &str) -> Option<&'static str> {
     Some(match text {
+        "Could not create the text record index" => "无法创建文本记录索引",
+        "Incomplete text record checkpoint" => "文本记录的索引位置不完整",
         "Destination needs a parent folder" | "Export destination has no parent folder" => {
             "目标文件需要上级文件夹"
         }

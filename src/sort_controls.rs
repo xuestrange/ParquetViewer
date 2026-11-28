@@ -14,6 +14,10 @@ pub(super) struct SortControls {
 
 impl Viewer {
     pub(super) fn open_sort_controls(&mut self, fields: Vec<String>, cx: &mut Context<Self>) {
+        if self.csv_browse.is_some() {
+            self.choose_browse_range(BrowseCommand::SortOptions(fields), cx);
+            return;
+        }
         let request = &self.displayed_request;
         let mut keys = request
             .sort_rules()
@@ -96,6 +100,10 @@ impl Viewer {
         top_n: Option<usize>,
         cx: &mut Context<Self>,
     ) {
+        if self.csv_browse.is_some() {
+            self.choose_browse_range(BrowseCommand::Sort(keys, top_n), cx);
+            return;
+        }
         let Some(mut request) = self.current_request(cx) else {
             return;
         };

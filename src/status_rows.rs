@@ -1,6 +1,6 @@
 //! Describe the published table, its source window and any restrictions on its rows.
 use crate::{
-    engine::{QueryRequest, QueryResult},
+    engine::{QueryRequest, QueryResult, csv_source::CsvIndexProgress},
     formatting::count_label,
     i18n::t,
 };
@@ -9,17 +9,22 @@ pub(super) fn row_summary(
     result: &QueryResult,
     request: &QueryRequest,
     parent_rows: Option<usize>,
+    index: Option<&CsvIndexProgress>,
 ) -> (String, String) {
     let shown = result.row_count();
     let loaded = result.loaded_rows;
     let filtered = !request.filter.trim().is_empty();
     let capped = request.top_n.is_some_and(|limit| limit < loaded);
-    let whole_range = request.offset == 0 && result.total_rows_known && loaded == result.total_rows;
+    let total = index
+        .filter(|index| index.complete)
+        .map(|index| index.indexed_rows)
+        .or(result.total_rows_known.then_some(result.total_rows));
+    let whole_range = request.offset == 0 && Some(loaded) == total;
     let mut details = Vec::new();
     let mut range = None;
     if !request.whole_source && loaded > 0 && !whole_range {
-        let label = if result.total_rows_known {
-            t("Rows {first}–{last} of {total}").replace("{total}", &count_label(result.total_rows))
+        let label = if let Some(total) = total {
+            t("Rows {first}–{last} of {total}").replace("{total}", &count_label(total))
         } else {
             t("Rows {first}–{last}")
         }
@@ -34,17 +39,19 @@ pub(super) fn row_summary(
             details.push(format!("{} · {}", t("Loaded rows"), count_label(loaded)));
         }
         range = Some(label);
-    } else if result.total_rows_known {
+    } else if let Some(total) = total {
         details.push(format!(
             "{} · {}",
             t("Total source rows"),
-            count_label(result.total_rows)
+            count_label(total)
         ));
     }
-    if !result.total_rows_known {
-        details.push(t(
-            "Total rows will be available after the text row index reaches the end of the file.",
-        ));
+    if total.is_none() {
+        details.push(t(if index.is_some_and(|i| i.error.is_some()) {
+            "Total source row count is unknown."
+        } else {
+            "Total rows will be available after the text row index reaches the end of the file."
+        }));
     }
     if !request.whole_source && loaded == 0 && !whole_range {
         details.push(t("No rows loaded"));
@@ -128,20 +135,41 @@ mod tests {
             offset: 1000,
             ..Default::default()
         };
-        let (label, tip) = row_summary(&result(12, 12, 5000, true), &req, None);
+        let (label, tip) = row_summary(&result(12, 12, 5000, true), &req, None, None);
         assert_eq!(label, "Rows 1,001–1,012 of 5,000");
         assert_eq!(tip, "Loaded rows · 12");
-        let (label, tip) = row_summary(&result(12, 12, 1234, false), &req, None);
+        let (label, tip) = row_summary(&result(12, 12, 1234, false), &req, None, None);
         assert_eq!(label, "Rows 1,001–1,012");
         assert!(!tip.contains("1,234"));
         assert!(tip.contains("end of the file"));
-        let (label, tip) = row_summary(&result(0, 0, 7, true), &req, None);
+        let (label, tip) = row_summary(&result(0, 0, 7, true), &req, None, None);
         assert_eq!(label, "0 rows");
         assert!(tip.contains("No rows loaded"));
         assert_eq!(
-            row_summary(&result(1, 1, 1, true), &QueryRequest::default(), None).0,
+            row_summary(&result(1, 1, 1, true), &QueryRequest::default(), None, None).0,
             "1 row"
         );
+    }
+
+    #[test]
+    fn completed_background_index_updates_an_earlier_loaded_range() {
+        let req = QueryRequest {
+            offset: 1000,
+            ..Default::default()
+        };
+        let data = result(12, 12, 9999, false);
+        let mut index = CsvIndexProgress {
+            indexed_rows: 5000,
+            indexed_bytes: 30_000,
+            total_bytes: 30_000,
+            complete: false,
+            error: None,
+        };
+        let (scope, _) = row_summary(&data, &req, None, Some(&index));
+        assert_eq!(scope, "Rows 1,001–1,012");
+        index.complete = true;
+        let (scope, _) = row_summary(&data, &req, None, Some(&index));
+        assert_eq!(scope, "Rows 1,001–1,012 of 5,000");
     }
 
     #[test]
@@ -152,14 +180,14 @@ mod tests {
             ..Default::default()
         };
         let mut data = result(4, 10, 100, true);
-        let (label, tip) = row_summary(&data, &req, None);
+        let (label, tip) = row_summary(&data, &req, None, None);
         assert_eq!(label, "4 rows shown");
         assert!(tip.contains("Top N · 4"));
         assert!(tip.contains("Filtered within loaded range"));
         assert!(!tip.contains("Matches in loaded range"));
         req.whole_source = true;
         data.filtered_rows = Some(10);
-        let (label, tip) = row_summary(&data, &req, None);
+        let (label, tip) = row_summary(&data, &req, None, None);
         assert_eq!(label, "4 rows shown");
         assert!(tip.contains("Matches in entire file · 10"));
         assert!(tip.contains("Total source rows · 100"));
@@ -167,7 +195,7 @@ mod tests {
         req.top_n = None;
         let mut empty = result(0, 10, 10, true);
         empty.filtered_rows = Some(0);
-        let (label, tip) = row_summary(&empty, &req, None);
+        let (label, tip) = row_summary(&empty, &req, None, None);
         assert_eq!(label, "0 rows shown");
         assert!(tip.contains("Matches in loaded range · 0"));
     }
@@ -182,12 +210,16 @@ mod tests {
         };
         let mut data = result(2, 12, 100, true);
         data.filtered_rows = Some(12);
-        let (label, tip) = row_summary(&data, &req, Some(5));
+        let (label, tip) = row_summary(&data, &req, Some(5), None);
         assert_eq!(label, "2 group rows");
         assert!(tip.contains("Rows in parent result · 5"));
         assert!(tip.contains("Matches in entire file · 12"));
-        let (label, tip) =
-            row_summary(&result(1, 12, 12, true), &QueryRequest::default(), Some(12));
+        let (label, tip) = row_summary(
+            &result(1, 12, 12, true),
+            &QueryRequest::default(),
+            Some(12),
+            None,
+        );
         assert_eq!(label, "1 group row");
         assert!(tip.contains("Rows in parent result · 12"));
     }

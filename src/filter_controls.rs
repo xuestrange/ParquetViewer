@@ -99,6 +99,10 @@ impl Viewer {
     }
 
     pub(super) fn toggle_filter_sidebar(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.csv_browse.is_some() {
+            self.choose_browse_range(BrowseCommand::Filter, cx);
+            return;
+        }
         if self.selecting_initial_fields {
             return;
         }

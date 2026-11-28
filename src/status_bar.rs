@@ -1,5 +1,6 @@
 //! The window footer describes the table snapshot currently on screen.
 use super::*;
+use crate::engine::csv_source::CsvIndexProgress;
 
 #[path = "status_progress.rs"]
 mod progress;
@@ -31,12 +32,61 @@ fn query_time(ms: u128) -> String {
     t("Query {time}").replace("{time}", &duration)
 }
 
+fn browse_scope(available: usize, index: &CsvIndexProgress) -> (String, String) {
+    // The worker may publish new offsets just before the UI grows the list.
+    let label = match (index.complete && index.indexed_rows == available, available) {
+        (true, 1) => t("1 row"),
+        (true, n) => t("{count} rows").replace("{count}", &count_label(n)),
+        (false, 1) => t("1 row available"),
+        (false, n) => t("{count} rows available").replace("{count}", &count_label(n)),
+    };
+    (label, t("Scroll to read indexed rows from the text file."))
+}
+
+fn index_indicator(index: &CsvIndexProgress, c: Colors, dark: bool) -> gpui::Stateful<gpui::Div> {
+    let detail = t("Scanned {bytes} of {total}")
+        .replace(
+            "{bytes}",
+            &crate::process_memory::format_bytes(Some(index.indexed_bytes)),
+        )
+        .replace(
+            "{total}",
+            &crate::process_memory::format_bytes(Some(index.total_bytes)),
+        );
+    let rows = t("Indexed rows: {rows}").replace("{rows}", &count_label(index.indexed_rows));
+    let (label, tooltip, fg, bg) = if let Some(error) = &index.error {
+        let label = t("Indexing stopped");
+        (
+            label,
+            format!("{}\n{rows}\n{detail}", t(error)),
+            c.danger,
+            c.danger_bg,
+        )
+    } else {
+        // The last byte can be consumed before the reader verifies EOF.
+        let percent = (u128::from(index.indexed_bytes) * 100)
+            .checked_div(u128::from(index.total_bytes))
+            .unwrap_or(0)
+            .min(99);
+        let label = t("Indexing {percent}%").replace("{percent}", &percent.to_string());
+        (label, format!("{rows}\n{detail}"), c.accent, c.accent_soft)
+    };
+    block("csv-row-index", fg, bg)
+        .flex_shrink_0()
+        .child(label)
+        .tooltip(icons::tooltip(tooltip, dark))
+}
+
 impl Viewer {
     pub(super) fn render_status_bar(&self, window: &Window, cx: &mut Context<Self>) -> gpui::Div {
         let dark = self.preferences.dark;
         let c = Colors::new(dark);
         let compact = window.viewport_size().width < px(1100.);
         let activity = self.status_activity();
+        let index = self.csv_index.as_ref().map(|source| source.progress());
+        let notice = self
+            .pending_csv_jump_label()
+            .or_else(|| (activity.is_none() && !self.notice.is_empty()).then(|| t(&self.notice)));
         let parent_rows = self
             .aggregation_base
             .as_ref()
@@ -50,7 +100,7 @@ impl Viewer {
         } else {
             self.result
                 .as_ref()
-                .filter(|_| parent_rows.is_none())
+                .filter(|_| parent_rows.is_none() && self.csv_browse.is_none())
                 .map(|result| {
                     (
                         query_time(result.elapsed_ms),
@@ -119,8 +169,13 @@ impl Viewer {
                 )
             })
             .when_some(self.result.as_ref(), |bar, result| {
-                let (scope, detail) =
-                    rows::row_summary(result, &self.displayed_request, parent_rows);
+                let (scope, detail) = if let Some(index) =
+                    index.as_ref().filter(|_| self.csv_browse.is_some())
+                {
+                    browse_scope(self.table_row_count(), index)
+                } else {
+                    rows::row_summary(result, &self.displayed_request, parent_rows, index.as_ref())
+                };
                 let fields = match self.view_columns.len() {
                     1 => t("1 field"),
                     n => t("{count} fields").replace("{count}", &count_label(n)),
@@ -155,20 +210,20 @@ impl Viewer {
                     .flex_shrink_0(),
                 )
             })
-            .child(div().min_w_0().flex_1().when(
-                activity.is_none() && !self.notice.is_empty(),
-                |space| {
-                    let notice = t(&self.notice);
-                    space.child(
-                        div()
-                            .id("status-notice")
-                            .pl(px(4.))
-                            .truncate()
-                            .tooltip(icons::tooltip(notice.clone(), dark))
-                            .child(notice),
-                    )
-                },
-            ))
+            .child(div().min_w_0().flex_1().when_some(notice, |space, notice| {
+                space.child(
+                    div()
+                        .id("status-notice")
+                        .pl(px(4.))
+                        .truncate()
+                        .tooltip(icons::tooltip(notice.clone(), dark))
+                        .child(notice),
+                )
+            }))
+            .when_some(
+                index.as_ref().filter(|i| !i.complete || i.error.is_some()),
+                |bar, index| bar.child(index_indicator(index, c, dark)),
+            )
             .when_some(activity, |bar, (message, _)| {
                 bar.child(
                     self.render_status_progress(message, c, compact, cx)

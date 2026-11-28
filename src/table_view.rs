@@ -430,6 +430,15 @@ impl Viewer {
             -f32::from(self.horizontal.offset().x),
             pane_width(&self.horizontal, available - left_width),
         );
+        if let Some(browse) = &mut self.csv_browse {
+            let fields = left_columns
+                .visible
+                .clone()
+                .chain(body_columns.visible.clone())
+                .map(|index| self.view_columns[index])
+                .collect();
+            browse.begin_viewport(fields);
+        }
         let outline = self.table_selection_outline(&left_columns, &body_columns, c.accent);
         let pinned_height = if self.frozen_row_count == 0 {
             0.
@@ -846,10 +855,20 @@ impl Viewer {
         let number = columns.number;
         let result = self.result.as_ref().unwrap().clone();
         let source_row = self.source_row(row);
+        let browse = self.csv_browse.is_some();
+        let csv_row = if browse && !columns.visible.is_empty() {
+            self.csv_display_row(source_row, cx)
+        } else {
+            None
+        };
         let frozen_row = row < self.frozen_row_count;
         let first_measure =
             !self.wrapped_columns.is_empty() && !self.row_heights.contains_key(&source_row);
-        let height = self.measured_row_height(source_row, window);
+        let height = if browse {
+            px(TABLE_ROW_MIN_HEIGHT)
+        } else {
+            self.measured_row_height(source_row, window)
+        };
         if first_measure && frozen_row {
             cx.defer_in(window, |_, _, cx| cx.notify());
         }
@@ -944,14 +963,22 @@ impl Viewer {
             .child(column_spacer(columns.leading_width()))
             .children(columns.visible.clone().map(|col| {
                 let source_col = self.source_column(col);
-                let missing = result.is_null(source_row, source_col);
-                let nested = !missing && result.is_nested(source_row, source_col);
+                let csv_cell = csv_row
+                    .as_ref()
+                    .and_then(|display| display.cell(source_col));
+                let missing = if browse {
+                    csv_cell.as_ref().is_some_and(|(is_null, _)| *is_null)
+                } else {
+                    result.is_null(source_row, source_col)
+                };
+                let nested = !browse && !missing && result.is_nested(source_row, source_col);
                 let frozen = frozen_row || col < self.frozen_count;
-                let audio = result.binary(source_row, source_col).is_some_and(is_audio);
-                let wrapped = self
-                    .formats
-                    .get(&result.columns[source_col].name)
-                    .is_some_and(|style| style.word_wrap);
+                let audio = !browse && result.binary(source_row, source_col).is_some_and(is_audio);
+                let wrapped = !browse
+                    && self
+                        .formats
+                        .get(&result.columns[source_col].name)
+                        .is_some_and(|style| style.word_wrap);
                 let selected = self.selection.is_some_and(|(a, b)| {
                     row >= a.0.min(b.0)
                         && row <= a.0.max(b.0)
@@ -1004,7 +1031,22 @@ impl Viewer {
                                 .min_w_0()
                                 .when(!wrapped, |el| el.truncate())
                                 .when(wrapped, |el| el.whitespace_normal())
-                                .child(self.row_text(source_row, source_col, wrapped)),
+                                .child(if browse {
+                                    match csv_cell {
+                                        Some((_, text)) => {
+                                            let info = &result.columns[source_col];
+                                            self.formats
+                                                .get(&info.name)
+                                                .and_then(|s| s.float.apply(&text, &info.data_type))
+                                                .map(SharedString::from)
+                                                .unwrap_or(text)
+                                        }
+                                        None if csv_row.is_some() => "—".into(),
+                                        None => "…".into(),
+                                    }
+                                } else {
+                                    self.row_text(source_row, source_col, wrapped)
+                                }),
                         )
                     })
                     .when(audio, |el| {
@@ -1022,7 +1064,10 @@ impl Viewer {
                             };
                             this.selection = Some((anchor, (row, col)));
                             this.selecting = true;
-                            if event.click_count == 2 {
+                            if event.click_count == 2 && browse {
+                                this.selecting = false;
+                                this.inspect_csv_browse_selection(cx);
+                            } else if event.click_count == 2 {
                                 let preview = this.result.as_ref().and_then(|result| {
                                     if source_row >= result.row_count()
                                         || source_col >= result.columns.len()

@@ -17,6 +17,11 @@ impl Viewer {
             self.dismiss_fields_sidebar(window, cx);
             return;
         }
+        if self.csv_browse.is_some() {
+            self.suggest_browse_range(cx);
+            self.choose_initial_fields(window, cx);
+            return;
+        }
         self.open_fields_sidebar(window, cx);
     }
 

@@ -20,7 +20,7 @@ impl Viewer {
         let c = Colors::new(dark);
         let has_file = !self.paths.is_empty();
         let can_load = self.engine.is_some() && self.busy.is_none() && self.panel.is_none();
-        let commands = [
+        let mut commands = vec![
             FileCommand {
                 label: "Load Range…",
                 icon: Icon::RowRange,
@@ -82,6 +82,30 @@ impl Viewer {
                 action: Box::new(CloseWindow),
             },
         ];
+        if self.csv_browse.is_some() {
+            commands.insert(
+                0,
+                FileCommand {
+                    label: "Go to Row…",
+                    icon: Icon::RowRange,
+                    shortcut: "",
+                    enabled: can_load,
+                    action: Box::new(GoToCsvRow),
+                },
+            );
+        }
+        if self.can_resume_csv_browse() {
+            commands.insert(
+                0,
+                FileCommand {
+                    label: "Browse Text File",
+                    icon: Icon::Table,
+                    shortcut: "",
+                    enabled: can_load,
+                    action: Box::new(BrowseText),
+                },
+            );
+        }
         let left = 8.
             + window_chrome::leading_inset(window)
             + command_widths(window)[0]

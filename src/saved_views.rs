@@ -607,6 +607,7 @@ impl Viewer {
 
     fn save_current_view(&mut self, cx: &mut Context<Self>) {
         if self.panel != Some(Panel::SavedViews)
+            || self.csv_browse.is_some()
             || self.busy.is_some()
             || self.aggregation_base.is_some()
         {
@@ -885,7 +886,8 @@ impl Viewer {
         };
         let c = Colors::new(self.preferences.dark);
         let ready = !controls.pending && self.busy.is_none() && controls.source.is_some();
-        let can_save = self.result.is_some() && self.aggregation_base.is_none();
+        let can_save =
+            self.result.is_some() && self.aggregation_base.is_none() && self.csv_browse.is_none();
         div().flex().flex_col().min_h_0().flex_1().gap_3()
             .child(div().text_color(rgb(c.muted)).child(t("Saved views store the fields, range, filters, sorting, widths and safely addressable frozen positions for this source.")))
             .when(can_save, |el| el.child(div().flex().gap_2().items_center()

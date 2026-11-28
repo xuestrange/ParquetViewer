@@ -47,12 +47,14 @@ use crate::{
 };
 
 const DEFAULT_SAMPLE_RECORDS: usize = 1_000;
+const BROWSE_SAMPLE_BYTES: u64 = 256 * 1024;
 const MAX_SAMPLE_RECORDS: usize = 100_000;
 const DIALECT_BYTES: usize = 128 * 1024;
 const PREVIEW_ROWS: usize = 12;
 const PREVIEW_CHARS: usize = 512;
 const PREVIEW_BYTES: usize = 512 * 1024;
 const RECORD_BYTES: usize = 64 * 1024 * 1024;
+const RECORD_SIZE_ERROR: &str = "A text record exceeds the 64 MiB limit.";
 const INDEX_ROWS: usize = 16_384;
 const INDEX_BYTES: u64 = 1024 * 1024;
 const READ_WAVE_BYTES: u64 = 8 * INDEX_BYTES;
@@ -64,6 +66,19 @@ const BUFFER_BYTES: usize = 64 * 1024;
 const CAPTURE_BYTES: usize = (READ_WAVE_BYTES + INDEX_BYTES) as usize + BUFFER_BYTES;
 const LARGE_RECORD_SCRATCH_BYTES: usize = 8 * 1024 * 1024;
 const MIN_TEXT_BUFFER_SAVINGS: usize = 32 * 1024;
+
+#[path = "csv_row_index.rs"]
+mod row_index;
+pub(crate) use row_index::CsvBrowse;
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct CsvIndexProgress {
+    pub indexed_rows: usize,
+    pub indexed_bytes: u64,
+    pub total_bytes: u64,
+    pub complete: bool,
+    pub error: Option<String>,
+}
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub(crate) enum CsvColumnType {
@@ -118,11 +133,16 @@ pub(crate) struct CsvPrepared {
 #[derive(Clone, Copy)]
 enum SamplePurpose<'a> {
     Load,
+    Browse,
     Preview,
     Reload(&'a HashMap<String, CsvColumnType>),
 }
 
 impl CsvProbe {
+    pub(crate) fn read_for_browse(path: &Path, cancel: &AtomicBool) -> Result<Self> {
+        Self::read_configured(path, None, SamplePurpose::Browse, cancel)
+    }
+
     pub(crate) fn read(
         path: &Path,
         options: Option<CsvOptions>,
@@ -293,9 +313,14 @@ impl Read for RecordReader {
         }
         let limit = buffer.len().min(self.allowance);
         if limit == 0 {
+            // An unterminated final record can fill the entire allowance. CSV
+            // needs to observe EOF before returning its last field.
+            if self.file.stream_position()? == self.file.metadata()?.len() {
+                return Ok(0);
+            }
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                "A text record exceeds the 64 MiB limit.",
+                RECORD_SIZE_ERROR,
             ));
         }
         let read = self.file.read(&mut buffer[..limit])?;
@@ -321,6 +346,22 @@ fn parser<R: Read>(reader: R, delimiter: u8, header: bool, flexible: bool) -> Re
         .flexible(flexible)
         .buffer_capacity(BUFFER_BYTES)
         .from_reader(reader)
+}
+
+fn read_record(
+    reader: &mut Reader<RecordReader>,
+    record: &mut ByteRecord,
+    start: u64,
+) -> Result<bool> {
+    reader.get_mut().allowance = RECORD_BYTES;
+    let present = reader.read_byte_record(record)?;
+    // The parser may already have buffered part of this record while reading
+    // its predecessor. Apply the same size limit to indexed and fresh seeks.
+    ensure!(
+        !present || reader.position().byte() - start <= RECORD_BYTES as u64,
+        RECORD_SIZE_ERROR
+    );
+    Ok(present)
 }
 
 fn check_cancel(cancel: &AtomicBool) -> Result<()> {
@@ -835,16 +876,19 @@ impl Sample {
         let mut preview_budget = PREVIEW_BYTES;
         while index.next.row < options.sample_records {
             check_cancel(cancel)?;
-            reader.get_mut().allowance = RECORD_BYTES;
-            if !reader
-                .read_byte_record(&mut scratch.record)
-                .context("Could not read the text file sample")?
-            {
-                index.complete = true;
-                index.next.position = reader.position().clone();
-                break;
+            match read_record(&mut reader, &mut scratch.record, index.next.position.byte()) {
+                Ok(true) => {}
+                Ok(false) => {
+                    index.complete = true;
+                    index.next.position = reader.position().clone();
+                    break;
+                }
+                // The browser can show the valid prefix. The scanner resumes
+                // at that boundary and reports the precise failing record.
+                Err(_) if matches!(purpose, SamplePurpose::Browse) && index.next.row > 0 => break,
+                Err(error) => return Err(error).context("Could not read the text file sample"),
             }
-            let preview_row = !matches!(purpose, SamplePurpose::Load)
+            let preview_row = !matches!(purpose, SamplePurpose::Load | SamplePurpose::Browse)
                 && preview.len() < PREVIEW_ROWS
                 && preview_budget != 0;
             let mut displayed = Vec::new();
@@ -877,6 +921,11 @@ impl Sample {
             }
             scratch.trim();
             index.advance(reader.position())?;
+            if matches!(purpose, SamplePurpose::Browse)
+                && index.next.position.byte() >= BROWSE_SAMPLE_BYTES
+            {
+                break;
+            }
             if index.next.row.is_multiple_of(1024) {
                 on_bytes(index.next.position.byte(), length);
             }
@@ -928,6 +977,7 @@ pub(crate) struct CsvSource {
     schema: SchemaRef,
     decode_schema: SchemaRef,
     index: Mutex<Index>,
+    browse_index: Mutex<Option<Arc<row_index::SharedIndex>>>,
     indexed_rows: AtomicUsize,
     count_known: AtomicBool,
     pool: rayon::ThreadPool,
@@ -1035,6 +1085,7 @@ impl CsvSource {
             count_known: AtomicBool::new(info.row_count_known),
             info,
             index: Mutex::new(index),
+            browse_index: Mutex::default(),
             pool,
         })
     }
@@ -1044,6 +1095,10 @@ impl CsvSource {
     }
 
     pub(crate) fn row_count(&self) -> (usize, bool) {
+        if let Some(index) = self.browse_index.lock().unwrap().as_ref() {
+            let progress = index.progress();
+            return (progress.indexed_rows, progress.complete);
+        }
         let known = self.count_known.load(Ordering::Acquire);
         (self.indexed_rows.load(Ordering::Acquire), known)
     }
@@ -1093,6 +1148,10 @@ impl CsvSource {
         on_bytes: impl Fn(u64, u64),
         process: impl Fn(RecordBatch, usize) -> Result<Option<T>> + Sync,
     ) -> Result<Vec<T>> {
+        let browse_index = self.browse_index.lock().unwrap().clone();
+        if let Some(index) = browse_index {
+            return index.foreach_batch(self, range, plan, on_bytes, process);
+        }
         let mut index = self.index.lock().unwrap_or_else(|error| error.into_inner());
         let (offset, end) = (range.start, range.end);
         let old_jobs = index.jobs(offset, end.saturating_sub(offset));
@@ -1123,7 +1182,14 @@ impl CsvSource {
         let width = self.schema.fields().len();
         let mut reported = index.next.position.byte();
         while index.next.row < offset
-            && self.advance_index(&mut index, &mut reader, &mut scratch, width, plan.cancel)?
+            && Self::advance_index(
+                self.stamp.len,
+                &mut index,
+                &mut reader,
+                &mut scratch,
+                width,
+                plan.cancel,
+            )?
         {
             if index.next.position.byte().saturating_sub(reported) >= 512 * 1024 {
                 reported = index.next.position.byte();
@@ -1143,9 +1209,15 @@ impl CsvSource {
             let start = index.next.clone();
             while index.next.row < end
                 && index.next.position.byte() - start.position.byte() < READ_WAVE_BYTES
-                && self.advance_index(&mut index, &mut reader, &mut scratch, width, plan.cancel)?
-            {
-            }
+                && Self::advance_index(
+                    self.stamp.len,
+                    &mut index,
+                    &mut reader,
+                    &mut scratch,
+                    width,
+                    plan.cancel,
+                )?
+            {}
             let bytes = (index.next.position.byte() - start.position.byte()) as usize;
             if index.next.row > start.row {
                 let mut jobs = index.jobs(start.row, index.next.row - start.row);
@@ -1195,7 +1267,7 @@ impl CsvSource {
     }
 
     fn advance_index(
-        &self,
+        length: u64,
         index: &mut Index,
         reader: &mut Reader<RecordReader>,
         scratch: &mut RecordScratch,
@@ -1206,10 +1278,8 @@ impl CsvSource {
             return Ok(false);
         }
         check_cancel(cancel)?;
-        reader.get_mut().allowance = RECORD_BYTES;
         let record = &mut scratch.record;
-        if !reader
-            .read_byte_record(record)
+        if !read_record(reader, record, index.next.position.byte())
             .context("Could not index the text file records")?
         {
             index.complete = true;
@@ -1224,7 +1294,7 @@ impl CsvSource {
         );
         scratch.trim();
         index.advance(reader.position())?;
-        if index.next.position.byte() >= self.stamp.len {
+        if index.next.position.byte() >= length {
             index.complete = true;
         }
         Ok(true)
@@ -1265,19 +1335,25 @@ impl CsvSource {
                         // Arrow the slice directly to avoid a second read buffer.
                         self.decode(job, bytes, plan, &mut visit)?;
                     } else {
-                        let mut file = self.stamp.open(&self.path)?;
-                        file.seek(SeekFrom::Start(job.byte))?;
-                        let input = BufReader::with_capacity(
-                            BUFFER_BYTES,
-                            file.take(job.end_byte - job.byte),
-                        );
-                        self.decode(job, input, plan, &mut visit)?;
+                        self.decode_file_job(job, plan, visit)?;
                     }
                     Ok(batches)
                 })
                 .collect::<Result<Vec<_>>>()
         })?;
         Ok(chunks.into_iter().flatten().collect())
+    }
+
+    fn decode_file_job(
+        &self,
+        job: Job,
+        plan: &DecodePlan<'_>,
+        on_batch: impl FnMut(RecordBatch, usize) -> Result<()>,
+    ) -> Result<()> {
+        let mut file = self.stamp.open(&self.path)?;
+        file.seek(SeekFrom::Start(job.byte))?;
+        let input = BufReader::with_capacity(BUFFER_BYTES, file.take(job.end_byte - job.byte));
+        self.decode(job, input, plan, on_batch)
     }
 
     fn decode(

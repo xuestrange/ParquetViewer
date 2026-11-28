@@ -25,7 +25,7 @@ use crate::{
     engine::{
         ColumnInfo, DatasetInfo, Engine, ExportFormat, QueryPhase, QueryProgress, QueryRequest,
         QueryResult,
-        csv_source::{CsvOptions, CsvPrepared},
+        csv_source::{CsvOptions, CsvPrepared, CsvProbe},
         has_delimited_text_extension, is_parquet_file,
     },
     filter_editor::{FilterEditor, FilterEditorEvent},
@@ -43,8 +43,15 @@ use crate::{
 
 #[path = "aggregation_controls.rs"]
 mod aggregation_controls;
+#[path = "csv_browse.rs"]
+mod csv_browse;
 #[path = "csv_controls.rs"]
 mod csv_controls;
+#[path = "csv_jump.rs"]
+mod csv_jump;
+#[path = "csv_open.rs"]
+mod csv_open;
+use csv_open::BrowseCommand;
 #[path = "export_controls.rs"]
 mod export_controls;
 #[path = "fields_controls.rs"]
@@ -90,6 +97,8 @@ actions!(
         Execute,
         LoadRange,
         LoadAll,
+        BrowseText,
+        GoToCsvRow,
         Copy,
         CopyHeaders,
         SelectAll,
@@ -428,6 +437,7 @@ impl Preferences {
 
 #[derive(Clone, Copy, PartialEq)]
 enum Panel {
+    CsvJump,
     CsvImport,
     Export,
     AggregateExport,
@@ -510,6 +520,13 @@ pub struct Viewer {
     saved_views: Option<saved_views::SavedViewsControls>,
     csv_import: Option<csv_controls::CsvImport>,
     csv_options: Option<CsvOptions>,
+    csv_index: Option<crate::engine::csv_source::CsvBrowse>,
+    csv_browse: Option<csv_browse::CsvBrowse>,
+    csv_jump: Entity<TextInput>,
+    csv_first_page_rows: usize,
+    csv_default_view: bool,
+    browse_command: Option<BrowseCommand>,
+    csv_index_tick: Option<(u64, bool, bool)>,
     offset: Entity<TextInput>,
     count: Entity<TextInput>,
     field_search: Entity<TextInput>,
@@ -598,6 +615,7 @@ impl Viewer {
         i18n::set_language(preferences.language);
         let dark = preferences.dark;
         let offset = cx.new(|cx| TextInput::new(cx).with_dark(dark));
+        let csv_jump = cx.new(|cx| TextInput::new(cx).with_dark(dark));
         let count = cx.new(|cx| TextInput::new(cx).with_dark(dark));
         let field_search = cx.new(|cx| {
             TextInput::new(cx)
@@ -616,6 +634,14 @@ impl Viewer {
         offset.update(cx, |input, cx| input.set_text("0", cx));
         count.update(cx, |input, cx| input.set_text("1000", cx));
         let mut subscriptions = Vec::new();
+        subscriptions.push(cx.subscribe(&csv_jump, |this: &mut Self, _, event, cx| {
+            if this.panel == Some(Panel::CsvJump) {
+                match event {
+                    InputEvent::Submit => this.submit_csv_jump(cx),
+                    InputEvent::Changed => cx.notify(),
+                }
+            }
+        }));
         for input in [&offset, &count] {
             subscriptions.push(
                 cx.subscribe(input, |this: &mut Self, _, event, cx| match event {
@@ -686,6 +712,13 @@ impl Viewer {
             saved_views: None,
             csv_import: None,
             csv_options: None,
+            csv_index: None,
+            csv_browse: None,
+            csv_jump,
+            csv_first_page_rows: 0,
+            csv_default_view: false,
+            browse_command: None,
+            csv_index_tick: None,
             offset,
             count,
             field_search,
@@ -758,6 +791,7 @@ impl Viewer {
             selection_menu: None,
         };
         cx.on_release(|this, cx| {
+            this.stop_csv_browse();
             this.close_column_profile();
             this.cancel_aggregation_chart_refresh();
             this.binary_scan_cancel.store(true, Ordering::Relaxed);
@@ -793,6 +827,7 @@ impl Viewer {
                     .await;
                 if weak
                     .update(cx, |this, cx| {
+                        this.poll_csv_index(cx);
                         if this.busy.is_some()
                             || this.column_profile_running()
                             || this.audio.as_ref().is_some_and(|audio| audio.is_playing())
@@ -906,7 +941,7 @@ impl Viewer {
         }
         if let Some(path) = paths.iter().find(|path| has_delimited_text_extension(path)) {
             if paths.len() == 1 {
-                self.begin_csv_import(path.clone(), None, cx);
+                self.open_source(vec![path.clone()], None, cx);
             } else {
                 self.fail("Text files must be opened individually.", cx);
             }
@@ -952,33 +987,22 @@ impl Viewer {
         let requested_paths = paths.clone();
         let cancel = Arc::new(AtomicBool::new(false));
         self.operation_cancel = Some(cancel.clone());
-        let (csv_options, prepared) = text_import.unzip();
-        let progress = QueryProgress::default();
-        self.query_progress = Some(progress.clone());
+        self.query_progress = Some(QueryProgress::default());
         let task = cx.background_executor().spawn(async move {
-            let is_text = prepared.is_some();
-            let (mut engine, stamps) = read_source(&paths, prepared, &cancel)?;
-            let loaded = if is_text
-                && initial_load_limit(engine.info.file_size, engine.info.row_count).is_some()
-            {
-                let mut request = QueryRequest {
-                    selected_columns: engine
-                        .info
-                        .columns
-                        .iter()
-                        .map(|column| column.name.clone())
-                        .collect(),
-                    load_to_end: true,
-                    ..Default::default()
-                };
-                let result =
-                    engine.query_cancellable_with_progress(&request, &cancel, &progress)?;
-                request.limit = result.total_rows.max(1);
-                Some((request, result))
-            } else {
-                None
+            let text_import = match (text_import, paths.as_slice()) {
+                (None, [path]) if has_delimited_text_extension(path) => {
+                    let probe = CsvProbe::read_for_browse(path, &cancel)?;
+                    Some((probe.options.clone(), probe.prepared()))
+                }
+                (configured, _) => configured,
             };
-            Ok::<_, anyhow::Error>((engine, stamps, loaded))
+            let (csv_options, prepared) = text_import.unzip();
+            let (mut engine, stamps) = read_source(&paths, prepared, &cancel)?;
+            let loaded = csv_options
+                .as_ref()
+                .map(|_| engine.open_csv_view(&cancel))
+                .transpose()?;
+            Ok::<_, anyhow::Error>((engine, stamps, csv_options, loaded))
         });
         cx.spawn(async move |weak, cx| {
             let mut outcome = Some(task.await);
@@ -990,7 +1014,8 @@ impl Viewer {
                 this.query_progress = None;
                 this.operation_cancel = None;
                 match outcome.take().unwrap() {
-                    Ok((engine, stamps, loaded)) => {
+                    Ok((engine, stamps, csv_options, loaded)) => {
+                        this.stop_csv_browse();
                         this.csv_import = None;
                         this.saved_views = None;
                         this.reset_aggregation_controls(cx);
@@ -1035,7 +1060,8 @@ impl Viewer {
                         this.update_preferences(PreferenceUpdate::Recent(this.paths.clone()), cx);
                         this.selecting_initial_fields = false;
                         this.notice.clear();
-                        if let Some((request, result)) = loaded {
+                        if let Some((index, request, result)) = loaded {
+                            this.install_csv_first_page(index, &request, &result, cx);
                             this.request = request.clone();
                             this.displayed_request = request;
                             this.reset_table_scroll();
@@ -1049,6 +1075,11 @@ impl Viewer {
                     }
                     Err(error) => {
                         if this.csv_import.is_some() {
+                            this.show_csv_load_error(error, cx);
+                        } else if let [path] = requested_paths.as_slice()
+                            && has_delimited_text_extension(path)
+                        {
+                            this.begin_csv_import(path.clone(), None, cx);
                             this.show_csv_load_error(error, cx);
                         } else {
                             this.fail(error, cx);
@@ -1122,6 +1153,7 @@ impl Viewer {
         text_import: Option<(CsvOptions, CsvPrepared)>,
         cx: &mut Context<Self>,
     ) {
+        let default_text = self.csv_default_view && text_import.is_some();
         let csv_import = self.csv_import.take().filter(|_| text_import.is_some());
         self.cancel(cx);
         self.csv_import = csv_import;
@@ -1142,20 +1174,27 @@ impl Viewer {
         self.query_progress = Some(progress.clone());
         let task = cx.background_executor().spawn(async move {
             let (mut engine, stamps) = read_source(&paths, prepared, &cancel)?;
-            // Revalidate typed rules against the newly read schema before publication.
-            let mut request = request;
-            request.filter = reload_filters.to_filter(&engine.info.columns)?;
-            if cancel.load(Ordering::Relaxed) {
-                anyhow::bail!("Cancelled");
-            }
-            let result = engine.query_cancellable_with_progress(&request, &cancel, &progress)?;
+            let (index, mut request, result) = if default_text {
+                let (index, request, result) = engine.open_csv_view(&cancel)?;
+                (Some(index), request, result)
+            } else {
+                let index = csv_options
+                    .as_ref()
+                    .map(|_| engine.start_csv_index())
+                    .transpose()?;
+                let mut request = request;
+                request.filter = reload_filters.to_filter(&engine.info.columns)?;
+                let result =
+                    engine.query_cancellable_with_progress(&request, &cancel, &progress)?;
+                (index, request, result)
+            };
             if request.load_to_end && result.total_rows_known {
                 request.limit = result.total_rows.saturating_sub(request.offset).max(1);
             }
             if cancel.load(Ordering::Relaxed) {
                 anyhow::bail!("Cancelled");
             }
-            Ok::<_, anyhow::Error>((engine, stamps, request, result))
+            Ok::<_, anyhow::Error>((engine, stamps, csv_options, request, result, index))
         });
         cx.spawn(async move |weak, cx| {
             let mut outcome = Some(task.await);
@@ -1167,9 +1206,17 @@ impl Viewer {
                 this.query_progress = None;
                 this.operation_cancel = None;
                 match outcome.take().unwrap() {
-                    Ok((engine, stamps, request, result)) => {
+                    Ok((engine, stamps, csv_options, request, result, index)) => {
                         // Publish the replacement engine and its snapshot together.
                         // Invalid filters, changed schema and cancellation keep the old view usable.
+                        this.stop_csv_browse();
+                        if let Some(index) = index {
+                            if default_text {
+                                this.install_csv_first_page(index, &request, &result, cx);
+                            } else {
+                                this.csv_index = Some(index);
+                            }
+                        }
                         this.csv_import = None;
                         this.csv_options = csv_options;
                         this.interrupt = Some(engine.interrupt_handle());
@@ -1225,7 +1272,18 @@ impl Viewer {
         &mut self,
         request: QueryRequest,
         displayed_filters: FilterGroup,
+        restore: Option<saved_views::Restore>,
+        cx: &mut Context<Self>,
+    ) {
+        self.execute_table_request(request, displayed_filters, restore, false, cx);
+    }
+
+    fn execute_table_request(
+        &mut self,
+        request: QueryRequest,
+        displayed_filters: FilterGroup,
         mut restore: Option<saved_views::Restore>,
+        resume_browse: bool,
         cx: &mut Context<Self>,
     ) {
         let Some(engine) = self.engine.clone() else {
@@ -1235,6 +1293,8 @@ impl Viewer {
             self.cancel(cx);
         }
         if restore.is_none()
+            && self.csv_browse.is_none()
+            && !resume_browse
             && !self.modified
             && self.result.is_some()
             && request == self.displayed_request
@@ -1279,7 +1339,11 @@ impl Viewer {
             if let Some(snapshot) = &displayed_snapshot {
                 engine.restore_displayed_window(snapshot);
             }
-            let result = engine.query_cancellable_with_progress(&request, &cancel, &progress)?;
+            let result = if resume_browse {
+                engine.open_csv_view(&cancel)?.2
+            } else {
+                engine.query_cancellable_with_progress(&request, &cancel, &progress)?
+            };
             if let Some(restore) = &mut restore
                 && let Err(error) = restore.prepare_rows(&result, &cancel)
             {
@@ -1304,6 +1368,25 @@ impl Viewer {
                     let mut obsolete = None;
                     match outcome.take().unwrap() {
                         Ok((result, restore)) => {
+                            this.csv_browse = None;
+                            this.csv_default_view = resume_browse;
+                            if resume_browse && let Some(index) = &this.csv_index {
+                                this.csv_browse =
+                                    Some(csv_browse::CsvBrowse::new(index.clone(), &result));
+                                displayed_request.limit = result.row_count().max(1);
+                                this.csv_first_page_rows = displayed_request.limit;
+                                this.offset.update(cx, |input, cx| input.set_text("0", cx));
+                                this.count.update(cx, |input, cx| {
+                                    input.set_text(&displayed_request.limit.to_string(), cx)
+                                });
+                                this.fields_explicitly_chosen = false;
+                                this.reset_filter_controls(cx);
+                                this.reset_aggregation_controls(cx);
+                                this.close_fields_sidebar();
+                                this.close_statistics_sidebar(cx);
+                                this.formats.clear();
+                                this.table_state.clear_all();
+                            }
                             if let Some(info) = &mut this.info {
                                 info.row_count = result.total_rows;
                                 info.row_count_known = result.total_rows_known;
@@ -1330,7 +1413,7 @@ impl Viewer {
                                     .iter()
                                     .map(|column| column.name.clone())
                                     .collect();
-                                this.fields_explicitly_chosen = true;
+                                this.fields_explicitly_chosen = !resume_browse;
                             }
                             this.notice.clear();
                             this.selection = None;
@@ -1343,8 +1426,13 @@ impl Viewer {
                                 this.commit_saved_view(restore, cx);
                             }
                             this.refresh_table_order(cx);
+                            if this.csv_index.is_some() {
+                                this.csv_index_tick = None;
+                                this.poll_csv_index(cx);
+                            }
                             this.reconcile_filter_editor(cx);
                             this.reconcile_aggregation_result(cx);
+                            this.finish_browse_command(cx);
                         }
                         Err(error) => {
                             if restoring {
@@ -1476,6 +1564,7 @@ impl Viewer {
         for input in [
             &self.offset,
             &self.count,
+            &self.csv_jump,
             &self.field_search,
             &self.detail,
             &self.profile_chart_limit,
@@ -1495,6 +1584,7 @@ impl Viewer {
         cx.notify();
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
+        self.browse_command = None;
         self.dismiss_csv_import(cx);
         if self.busy.is_some() {
             if let Some(cancel) = self.operation_cancel.take() {
@@ -1520,6 +1610,7 @@ impl Viewer {
         }
     }
     fn close_file(&mut self, cx: &mut Context<Self>) {
+        self.stop_csv_browse();
         self.saved_views = None;
         self.file_menu_open = false;
         self.reset_aggregation_controls(cx);
@@ -1585,7 +1676,7 @@ impl Viewer {
         }
     }
     fn clear_filter(&mut self, cx: &mut Context<Self>) {
-        if self.selecting_initial_fields {
+        if self.selecting_initial_fields || self.csv_browse.is_some() {
             return;
         }
         self.visual_filters = FilterGroup::default();
@@ -1631,6 +1722,7 @@ impl Viewer {
     }
 
     fn dismiss_panel(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.browse_command = None;
         self.sort_controls = None;
         if self.panel == Some(Panel::CsvImport) {
             self.dismiss_csv_import(cx);
@@ -1641,6 +1733,11 @@ impl Viewer {
         } else if self.panel == Some(Panel::Range) && self.awaiting_initial_range() {
             self.close_file(cx);
         } else {
+            if self.panel == Some(Panel::Range) && self.csv_browse.is_some() {
+                self.chosen_fields
+                    .clone_from(&self.displayed_request.selected_columns);
+                self.restore_displayed_range(cx);
+            }
             self.panel = None;
         }
         self.focus.focus(window);
@@ -1650,6 +1747,7 @@ impl Viewer {
         [
             &self.offset,
             &self.count,
+            &self.csv_jump,
             &self.field_search,
             &self.detail,
             &self.profile_chart_limit,
@@ -1674,6 +1772,15 @@ impl Viewer {
     fn show_panel(&mut self, panel: Panel, cx: &mut Context<Self>) {
         if self.panel.is_some() || self.busy.is_some() || self.selecting_initial_fields {
             return;
+        }
+        if self.csv_browse.is_some() {
+            if panel == Panel::Export {
+                self.choose_browse_range(BrowseCommand::Export, cx);
+                return;
+            }
+            if panel == Panel::Range {
+                self.suggest_browse_range(cx);
+            }
         }
         self.selection_menu = None;
         self.settings_menu = None;
@@ -1701,6 +1808,10 @@ impl Viewer {
     fn copy_selection(&mut self, headers: bool, cx: &mut Context<Self>) {
         self.selection_menu = None;
         self.axis_menu = None;
+        if self.csv_browse.is_some() {
+            self.copy_csv_browse_selection(headers, cx);
+            return;
+        }
         let Some(result) = &self.result else {
             return;
         };
@@ -1939,13 +2050,20 @@ impl Viewer {
     fn select_all(&mut self, cx: &mut Context<Self>) {
         if let Some(result) = &self.result {
             if !result.is_empty() && !result.columns.is_empty() {
-                self.selection = Some(((0, 0), (result.row_count() - 1, result.columns.len() - 1)));
+                self.selection = Some((
+                    (0, 0),
+                    (self.table_row_count() - 1, result.columns.len() - 1),
+                ));
                 self.selection_kind = SelectionKind::Cells;
                 cx.notify();
             }
         }
     }
     fn inspect(&mut self, cx: &mut Context<Self>) {
+        if self.csv_browse.is_some() {
+            self.inspect_csv_browse_selection(cx);
+            return;
+        }
         if let Some((_, (row, column))) = self.selection {
             self.open_peek(self.source_row(row), self.source_column(column), false, cx);
         }
@@ -2265,7 +2383,9 @@ impl Viewer {
             metadata.name,
             self.row_number(row)
         );
-        let copy_text = if image_only || nested.is_some() {
+        let copy_text = if self.csv_browse.is_some() {
+            cell.text.clone()
+        } else if image_only || nested.is_some() {
             std::mem::take(&mut cell.text)
         } else {
             self.cell_text(row, column, false)
@@ -3255,6 +3375,10 @@ impl Viewer {
     }
 
     fn ensure_row_layout(&mut self, result: &QueryResult) {
+        if self.csv_browse.is_some() {
+            self.wrapped_columns.clear();
+            return;
+        }
         let key = RowLayoutKey {
             generation: self.generation,
             snapshot: result.snapshot_id.clone(),
@@ -3547,6 +3671,7 @@ impl Viewer {
             Panel::ColumnDisplay { binary: false, .. } => "Floating Point Display",
             Panel::ProfileChartLimit => "Chart Data Limits",
             Panel::Range => "Loading range…",
+            Panel::CsvJump => "Go to Row",
         };
         let mut body = div()
             .id("panel-body")
@@ -3578,6 +3703,7 @@ impl Viewer {
             );
         match panel {
             Panel::CsvImport => body = body.child(self.render_csv_import(cx)),
+            Panel::CsvJump => body = body.child(self.render_csv_jump(cx)),
             Panel::Sort => body = body.child(self.render_sort_controls(cx)),
             Panel::SavedViews => body = body.child(self.render_saved_views_body(cx)),
             Panel::Range => {
@@ -3608,7 +3734,9 @@ impl Viewer {
                         }
                     }))
                     .child(div().text_color(rgb(c.muted)).whitespace_normal().child(t(
-                        if self.awaiting_initial_range() {
+                        if self.browse_command.is_some() {
+                            "Choose which source rows to use for this operation."
+                        } else if self.awaiting_initial_range() {
                             "This dataset is at least 5 GB. Choose a row range or load all records."
                         } else {
                             "Choose the source row window to load before filtering."
@@ -3675,7 +3803,7 @@ impl Viewer {
                             .flex_wrap()
                             .justify_end()
                             .gap_2()
-                            .when(self.awaiting_initial_range(), |actions| {
+                            .when(self.awaiting_initial_range() || self.csv_browse.is_some(), |actions| {
                                 actions.child(self.button(
                                     "initial-range-fields",
                                     "Choose Fields…",
@@ -3919,7 +4047,7 @@ impl Viewer {
             .child(
                 div()
                     .w(px(match panel {
-                        Panel::Range | Panel::ColumnDisplay { .. } => 420.,
+                        Panel::Range | Panel::CsvJump | Panel::ColumnDisplay { .. } => 420.,
                         Panel::ProfileChartLimit => 460.,
                         Panel::Sort => 680.,
                         _ => 780.,
@@ -3930,6 +4058,7 @@ impl Viewer {
                         dialog.h(px(match panel {
                             Panel::Range if self.awaiting_initial_range() => 340.,
                             Panel::Range => 300.,
+                            Panel::CsvJump => 185.,
                             Panel::ProfileChartLimit => 350.,
                             Panel::ColumnDisplay { .. } => 220.,
                             Panel::Export | Panel::AggregateExport | Panel::About => 320.,
@@ -4015,6 +4144,7 @@ impl Render for Viewer {
                 Some(Panel::CsvImport) => self.csv_import_focus(),
                 Some(Panel::ProfileChartLimit) => self.profile_chart_limit.focus_handle(cx),
                 Some(Panel::Range) => self.offset.focus_handle(cx),
+                Some(Panel::CsvJump) => self.csv_jump.focus_handle(cx),
                 Some(Panel::SavedViews) => self.saved_view_focus(cx),
                 None if self.fields_sidebar_open => self.field_search.focus_handle(cx),
                 _ => self.focus.clone(),
@@ -4071,6 +4201,8 @@ impl Render for Viewer {
             .on_action(cx.listener(|this, _: &Execute, _, cx| this.execute(cx)))
             .on_action(cx.listener(|this, _: &LoadRange, _, cx| this.show_panel(Panel::Range, cx)))
             .on_action(cx.listener(|this, _: &LoadAll, _, cx| this.load_all(cx)))
+            .on_action(cx.listener(|this, _: &BrowseText, _, cx| this.resume_csv_browse(cx)))
+            .on_action(cx.listener(|this, _: &GoToCsvRow, _, cx| this.open_csv_jump(cx)))
             .on_action(cx.listener(|this, _: &Copy, window, cx| {
                 if this.input_focused(window, cx) {
                     window.dispatch_action(Box::new(text_input::Copy), cx);
@@ -4191,7 +4323,7 @@ impl Render for Viewer {
                     return;
                 };
                 let result = this.result.as_ref().unwrap();
-                let last_row = result.row_count().saturating_sub(1);
+                let last_row = this.table_row_count().saturating_sub(1);
                 let last_column = result.columns.len().saturating_sub(1);
                 let jump = event.keystroke.modifiers.platform || event.keystroke.modifiers.control;
                 let next = match event.keystroke.key.as_str() {

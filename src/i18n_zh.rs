@@ -40,6 +40,36 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Matches in loaded range" => "载入范围内匹配的行数",
         "Filtered within loaded range" => "已在载入范围内筛选",
         "Loaded rows" => "已载入行数",
+        "1 row available" => "可浏览 1 行",
+        "{count} rows available" => "可浏览 {count} 行",
+        "Scroll to read indexed rows from the text file." => {
+            "滚动即可浏览文本文件中已建立索引的行。"
+        }
+        "Scanned {bytes} of {total}" => "已扫描 {bytes}，共 {total}",
+        "Indexed rows: {rows}" => "已建立索引的行数：{rows}",
+        "Indexing {percent}%" => "正在建立索引 {percent}%",
+        "Indexing stopped" => "索引已停止",
+        "Browse Text File" => "浏览文本文件",
+        "Go to Row…" => "跳转到行…",
+        "Source row number" => "源文件行号",
+        "Go" => "跳转",
+        "Cancel pending jump" => "取消等待跳转",
+        "Waiting for row {row}" => "正在等待第 {row} 行",
+        "Indexing stopped before the requested row." => "索引已停止，尚未到达所请求的行。",
+        "The requested row is beyond the end of the file." => "所请求的行超出了文件末尾。",
+        "A row beyond the indexed range opens when indexing reaches it." => {
+            "如果所请求的行尚未建立索引，读到该行时会自动跳转。"
+        }
+        "Jump to the first source row" => "跳到源文件的第一行",
+        "Jump to the last indexed row" => "跳到已建立索引的最后一行",
+        "Expected a delimited text source" => "此操作需要分隔文本文件",
+        "Choose which source rows to use for this operation." => {
+            "请选择本次操作要使用的源文件行范围。"
+        }
+        "Total source row count is unknown." => "源文件的总行数未知。",
+        "The selection is too large for the clipboard. Select fewer cells or export a range." => {
+            "所选内容超出了剪贴板的大小限制。请减少所选单元格，或导出所需范围。"
+        }
         "Rows processed: {rows}" => "已处理行数：{rows}",
         "Rows processed: {rows} / {total}" => "已处理行数：{rows} / {total}",
         "No rows loaded" => "未载入记录",
@@ -931,6 +961,20 @@ mod tests {
                 "Progress will appear when the data engine reports it.",
                 "正在准备加载，进度稍后显示。",
             ),
+        ] {
+            assert_eq!(static_text(label), Some(chinese));
+        }
+    }
+
+    #[test]
+    fn delimited_index_labels_keep_their_substitution_fields() {
+        for (label, chinese) in [
+            ("1 row available", "可浏览 1 行"),
+            ("{count} rows available", "可浏览 {count} 行"),
+            ("Indexing {percent}%", "正在建立索引 {percent}%"),
+            ("Indexed rows: {rows}", "已建立索引的行数：{rows}"),
+            ("Scanned {bytes} of {total}", "已扫描 {bytes}，共 {total}"),
+            ("Indexing stopped", "索引已停止"),
         ] {
             assert_eq!(static_text(label), Some(chinese));
         }

@@ -2,6 +2,7 @@
 //! The large mode temporarily writes a CSV over 5 GB. The full import retains
 //! three narrow fields for the grouped summary. The whole-file filter retains
 //! the wide text field only for matching records. The fixture is removed on exit.
+//! Use `--browse-gib N` to exercise progressive browsing on a sparse CSV of N GiB.
 #![allow(dead_code)]
 #[path = "../src/aggregation.rs"]
 mod aggregation;
@@ -611,12 +612,101 @@ fn type_mismatch(path: &Path) -> Result<Value> {
     }))
 }
 
+fn check_sparse_browsing(gib: usize) -> Result<()> {
+    use std::io::{Seek, SeekFrom};
+    ensure!(
+        (1..=256).contains(&gib),
+        "Choose a logical size from 1 to 256 GiB."
+    );
+    let dir = tempfile::tempdir()?;
+    let path = dir.path().join("browse.csv");
+    let mut file = File::create(&path)?;
+    file.write_all(b"id,payload\n")?;
+    // Short first rows exercise a normal first screen. Later quoted UTF-8
+    // fields contain sparse NUL bytes and embedded newlines. The reader must
+    // still consume every logical byte and identify every record boundary.
+    const HEAD: usize = 1000;
+    for id in 0..HEAD {
+        writeln!(file, "{id},first")?;
+    }
+    // Size the sparse extent first. Each marker lands at a fixed interval,
+    // avoiding speculative allocation from a long sequence of appends.
+    const GAP_MIB: usize = 4;
+    let head_end = file.stream_position()?;
+    let length = head_end + (gib as u64) * 1024 * 1024 * 1024;
+    file.set_len(length)?;
+    let rows = HEAD + gib * (1024 / GAP_MIB);
+    for id in HEAD..rows {
+        write!(file, "{id},\"line\n")?;
+        let end = head_end + ((id - HEAD + 1) * GAP_MIB * 1024 * 1024) as u64;
+        file.seek(SeekFrom::Start(end - 2))?;
+        file.write_all(b"\"\n")?;
+        if id == HEAD + 31 {
+            ensure!(
+                file.metadata()?.blocks() * 512 < 8 * 1024 * 1024,
+                "This check needs a filesystem that supports sparse files."
+            );
+        }
+    }
+    let meta = file.metadata()?;
+    drop(file);
+    let cancel = AtomicBool::new(false);
+    let (opened, open) = timed("open through first typed page", || -> Result<_> {
+        let probe = CsvProbe::read_for_browse(&path, &cancel)?;
+        let mut engine = Engine::open_prepared_csv(&path, probe.prepared(), &cancel)?;
+        let (index, _, first) = engine.open_csv_view(&cancel)?;
+        ensure!(first.row_count() == HEAD && first.source_row_number(HEAD - 1) == Some(HEAD));
+        Ok((index, engine.resource_client()))
+    });
+    let (index, resources) = opened?;
+    let (checked, scan) = timed(
+        "index to EOF and fetch distant pages",
+        || -> Result<usize> {
+            let mut reads = 0;
+            let mut last = 0;
+            loop {
+                let progress = index.progress();
+                ensure!(progress.error.is_none(), "{:?}", progress.error);
+                if progress.indexed_rows >= last + (1024 / GAP_MIB) || progress.complete {
+                    let row = progress.indexed_rows - 1;
+                    let page = index.read_page(row, 32, 1024 * 1024, &resources, &cancel)?;
+                    ensure!(
+                        page.source_row_number(0) == Some(row + 1)
+                            && page.display_text(0, 0) == row.to_string()
+                    );
+                    last = progress.indexed_rows;
+                    reads += 1;
+                }
+                if progress.complete {
+                    ensure!(progress.indexed_rows == rows && progress.indexed_bytes == meta.len());
+                    break;
+                }
+                thread::sleep(Duration::from_millis(25));
+            }
+            Ok(reads)
+        },
+    );
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&json!({
+            "logical_file_bytes": meta.len(), "allocated_file_bytes": meta.blocks() * 512,
+            "logical_records": rows, "checked_pages": checked?, "first_page": open, "background_index": scan,
+        }))?
+    );
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let mut arguments = std::env::args_os().skip(1);
     let large = match arguments.next() {
         None => false,
         Some(flag) if flag == "--large" => true,
-        _ => anyhow::bail!("Usage: check_csv_import [--large]"),
+        Some(flag) if flag == "--browse-gib" => {
+            let size = arguments.next().context("Missing size in GiB")?;
+            ensure!(arguments.next().is_none(), "Expected one size in GiB");
+            return check_sparse_browsing(size.to_str().context("Invalid size")?.parse()?);
+        }
+        _ => anyhow::bail!("Usage: check_csv_import [--large | --browse-gib N]"),
     };
     ensure!(
         arguments.next().is_none(),

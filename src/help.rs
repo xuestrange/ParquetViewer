@@ -99,8 +99,8 @@ pub(crate) fn render(language: Language, dark: bool) -> Stateful<Div> {
     let guide = local(("Quick guide", "快速上手"), language);
     let guide_detail = local(
         (
-            "Datasets under 5 GB load in full. At 5 GB or more, choose a row range or load all rows.",
-            "小于 5 GB 的数据集自动载入全部记录。达到 5 GB 时，可选择行范围或载入全部记录。",
+            "Open a text file to browse its first rows while the footer tracks indexing. File → Go to Row… jumps to a source row as soon as it is indexed. For Parquet datasets of 5 GB or more, choose a row range or load all rows.",
+            "打开文本文件即可浏览开头的记录，底部状态栏会显示索引进度。「文件 → 跳转到行…」可在目标行建立索引后跳转到该行。对于达到 5 GB 的 Parquet 数据集，可选择载入的行范围或全部记录。",
         ),
         language,
     );
