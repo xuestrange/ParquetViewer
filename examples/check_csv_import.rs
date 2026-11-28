@@ -3,6 +3,7 @@
 //! three narrow fields for the grouped summary. The whole-file filter retains
 //! the wide text field only for matching records. The fixture is removed on exit.
 //! Use `--browse-gib N` to exercise progressive browsing on a sparse CSV of N GiB.
+//! The paired indexing benchmark is driven by `examples/benchmark_csv_index.py`.
 #![allow(dead_code)]
 #[path = "../src/aggregation.rs"]
 mod aggregation;
@@ -18,6 +19,8 @@ mod engine;
 mod export;
 #[path = "../src/filtering.rs"]
 mod filtering;
+#[path = "check_csv_import/index_benchmark.rs"]
+mod index_benchmark;
 #[path = "../src/nested.rs"]
 mod nested;
 #[path = "../src/parquet_compat.rs"]
@@ -701,6 +704,11 @@ fn main() -> Result<()> {
     let large = match arguments.next() {
         None => false,
         Some(flag) if flag == "--large" => true,
+        Some(flag) if flag == "--index-fixture" || flag == "--page-fixture" => {
+            let path = arguments.next().context("Missing benchmark fixture path")?;
+            ensure!(arguments.next().is_none(), "Expected one fixture path");
+            return index_benchmark::run(Path::new(&path), flag == "--page-fixture");
+        }
         Some(flag) if flag == "--browse-gib" => {
             let size = arguments.next().context("Missing size in GiB")?;
             ensure!(arguments.next().is_none(), "Expected one size in GiB");
