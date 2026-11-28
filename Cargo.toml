@@ -20,6 +20,7 @@ serde_json = { version = "1", features = ["arbitrary_precision"] }
 unicode-segmentation = "1"
 csv = "1"
 csv-core = "0.1"
+memchr = "2"
 tempfile = "3"
 rust_xlsxwriter = { version = "0.90", features = ["constant_memory"] }
 url = "2"
