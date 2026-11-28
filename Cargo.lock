@@ -4385,6 +4385,7 @@ dependencies = [
  "chrono",
  "core-foundation 0.10.0",
  "csv",
+ "csv-core",
  "datafusion",
  "futures",
  "gpui",

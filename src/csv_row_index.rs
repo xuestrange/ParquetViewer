@@ -1,6 +1,20 @@
 //! Incremental, on-disk logical-record checkpoints for a browsable text source.
 use super::*;
-use std::{ops::Range, os::unix::fs::FileExt, sync::Condvar, time::Duration};
+use std::{
+    ops::Range,
+    os::unix::fs::FileExt,
+    sync::Condvar,
+    time::{Duration, Instant},
+};
+
+#[cfg(test)]
+#[path = "csv_index_parity.rs"]
+mod parity;
+#[path = "csv_index_scanner.rs"]
+mod scanner;
+
+const CHECKPOINT_BATCH: usize = 16;
+const PUBLISH_INTERVAL: Duration = Duration::from_millis(40);
 
 #[derive(Clone)]
 pub(crate) struct CsvBrowse {
@@ -84,33 +98,53 @@ impl SharedIndex {
         width: usize,
         mut index: Index,
     ) -> Result<()> {
-        let mut reader = parser(
-            RecordReader::new(stamp.open(path)?),
-            options.delimiter,
-            options.has_header,
-            true,
-        );
-        reader.set_byte_headers(ByteRecord::new());
-        reader.seek(index.next.position.clone())?;
-        let mut scratch = RecordScratch::default();
+        let mut file = stamp.open(path)?;
+        let mut position = index.next.position.clone();
+        file.seek(SeekFrom::Start(position.byte()))?;
+        let input = BufReader::with_capacity(BUFFER_BYTES, file);
+        let mut scanner = scanner::Scanner::new(input, options.delimiter, position.byte());
         let mut checkpoints = self.state.lock().unwrap().checkpoints;
+        let mut published_at: Option<Instant> = None;
         while !index.complete {
             let begin = index.next.clone();
             let scan = (|| -> Result<()> {
                 while index.next.row - begin.row < INDEX_ROWS
                     && index.next.position.byte() - begin.position.byte() < INDEX_BYTES
-                    && CsvSource::advance_index(
-                        stamp.len,
-                        &mut index,
-                        &mut reader,
-                        &mut scratch,
-                        width,
-                        &self.cancelled,
-                    )?
-                {}
+                {
+                    let fields = scanner
+                        .next_record(&self.cancelled)
+                        .context("Could not index the text file records")?;
+                    // Only the byte component of a Position is stored in the
+                    // disk index. Keep the last verified record on errors.
+                    position.set_byte(scanner.position());
+                    let Some(fields) = fields else {
+                        index.next.position = position.clone();
+                        index.complete = true;
+                        break;
+                    };
+                    ensure!(
+                        fields == width,
+                        "Text data record {} has {fields} fields, expected {width}",
+                        index.next.row + 1
+                    );
+                    index.advance(&position)?;
+                    if position.byte() >= stamp.len {
+                        index.complete = true;
+                        break;
+                    }
+                }
                 Ok(())
             })();
-            // Discard this wave when the file identity has changed. A malformed
+            // Publish the first wave immediately, then combine small writes
+            // without changing checkpoint spacing or delaying an error or EOF.
+            if scan.is_ok()
+                && !index.complete
+                && index.anchors.len() - 1 < CHECKPOINT_BATCH
+                && published_at.is_some_and(|time| time.elapsed() < PUBLISH_INTERVAL)
+            {
+                continue;
+            }
+            // Discard this batch when the file identity has changed. A malformed
             // record can still leave earlier, verified rows ready to browse.
             stamp.validate_path(path)?;
             checkpoints = self.append(checkpoints, &index.anchors[1..])?;
@@ -127,6 +161,7 @@ impl SharedIndex {
             drop(state);
             self.changed.notify_all();
             scan?;
+            published_at = Some(Instant::now());
         }
         Ok(())
     }
@@ -309,18 +344,13 @@ impl CsvBrowse {
         if start < end {
             let (_, anchor) = self.index.locate(start, published.checkpoints)?;
             let source = &self.source;
-            let file = source.stamp.open(&source.path)?;
-            let mut reader = parser(
-                RecordReader::new(file),
+            let mut file = source.stamp.open(&source.path)?;
+            file.seek(SeekFrom::Start(anchor.byte))?;
+            let mut reader = scanner::Scanner::new(
+                BufReader::with_capacity(BUFFER_BYTES, file),
                 source.options.delimiter,
-                false,
-                true,
+                anchor.byte,
             );
-            reader.set_byte_headers(ByteRecord::new());
-            let mut position = Position::new();
-            position.set_byte(anchor.byte).set_record(anchor.row as u64);
-            reader.seek(position)?;
-            let mut scratch = RecordScratch::default();
             let mut row = anchor.row;
             let mut first_byte = anchor.byte;
             let mut end_byte = anchor.byte;
@@ -328,16 +358,14 @@ impl CsvBrowse {
             // contains many columns. Include per-cell overhead in page sizing.
             let row_overhead = columns.len().saturating_mul(24);
             while row < end {
-                check_cancel(cancel)?;
                 if row == start {
-                    first_byte = reader.position().byte();
+                    first_byte = reader.position();
                 }
-                let record_byte = reader.position().byte();
                 ensure!(
-                    read_record(&mut reader, &mut scratch.record, record_byte)?,
+                    reader.next_record(cancel)?.is_some(),
                     "Incomplete text record checkpoint"
                 );
-                let byte = reader.position().byte();
+                let byte = reader.position();
                 if row > start {
                     let overhead = row_overhead.saturating_mul(row - start + 1);
                     let bytes = byte
@@ -349,7 +377,6 @@ impl CsvBrowse {
                 }
                 end_byte = byte;
                 row += 1;
-                scratch.trim();
                 if row > start
                     && end_byte
                         .saturating_sub(first_byte)
@@ -360,7 +387,6 @@ impl CsvBrowse {
                 }
             }
             drop(reader);
-            drop(scratch);
             let job = Job {
                 byte: first_byte,
                 end_byte,
