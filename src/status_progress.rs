@@ -1,4 +1,4 @@
-//! The active operation in the window's status bar.
+//! Progress for foreground operations and background indexing in the window footer.
 use super::*;
 use crate::engine::QueryProgressSnapshot;
 
@@ -64,6 +64,31 @@ impl OperationProgress {
     }
 }
 
+pub(super) fn meter(c: Colors, fill: gpui::Div) -> gpui::Div {
+    div()
+        .relative()
+        .h_full()
+        .min_w_0()
+        .flex()
+        .items_center()
+        .gap(px(5.))
+        .pb(px(2.))
+        .text_size(px(11.))
+        .font_weight(gpui::FontWeight::MEDIUM)
+        .child(
+            div()
+                .absolute()
+                .left_0()
+                .right_0()
+                .bottom(px(2.))
+                .h(px(2.))
+                .rounded(px(1.))
+                .overflow_hidden()
+                .bg(rgb(c.border))
+                .child(fill.h_full().bg(rgb(c.accent))),
+        )
+}
+
 impl Viewer {
     pub(super) fn render_status_progress(
         &self,
@@ -76,10 +101,9 @@ impl Viewer {
             message,
             self.query_progress.as_ref().map(QueryProgress::snapshot),
         );
-        let fill = div().h_full().bg(rgb(c.accent));
         let fill = match state.fraction {
-            Some(value) => fill.w(gpui::relative(value as f32)),
-            None => fill
+            Some(value) => div().w(gpui::relative(value as f32)),
+            None => div()
                 .absolute()
                 .left(gpui::relative(
                     f32::from(self.status_progress_tick) / 9. * 0.7,
@@ -96,17 +120,8 @@ impl Viewer {
             .bg(rgb(c.accent_soft))
             .text_color(rgb(c.accent))
             .child(
-                div()
+                meter(c, fill)
                     .id("status-progress")
-                    .relative()
-                    .h_full()
-                    .min_w_0()
-                    .flex()
-                    .items_center()
-                    .gap(px(5.))
-                    .pb(px(2.))
-                    .text_size(px(11.))
-                    .font_weight(gpui::FontWeight::MEDIUM)
                     .tooltip(icons::tooltip(state.detail, self.preferences.dark))
                     .child(
                         div()
@@ -121,19 +136,7 @@ impl Viewer {
                                 .flex_shrink_0()
                                 .child(format!("{:.0}%", (value * 100.).floor())),
                         )
-                    })
-                    .child(
-                        div()
-                            .absolute()
-                            .left_0()
-                            .right_0()
-                            .bottom(px(2.))
-                            .h(px(2.))
-                            .rounded(px(1.))
-                            .overflow_hidden()
-                            .bg(rgb(c.border))
-                            .child(fill),
-                    ),
+                    }),
             )
             .child(
                 self.button(

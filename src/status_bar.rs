@@ -54,26 +54,24 @@ fn index_indicator(index: &CsvIndexProgress, c: Colors, dark: bool) -> gpui::Sta
             &crate::process_memory::format_bytes(Some(index.total_bytes)),
         );
     let rows = t("Indexed rows: {rows}").replace("{rows}", &count_label(index.indexed_rows));
-    let (label, tooltip, fg, bg) = if let Some(error) = &index.error {
-        let label = t("Indexing stopped");
-        (
-            label,
-            format!("{}\n{rows}\n{detail}", t(error)),
-            c.danger,
-            c.danger_bg,
-        )
-    } else {
-        // The last byte can be consumed before the reader verifies EOF.
-        let percent = (u128::from(index.indexed_bytes) * 100)
-            .checked_div(u128::from(index.total_bytes))
-            .unwrap_or(0)
-            .min(99);
-        let label = t("Indexing {percent}%").replace("{percent}", &percent.to_string());
-        (label, format!("{rows}\n{detail}"), c.accent, c.accent_soft)
-    };
-    block("csv-row-index", fg, bg)
+    let tooltip = format!("{rows}\n{detail}");
+    if let Some(error) = &index.error {
+        return block("csv-row-index", c.danger, c.danger_bg)
+            .flex_shrink_0()
+            .child(t("Indexing stopped"))
+            .tooltip(icons::tooltip(format!("{}\n{tooltip}", t(error)), dark));
+    }
+
+    // The last byte can be consumed before the reader verifies EOF.
+    let percent = (u128::from(index.indexed_bytes) * 100)
+        .checked_div(u128::from(index.total_bytes))
+        .unwrap_or(0)
+        .min(99);
+    let label = t("Indexing {percent}%").replace("{percent}", &percent.to_string());
+    let fill = div().w(gpui::relative(percent as f32 / 100.));
+    block("csv-row-index", c.accent, c.accent_soft)
         .flex_shrink_0()
-        .child(label)
+        .child(progress::meter(c, fill).child(label))
         .tooltip(icons::tooltip(tooltip, dark))
 }
 
