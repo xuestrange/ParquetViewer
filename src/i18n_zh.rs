@@ -300,15 +300,9 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Aggregating…" => "正在汇总…",
         "Finishing summary…" => "正在整理汇总结果…",
         "Preparing charts…" => "正在生成图表…",
-        "Delimited Text" => "分隔文本",
-        "Choose a Parquet file." => "请选择 Parquet 文件。",
         "Choose a file instead of a folder." => "请选择文件。",
         "The fields or filter changed. Importing will reset the table view." => {
             "字段结构已变化，或原筛选条件已不适用。确认导入后将重置表格视图。"
-        }
-        "Browse Parquet files and inspect nested columns." => "浏览 Parquet 文件，查看嵌套列。",
-        "Adjust the separator, header, and column types before importing CSV, TSV, TXT, and other delimited files." => {
-            "支持 CSV、TSV、TXT 等，可在导入前调整分隔符、表头和 Data type。"
         }
         "Compares both complete files. Choose a unique, non-NULL key. Matching fields with compatible types are compared." => {
             "比较两个完整文件。请选择唯一且非 NULL 的键。比较名称相同且类型兼容的字段。"
@@ -451,9 +445,9 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Import Text File…" => "导入文本文件…",
         "Open Data File" => "打开数据文件",
         "Open Parquet File" => "打开 Parquet 文件",
-        "Open Parquet File…" => "打开 Parquet 文件…",
         "Browse, filter, and explore Parquet data." => "浏览、筛选并分析 Parquet 数据。",
-        "Drop files here to open" => "将文件拖到这里打开",
+        "Drop Parquet or delimited text files here" => "将 Parquet 文件或分隔文本文件拖到这里",
+        "Or double-click to choose a file." => "也可以双击此处选择文件。",
         "Recent files will appear here." => "最近打开的文件会显示在这里。",
         "Close File" => "关闭文件",
         "Close Window" => "关闭窗口",
@@ -644,6 +638,7 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Rows" => "行数",
         "columns" => "列",
         "Recent Files" => "最近打开",
+        "Remove from Recent Files" => "从最近打开列表中移除",
         "Read-only source" => "源文件只读",
         "Execute" => "执行",
         "Clear" => "清除",

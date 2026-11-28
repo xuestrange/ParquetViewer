@@ -5,20 +5,6 @@ impl Viewer {
     pub(super) fn render_welcome(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
         let c = Colors::new(self.preferences.dark);
         let can_open = self.busy.is_none() && self.panel.is_none();
-        let parquet_action = self.welcome_action(
-            "welcome-parquet",
-            "Open Parquet File…",
-            OpenDialog::ParquetFiles,
-            can_open,
-            cx,
-        );
-        let text_action = self.welcome_action(
-            "welcome-text",
-            "Import Text File…",
-            OpenDialog::TextFile,
-            can_open,
-            cx,
-        );
 
         div()
             .size_full()
@@ -34,40 +20,24 @@ impl Viewer {
                     .max_h_full()
                     .overflow_y_scroll()
                     .child(
-                        div().px(px(32.)).py(px(28.)).flex().flex_col().items_center().child(
-                            div()
-                                .w_full()
-                                .max_w(px(1060.))
-                                .flex()
-                                .flex_col()
-                                .gap_4()
-                                .child(
-                                    div()
-                                        .flex()
-                                        .flex_wrap()
-                                        .gap_4()
-                                        .child(self.welcome_source_card(
-                                            Icon::Table,
-                                            c.memory_bg,
-                                            "Parquet",
-                                            "Browse Parquet files and inspect nested columns.",
-                                            parquet_action,
-                                            c,
-                                        ))
-                                        .child(self.welcome_source_card(
-                                            Icon::Code,
-                                            c.accent_soft,
-                                            "Delimited Text",
-                                            "Adjust the separator, header, and column types before importing CSV, TSV, TXT, and other delimited files.",
-                                            text_action,
-                                            c,
-                                        )),
-                                )
-                                .child(self.welcome_drop_target(c, can_open, cx))
-                                .when(!self.preferences.recent.is_empty(), |body| {
-                                    body.child(self.welcome_recent(c, can_open, cx))
-                                }),
-                        ),
+                        div()
+                            .px(px(32.))
+                            .py(px(28.))
+                            .flex()
+                            .flex_col()
+                            .items_center()
+                            .child(
+                                div()
+                                    .w_full()
+                                    .max_w(px(1060.))
+                                    .flex()
+                                    .flex_col()
+                                    .gap_4()
+                                    .child(self.welcome_drop_target(c, can_open, cx))
+                                    .when(!self.preferences.recent.is_empty(), |body| {
+                                        body.child(self.welcome_recent(c, can_open, cx))
+                                    }),
+                            ),
                     ),
             )
             .into_any_element()
@@ -130,92 +100,16 @@ impl Viewer {
                 div()
                     .text_size(px(22.))
                     .line_height(px(28.))
-                    .font_weight(gpui::FontWeight::SEMIBOLD)
-                    .child(t("Drop files here to open")),
-            )
-    }
-
-    fn welcome_action(
-        &self,
-        id: &'static str,
-        label: &'static str,
-        kind: OpenDialog,
-        enabled: bool,
-        cx: &mut Context<Self>,
-    ) -> gpui::Stateful<gpui::Div> {
-        let dark = self.preferences.dark;
-        let c = Colors::new(dark);
-        let icon = match kind {
-            OpenDialog::TextFile => Icon::Import,
-            _ => Icon::Open,
-        };
-        controls::button(id, c, ButtonStyle::Standard, enabled)
-            .when(enabled, |button| {
-                button.on_click(cx.listener(move |this, _, window, cx| {
-                    this.focus.focus(window);
-                    this.open_dialog(kind, cx);
-                }))
-            })
-            .child(icons::glyph(icon, 15., dark))
-            .child(t(label))
-    }
-
-    fn welcome_source_card(
-        &self,
-        icon: Icon,
-        icon_bg: u32,
-        title: &'static str,
-        detail: &'static str,
-        action: gpui::Stateful<gpui::Div>,
-        c: Colors,
-    ) -> gpui::Div {
-        div()
-            .w(px(348.))
-            .max_w_full()
-            .min_w_0()
-            .min_h(px(176.))
-            .flex_grow()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p(px(20.))
-            .rounded(px(12.))
-            .border_1()
-            .border_color(rgb(c.border))
-            .bg(rgb(c.surface))
-            .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .child(
-                        div()
-                            .size(px(40.))
-                            .flex_shrink_0()
-                            .flex()
-                            .items_center()
-                            .justify_center()
-                            .rounded(px(7.))
-                            .bg(rgb(icon_bg))
-                            .child(icons::glyph(icon, 18., self.preferences.dark)),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(22.))
-                            .font_weight(gpui::FontWeight::SEMIBOLD)
-                            .child(t(title)),
-                    ),
-            )
-            .child(
-                div()
-                    .flex_1()
                     .whitespace_normal()
-                    .text_size(px(13.))
-                    .line_height(px(19.))
-                    .text_color(rgb(c.muted))
-                    .child(t(detail)),
+                    .font_weight(gpui::FontWeight::SEMIBOLD)
+                    .child(t("Drop Parquet or delimited text files here")),
             )
-            .child(div().flex().child(action))
+            .child(
+                div()
+                    .text_size(px(13.))
+                    .text_color(rgb(c.muted))
+                    .child(t("Or double-click to choose a file.")),
+            )
     }
 
     fn welcome_recent(&self, c: Colors, can_open: bool, cx: &mut Context<Self>) -> gpui::Div {
@@ -240,6 +134,7 @@ impl Viewer {
                         .enumerate()
                         .map(|(index, path)| {
                             let target = path.clone();
+                            let remove_target = path.clone();
                             let name = path
                                 .file_name()
                                 .unwrap_or(path.as_os_str())
@@ -267,15 +162,11 @@ impl Viewer {
                             } else {
                                 (Icon::Open, c.header)
                             };
-                            div()
+                            let open = div()
                                 .id(("recent", index))
-                                .w(gpui::relative(0.49))
-                                .max_w_full()
-                                .h(px(41.))
-                                .rounded(px(6.))
-                                .bg(rgb(c.surface))
-                                .border_1()
-                                .border_color(rgb(c.border))
+                                .h_full()
+                                .flex_1()
+                                .min_w_0()
                                 .flex()
                                 .items_center()
                                 .gap_3()
@@ -316,8 +207,35 @@ impl Viewer {
                                         .text_size(px(11.))
                                         .text_color(rgb(c.muted))
                                         .child(parent),
-                                )
-                                .child(div().flex_shrink_0().text_color(rgb(c.muted)).child("›"))
+                                );
+                            let remove =
+                                controls::icon_button(("remove-recent", index), c, can_open)
+                                    .mr(px(6.))
+                                    .child(icons::glyph(Icon::Close, 14., dark))
+                                    .tooltip(icons::tooltip(t("Remove from Recent Files"), dark))
+                                    .when(can_open, |button| {
+                                        button.on_click(cx.listener(move |this, _, _, cx| {
+                                            this.update_preferences(
+                                                PreferenceUpdate::RemoveRecent(
+                                                    remove_target.clone(),
+                                                ),
+                                                cx,
+                                            );
+                                        }))
+                                    });
+                            div()
+                                .w(gpui::relative(0.49))
+                                .max_w_full()
+                                .h(px(41.))
+                                .rounded(px(6.))
+                                .overflow_hidden()
+                                .bg(rgb(c.surface))
+                                .border_1()
+                                .border_color(rgb(c.border))
+                                .flex()
+                                .items_center()
+                                .child(open)
+                                .child(remove)
                         }),
                 ),
             )

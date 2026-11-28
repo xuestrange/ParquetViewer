@@ -20,7 +20,7 @@ On Apple Silicon, download the DMG, open it, and drag **Parquet Viewer** into **
 
 ## Quick start
 
-1. **Open a file.** Drop it on the welcome screen or press `⌘O`. CSV, TSV, TAB, TXT, and PSV files open with automatically detected settings. You can browse the indexed rows while the footer shows progress. Hover over the percentage to see how many rows and bytes have been indexed.
+1. **Open a file.** Drop a Parquet or delimited text file on the welcome screen, double-click the drop area to choose a file, or press `⌘O`. Under **Recent Files**, click **×** beside an entry to remove it from the list. CSV, TSV, TAB, TXT, and PSV files open with automatically detected settings. You can browse the indexed rows while the footer shows progress. Hover over the percentage to see how many rows and bytes have been indexed.
 2. **Adjust text import settings when needed.** Choose **File → Import Text File…** for a preview or a file with an unfamiliar extension. Check the delimiter and header, click the type below a column name to change it, then choose **Import Text**. Press `⌘R` to revisit those settings for an open text file.
 
    ![Text File Import showing the bookshop CSV with a comma delimiter, a header row, and an order date inferred as DATE.](docs/screenshots/csv-import.jpg)

@@ -183,6 +183,7 @@ enum PreferenceUpdate {
         category_bars: Option<usize>,
     },
     Recent(Vec<PathBuf>),
+    RemoveRecent(PathBuf),
 }
 
 impl Preferences {
@@ -211,6 +212,7 @@ impl Preferences {
                 }
                 self.recent.truncate(8);
             }
+            PreferenceUpdate::RemoveRecent(path) => self.recent.retain(|item| item != &path),
         }
     }
 }
@@ -455,7 +457,6 @@ enum Panel {
 enum OpenDialog {
     Files,
     SingleFile,
-    ParquetFiles,
     TextFile,
 }
 
@@ -891,11 +892,10 @@ impl Viewer {
         let response = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
-            multiple: matches!(kind, OpenDialog::Files | OpenDialog::ParquetFiles),
+            multiple: matches!(kind, OpenDialog::Files),
             prompt: Some(
                 t(match kind {
                     OpenDialog::Files | OpenDialog::SingleFile => "Open File…",
-                    OpenDialog::ParquetFiles => "Open Parquet File…",
                     OpenDialog::TextFile => "Import Text File…",
                 })
                 .into(),
@@ -914,10 +914,6 @@ impl Viewer {
                         } else {
                             this.fail("Choose a single text file.", cx);
                         }
-                    } else if matches!(kind, OpenDialog::ParquetFiles)
-                        && paths.iter().any(|path| !is_parquet_file(path))
-                    {
-                        this.fail("Choose a Parquet file.", cx);
                     } else {
                         this.open(paths, cx);
                     }
@@ -4956,6 +4952,18 @@ mod multi_window_tests {
             assert_eq!(threshold, 0);
             assert!(needs_parquet_startup_prompt(None, 512, threshold));
         }
+    }
+
+    #[test]
+    fn removing_a_recent_file_preserves_other_paths_and_their_order() {
+        let paths = ["/a/data.csv", "/b/data.csv", "/b/other.parquet"].map(PathBuf::from);
+        let mut shared = Preferences::default();
+        shared.apply_update(PreferenceUpdate::Recent(paths.to_vec()));
+        shared.apply_update(PreferenceUpdate::RemoveRecent(paths[1].clone()));
+        shared.apply_update(PreferenceUpdate::RemoveRecent(paths[1].clone()));
+        let restored: Preferences =
+            serde_json::from_slice(&serde_json::to_vec(&shared).unwrap()).unwrap();
+        assert_eq!(restored.recent, [paths[0].clone(), paths[2].clone()]);
     }
 
     #[test]
