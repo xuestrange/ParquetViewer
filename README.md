@@ -2,7 +2,7 @@
 
 <img src="packaging/assets/app-icon-1024.png" width="128" height="128" alt="ParquetViewer app icon">
 
-ParquetViewer is a native and embarassingly fast macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files, powered by Rust Arrow, DataFusion, and GPUI. 
+ParquetViewer is a vibe-coded native and embarassingly fast macOS app for browsing, filtering, and analyzing Parquet, CSV, and TSV files, powered by Rust Arrow, DataFusion, and GPUI. 
 
 ![A table of bookshop orders with the selected delivery cell open in Quick Peek, showing its city and service as a table and as JSON.](docs/screenshots/parquet-quick-peek.jpg)
 
