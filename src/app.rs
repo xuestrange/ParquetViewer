@@ -1052,11 +1052,6 @@ impl Viewer {
                         this.field_search
                             .update(cx, |input, cx| input.set_text("", cx));
                         this.offset.update(cx, |input, cx| input.set_text("0", cx));
-                        let info = this.info.as_ref().unwrap();
-                        let initial_limit = initial_load_limit(info.file_size, info.row_count);
-                        let limit = initial_limit.unwrap_or(1000);
-                        this.count
-                            .update(cx, |input, cx| input.set_text(&limit.to_string(), cx));
                         this.update_preferences(PreferenceUpdate::Recent(this.paths.clone()), cx);
                         this.selecting_initial_fields = false;
                         this.notice.clear();
@@ -1067,10 +1062,15 @@ impl Viewer {
                             this.reset_table_scroll();
                             this.replace_loaded_result(Some(Arc::new(result)), cx);
                             this.refresh_table_order(cx);
-                        } else if initial_limit.is_some() {
-                            this.execute(cx);
-                        } else {
+                        } else if this.awaiting_initial_range() {
+                            this.count
+                                .update(cx, |input, cx| input.set_text("1000", cx));
                             this.panel = Some(Panel::Range);
+                        } else {
+                            let rows = this.info.as_ref().unwrap().row_count.max(1);
+                            this.count
+                                .update(cx, |input, cx| input.set_text(&rows.to_string(), cx));
+                            this.execute(cx);
                         }
                     }
                     Err(error) => {
@@ -1709,10 +1709,9 @@ impl Viewer {
     }
     fn awaiting_initial_range(&self) -> bool {
         self.result.is_none()
-            && self
-                .info
-                .as_ref()
-                .is_some_and(|info| initial_load_limit(info.file_size, info.row_count).is_none())
+            && self.info.as_ref().is_some_and(|info| {
+                needs_parquet_startup_prompt(self.csv_options.as_ref(), info.file_size)
+            })
     }
 
     fn choose_initial_fields(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -4449,9 +4448,9 @@ impl Render for Viewer {
     }
 }
 
-fn initial_load_limit(file_size: u64, row_count: usize) -> Option<usize> {
+fn needs_parquet_startup_prompt(csv_options: Option<&CsvOptions>, file_size: u64) -> bool {
     const PROMPT_AT_BYTES: u64 = 5_000_000_000;
-    (file_size < PROMPT_AT_BYTES).then_some(row_count.max(1))
+    csv_options.is_none() && file_size >= PROMPT_AT_BYTES
 }
 
 fn read_source(
@@ -4898,20 +4897,25 @@ fn install_menus(cx: &mut App) {
 #[cfg(test)]
 mod multi_window_tests {
     use super::{
-        PreferenceUpdate, Preferences, ThemeMode, initial_load_limit, reusable_main_window,
+        CsvOptions, PreferenceUpdate, Preferences, ThemeMode, needs_parquet_startup_prompt,
+        reusable_main_window,
     };
     use std::path::PathBuf;
 
     #[test]
-    fn initial_open_loads_all_only_below_five_decimal_gigabytes() {
-        assert_eq!(
-            initial_load_limit(4_999_999_999, 1_000_001),
-            Some(1_000_001)
-        );
-        assert_eq!(initial_load_limit(5_000_000_000, 1_000_001), None);
-        assert_eq!(initial_load_limit(u64::MAX, 1_000_001), None);
-        // Engine requests must be positive, even for an empty Parquet dataset.
-        assert_eq!(initial_load_limit(512, 0), Some(1));
+    fn delimited_files_skip_the_startup_range_prompt_at_any_size() {
+        let text = CsvOptions::default();
+        for size in [512, 4_999_999_999, 5_000_000_000, 5_000_000_001, u64::MAX] {
+            assert!(!needs_parquet_startup_prompt(Some(&text), size));
+        }
+    }
+
+    #[test]
+    fn parquet_startup_prompt_starts_at_five_decimal_gigabytes() {
+        assert!(!needs_parquet_startup_prompt(None, 512));
+        assert!(!needs_parquet_startup_prompt(None, 4_999_999_999));
+        assert!(needs_parquet_startup_prompt(None, 5_000_000_000));
+        assert!(needs_parquet_startup_prompt(None, u64::MAX));
     }
 
     #[test]
