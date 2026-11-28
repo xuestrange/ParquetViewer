@@ -8,7 +8,7 @@ ParquetViewer is a vibe-coded native and embarassingly fast macOS app for browsi
 
 ## Features
 - **Fast and Memory Efficient**  Powered by Rust Arrow and DataFusion, it sufficiently utilize the memory and CPU resources, supporting the check of big datasets.
-- **Browse large text files.** Open a CSV or TSV to read the first rows while the footer tracks indexing progress. Scroll through available rows or choose **File → Go to Row…** to jump as soon as a row becomes available.
+- **Browse large text files.** Read the first rows of a CSV or TSV while the app indexes the rest using your Mac’s available physical CPU cores. Follow progress in the footer, scroll through indexed rows, or choose **File → Go to Row…** to jump as soon as a row becomes available.
 - **Navigate large tables.** Load a row range, choose which fields to display, freeze rows or columns, and sort by multiple fields. For large text files, you can cancel a range load and reuse the row index for later jumps. Save a view and restore it when you reopen the same file.
 - **Filter records.** Combine conditions across the loaded range or the whole file. Filters can inspect fields inside a Struct and values inside a List. Source row numbers stay attached to matching records.
 - **Inspect individual cells.** Open a nested Parquet value in Quick Peek to explore its structure or copy its JSON. The sidebar also previews image and audio data.

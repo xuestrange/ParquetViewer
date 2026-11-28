@@ -7,6 +7,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[path = "csv_parallel_index.rs"]
+mod parallel;
 #[cfg(test)]
 #[path = "csv_index_parity.rs"]
 mod parity;
@@ -103,7 +105,6 @@ impl SharedIndex {
         file.seek(SeekFrom::Start(position.byte()))?;
         let input = BufReader::with_capacity(BUFFER_BYTES, file);
         let mut scanner = scanner::Scanner::new(input, options.delimiter, position.byte());
-        let mut checkpoints = self.state.lock().unwrap().checkpoints;
         let mut published_at: Option<Instant> = None;
         while !index.complete {
             let begin = index.next.clone();
@@ -144,25 +145,31 @@ impl SharedIndex {
             {
                 continue;
             }
-            // Discard this batch when the file identity has changed. A malformed
-            // record can still leave earlier, verified rows ready to browse.
-            stamp.validate_path(path)?;
-            checkpoints = self.append(checkpoints, &index.anchors[1..])?;
-            if index.anchors.len() > 1 {
-                let last = index.anchors.pop().unwrap();
-                index.anchors.clear();
-                index.anchors.push(last);
-            }
-            let mut state = self.state.lock().unwrap();
-            state.checkpoints = checkpoints;
-            state.progress.indexed_rows = index.next.row;
-            state.progress.indexed_bytes = index.next.position.byte();
-            state.progress.complete = index.complete;
-            drop(state);
-            self.changed.notify_all();
+            self.publish(path, stamp, &mut index)?;
             scan?;
             published_at = Some(Instant::now());
         }
+        Ok(())
+    }
+
+    fn publish(&self, path: &Path, stamp: &Stamp, index: &mut Index) -> Result<()> {
+        // Discard this batch when the file identity has changed. A malformed
+        // record can still leave earlier, verified rows ready to browse.
+        stamp.validate_path(path)?;
+        let checkpoints = self.state.lock().unwrap().checkpoints;
+        let checkpoints = self.append(checkpoints, &index.anchors[1..])?;
+        if index.anchors.len() > 1 {
+            let last = index.anchors.pop().unwrap();
+            index.anchors.clear();
+            index.anchors.push(last);
+        }
+        let mut state = self.state.lock().unwrap();
+        state.checkpoints = checkpoints;
+        state.progress.indexed_rows = index.next.row;
+        state.progress.indexed_bytes = index.next.position.byte();
+        state.progress.complete = index.complete;
+        drop(state);
+        self.changed.notify_all();
         Ok(())
     }
 
@@ -235,6 +242,23 @@ impl SharedIndex {
 
 impl CsvSource {
     pub(crate) fn start_browse(self: &Arc<Self>) -> Result<CsvBrowse> {
+        self.start_browse_inner(None, parallel::BLOCK_BYTES)
+    }
+
+    #[cfg(test)]
+    fn start_browse_with_pool(
+        self: &Arc<Self>,
+        pool: Arc<rayon::ThreadPool>,
+        block_bytes: u64,
+    ) -> Result<CsvBrowse> {
+        self.start_browse_inner(Some(pool), block_bytes)
+    }
+
+    fn start_browse_inner(
+        self: &Arc<Self>,
+        pool: Option<Arc<rayon::ThreadPool>>,
+        block_bytes: u64,
+    ) -> Result<CsvBrowse> {
         let mut slot = self.browse_index.lock().unwrap();
         if let Some(index) = slot.as_ref() {
             return Ok(CsvBrowse {
@@ -276,7 +300,16 @@ impl CsvSource {
             std::thread::Builder::new()
                 .name("csv-row-index".into())
                 .spawn(move || {
-                    if let Err(error) = worker.scan(&path, &stamp, &options, width, seed) {
+                    if let Err(error) = parallel::run(
+                        &worker,
+                        &path,
+                        &stamp,
+                        &options,
+                        width,
+                        seed,
+                        pool,
+                        block_bytes,
+                    ) {
                         worker.state.lock().unwrap().progress.error = Some(format!("{error:#}"));
                         worker.changed.notify_all();
                     }

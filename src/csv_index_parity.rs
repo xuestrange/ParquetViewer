@@ -1,6 +1,9 @@
 use super::*;
 use std::io::{BufWriter, Write};
 
+#[path = "csv_index_parallel_tests.rs"]
+mod parallel;
+
 /// Compare every returned offset, including the one after trailing blank lines.
 fn compare_records(data: &[u8], delimiter: u8, chunk: usize) -> Result<()> {
     let mut reference = ReaderBuilder::new()

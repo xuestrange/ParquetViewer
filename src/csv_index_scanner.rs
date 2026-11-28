@@ -1,12 +1,81 @@
 //! Read logical CSV record boundaries and field counts without retaining the fields.
-use super::{RECORD_BYTES, RECORD_SIZE_ERROR, check_cancel};
+use super::{BUFFER_BYTES, RECORD_BYTES, RECORD_SIZE_ERROR, check_cancel};
 use anyhow::{Result, ensure};
 use csv_core::{ReadRecordResult, Reader, ReaderBuilder};
 use memchr::{memchr, memchr_iter, memchr3};
 use std::{
-    io::{BufRead, BufReader, Read},
+    fs::File,
+    io::{self, BufRead, BufReader, Read},
+    os::unix::fs::FileExt,
     sync::atomic::AtomicBool,
 };
+
+/// Each scanner reads from the same open file with an independent offset.
+struct PositionedReader<'a> {
+    file: &'a File,
+    offset: u64,
+    cache_start: u64,
+    cached: &'a [u8],
+}
+
+impl Read for PositionedReader<'_> {
+    fn read(&mut self, bytes: &mut [u8]) -> io::Result<usize> {
+        let count = if let Some(relative) = self.offset.checked_sub(self.cache_start)
+            && relative < self.cached.len() as u64
+        {
+            let mut remaining = &self.cached[relative as usize..];
+            remaining.read(bytes)?
+        } else {
+            // A record can cross the end of the cached wave. Keep reading the
+            // file so only its actual end is presented to csv-core as EOF.
+            self.file.read_at(bytes, self.offset)?
+        };
+        self.offset += count as u64;
+        Ok(count)
+    }
+}
+
+#[cfg(test)]
+pub(super) fn at(
+    file: &File,
+    delimiter: u8,
+    seed: u64,
+    offset: u64,
+) -> Result<Scanner<impl Read + '_>> {
+    at_cached(file, delimiter, seed, offset, 0, &[])
+}
+
+/// The cached span starts on a seed-relative input-buffer boundary and ends
+/// on another such boundary or at EOF, preserving the original refill sizes.
+pub(super) fn at_cached<'a>(
+    file: &'a File,
+    delimiter: u8,
+    seed: u64,
+    offset: u64,
+    cache_start: u64,
+    cached: &'a [u8],
+) -> Result<Scanner<impl Read + 'a>> {
+    // Recreate the sequential scanner's buffered bytes at this boundary. The
+    // oversized-record check accounts for bytes already read before the row.
+    let skip = ((offset - seed) % BUFFER_BYTES as u64) as usize;
+    let mut input = BufReader::with_capacity(
+        BUFFER_BYTES,
+        PositionedReader {
+            file,
+            offset: offset - skip as u64,
+            cache_start,
+            cached,
+        },
+    );
+    if skip > 0 {
+        ensure!(
+            input.fill_buf()?.len() >= skip,
+            "Source changed after loading. Reload the file."
+        );
+        input.consume(skip);
+    }
+    Ok(Scanner::new(input, delimiter, offset))
+}
 
 /// A full, unquoted record can be indexed by counting delimiters in-place.
 /// csv-core skips blank lines and records the boundary immediately after CR,
