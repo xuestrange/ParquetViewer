@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
     sync::{
-        Arc, Mutex,
+        Arc, LazyLock, Mutex,
         atomic::{AtomicBool, Ordering},
     },
     time::{Duration, Instant, SystemTime},
@@ -1710,7 +1710,11 @@ impl Viewer {
     fn awaiting_initial_range(&self) -> bool {
         self.result.is_none()
             && self.info.as_ref().is_some_and(|info| {
-                needs_parquet_startup_prompt(self.csv_options.as_ref(), info.file_size)
+                needs_parquet_startup_prompt(
+                    self.csv_options.as_ref(),
+                    info.file_size,
+                    *PARQUET_STARTUP_THRESHOLD,
+                )
             })
     }
 
@@ -3732,15 +3736,15 @@ impl Viewer {
                             cx.stop_propagation();
                         }
                     }))
-                    .child(div().text_color(rgb(c.muted)).whitespace_normal().child(t(
+                    .child(div().text_color(rgb(c.muted)).whitespace_normal().child(
                         if self.browse_command.is_some() {
-                            "Choose which source rows to use for this operation."
+                            t("Choose which source rows to use for this operation.")
                         } else if self.awaiting_initial_range() {
-                            "This dataset is at least 10 GB. Choose a row range or load all records."
+                            parquet_startup_message(*PARQUET_STARTUP_THRESHOLD)
                         } else {
-                            "Choose the source row window to load before filtering."
+                            t("Choose the source row window to load before filtering.")
                         },
-                    )))
+                    ))
                     .when(total_rows.is_none() && self.csv_options.is_some(), |body| {
                         body.child(div().text_color(rgb(c.muted)).child(t(
                             "Total rows will be available after the text row index reaches the end of the file.",
@@ -4448,9 +4452,30 @@ impl Render for Viewer {
     }
 }
 
-fn needs_parquet_startup_prompt(csv_options: Option<&CsvOptions>, file_size: u64) -> bool {
-    const PROMPT_AT_BYTES: u64 = 10_000_000_000;
-    csv_options.is_none() && file_size >= PROMPT_AT_BYTES
+static PARQUET_STARTUP_THRESHOLD: LazyLock<u64> =
+    LazyLock::new(|| parquet_startup_threshold(crate::process_memory::installed_bytes()));
+
+fn parquet_startup_threshold(installed_bytes: Option<u64>) -> u64 {
+    const RESERVED_BYTES: u64 = 4 * (1 << 30);
+    installed_bytes.unwrap_or(0).saturating_sub(RESERVED_BYTES)
+}
+
+fn needs_parquet_startup_prompt(
+    csv_options: Option<&CsvOptions>,
+    file_size: u64,
+    threshold: u64,
+) -> bool {
+    csv_options.is_none() && file_size >= threshold
+}
+
+fn parquet_startup_message(threshold: u64) -> String {
+    if threshold == 0 {
+        return t("Choose a row range or load all records.");
+    }
+    t("This dataset is at least {threshold}. Choose a row range or load all records.").replace(
+        "{threshold}",
+        &crate::process_memory::format_bytes(Some(threshold)),
+    )
 }
 
 fn read_source(
@@ -4898,25 +4923,39 @@ fn install_menus(cx: &mut App) {
 mod multi_window_tests {
     use super::{
         CsvOptions, PreferenceUpdate, Preferences, ThemeMode, needs_parquet_startup_prompt,
-        reusable_main_window,
+        parquet_startup_threshold, reusable_main_window,
     };
     use std::path::PathBuf;
 
     #[test]
     fn delimited_files_skip_the_startup_range_prompt_at_any_size() {
         let text = CsvOptions::default();
-        for size in [512, 9_999_999_999, 10_000_000_000, 10_000_000_001, u64::MAX] {
-            assert!(!needs_parquet_startup_prompt(Some(&text), size));
+        for threshold in [0, 44 << 30] {
+            for size in [512, threshold, u64::MAX] {
+                assert!(!needs_parquet_startup_prompt(Some(&text), size, threshold));
+            }
         }
     }
 
     #[test]
-    fn parquet_startup_prompt_starts_at_ten_decimal_gigabytes() {
-        assert!(!needs_parquet_startup_prompt(None, 512));
-        assert!(!needs_parquet_startup_prompt(None, 5_000_000_000));
-        assert!(!needs_parquet_startup_prompt(None, 9_999_999_999));
-        assert!(needs_parquet_startup_prompt(None, 10_000_000_000));
-        assert!(needs_parquet_startup_prompt(None, u64::MAX));
+    fn parquet_startup_threshold_reserves_four_gibibytes() {
+        let gib: u64 = 1 << 30;
+        for (installed, expected) in [
+            (8 * gib, 4 * gib),
+            (16 * gib, 12_884_901_888),
+            (48 * gib, 47_244_640_256),
+            (8 * gib + gib / 2, 4 * gib + gib / 2),
+        ] {
+            let threshold = parquet_startup_threshold(Some(installed));
+            assert_eq!(threshold, expected);
+            assert!(!needs_parquet_startup_prompt(None, expected - 1, threshold));
+            assert!(needs_parquet_startup_prompt(None, expected, threshold));
+        }
+        for installed in [None, Some(0), Some(2 * gib), Some(4 * gib)] {
+            let threshold = parquet_startup_threshold(installed);
+            assert_eq!(threshold, 0);
+            assert!(needs_parquet_startup_prompt(None, 512, threshold));
+        }
     }
 
     #[test]

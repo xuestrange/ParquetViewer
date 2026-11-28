@@ -1,6 +1,6 @@
-//! Process memory for the status bar.
+//! Installed RAM for the Parquet opening policy and process memory for the status bar.
 //!
-//! On macOS this reports `ri_phys_footprint` from the public libproc API, not
+//! On macOS the status bar reports `ri_phys_footprint` from the public libproc API, not
 //! resident-set size, virtual size, peak usage, or the query-engine memory budget.
 //! Footprint includes memory charged to the process, including compressed
 //! memory; it need not equal a simultaneous Activity Monitor display.
@@ -9,7 +9,19 @@
 //! <sys/resource.h> `RUSAGE_INFO_V0` / `struct rusage_info_v0`.
 //! https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/resource.h
 //! https://github.com/apple-oss-distributions/xnu/blob/main/libsyscall/wrappers/libproc/libproc.c
-//!
+
+/// Installed physical RAM, independent of the current process or free memory.
+pub fn installed_bytes() -> Option<u64> {
+    #[cfg(target_os = "macos")]
+    {
+        macos::installed_bytes()
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        None
+    }
+}
+
 /// Read the current physical footprint on the app's background executor.
 pub fn sample() -> Option<u64> {
     #[cfg(target_os = "macos")]
@@ -54,6 +66,28 @@ pub fn format_bytes(bytes: Option<u64>) -> String {
 #[cfg(target_os = "macos")]
 mod macos {
     use std::ffi::c_void;
+
+    #[allow(unexpected_cfgs)]
+    pub(super) fn installed_bytes() -> Option<u64> {
+        use objc::{
+            msg_send,
+            rc::autoreleasepool,
+            runtime::{Class, Object},
+            sel, sel_impl,
+        };
+
+        autoreleasepool(|| {
+            let class = Class::get("NSProcessInfo")?;
+            // SAFETY: Foundation returns its shared NSProcessInfo and physicalMemory
+            // is an unsigned long long containing the number of installed bytes.
+            unsafe {
+                let info: *mut Object = msg_send![class, processInfo];
+                let info = info.as_ref()?;
+                let bytes: u64 = msg_send![info, physicalMemory];
+                (bytes != 0).then_some(bytes)
+            }
+        })
+    }
 
     const RUSAGE_INFO_V0: i32 = 0;
 
