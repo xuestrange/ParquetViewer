@@ -509,8 +509,8 @@ pub(super) fn static_text(text: &str) -> Option<&'static str> {
         "Choose at least one field." => "请至少选择一个字段。",
         "Search fields, or name1, name2" => "搜索字段，或输入名称1, 名称2",
         "Load Range…" => "载入范围…",
-        "This dataset is at least 5 GB. Choose a row range or load all records." => {
-            "数据集大小达到 5 GB。请选择载入的行范围，或载入全部记录。"
+        "This dataset is at least 10 GB. Choose a row range or load all records." => {
+            "数据集大小达到 10 GB。请选择载入的行范围，或载入全部记录。"
         }
         "Load All Records" => "载入全部记录",
         "Load All »" => "载入全部 »",

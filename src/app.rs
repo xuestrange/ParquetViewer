@@ -3736,7 +3736,7 @@ impl Viewer {
                         if self.browse_command.is_some() {
                             "Choose which source rows to use for this operation."
                         } else if self.awaiting_initial_range() {
-                            "This dataset is at least 5 GB. Choose a row range or load all records."
+                            "This dataset is at least 10 GB. Choose a row range or load all records."
                         } else {
                             "Choose the source row window to load before filtering."
                         },
@@ -4449,7 +4449,7 @@ impl Render for Viewer {
 }
 
 fn needs_parquet_startup_prompt(csv_options: Option<&CsvOptions>, file_size: u64) -> bool {
-    const PROMPT_AT_BYTES: u64 = 5_000_000_000;
+    const PROMPT_AT_BYTES: u64 = 10_000_000_000;
     csv_options.is_none() && file_size >= PROMPT_AT_BYTES
 }
 
@@ -4905,16 +4905,17 @@ mod multi_window_tests {
     #[test]
     fn delimited_files_skip_the_startup_range_prompt_at_any_size() {
         let text = CsvOptions::default();
-        for size in [512, 4_999_999_999, 5_000_000_000, 5_000_000_001, u64::MAX] {
+        for size in [512, 9_999_999_999, 10_000_000_000, 10_000_000_001, u64::MAX] {
             assert!(!needs_parquet_startup_prompt(Some(&text), size));
         }
     }
 
     #[test]
-    fn parquet_startup_prompt_starts_at_five_decimal_gigabytes() {
+    fn parquet_startup_prompt_starts_at_ten_decimal_gigabytes() {
         assert!(!needs_parquet_startup_prompt(None, 512));
-        assert!(!needs_parquet_startup_prompt(None, 4_999_999_999));
-        assert!(needs_parquet_startup_prompt(None, 5_000_000_000));
+        assert!(!needs_parquet_startup_prompt(None, 5_000_000_000));
+        assert!(!needs_parquet_startup_prompt(None, 9_999_999_999));
+        assert!(needs_parquet_startup_prompt(None, 10_000_000_000));
         assert!(needs_parquet_startup_prompt(None, u64::MAX));
     }
 
